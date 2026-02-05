@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_141531_chunk_3",
+  "text": "............................................ 7\nVarious Error Status used in ConnectOne .............................................................................................................. 8\nMessage Types Supported ............................................................................................................................................ 9\n\nConnectOne Power API\nPreface\nThis guide provides specifications of the HTTP/XML based API provided by ConnectOne for the\nautomated sending of SMS via the Internet. This guide is intended for developers planning on\nintegrating their systems with ConnectOne’s SMS service.\nA Few Assumptions\nThis guide assumes that you are familiar with and have experience applying the following\ntechnologies and concepts:\n HTTP/HTTPS communications using the GET and POST methods for parameter passing\n A programming language such as Java, C/C++, Visual Basic or PHP",
+  "metadata": {
+    "source": "ConnectOne_API.PDF",
+    "file_type": ".pdf",
+    "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+  },
+  "chunk_index": 3
+}

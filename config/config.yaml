@@ -1,0 +1,134 @@
+app:
+  language: en
+  name: KundaliSaga
+  theme: light
+  version: 1.0.0
+astrology:
+  ayanamsa: LAHIRI
+  dasha_systems:
+  - VIMSHOTTARI
+  - YOGINI
+  - ASHTOTTARI
+  default_location:
+    latitude: 28.6139
+    longitude: 77.209
+    timezone: Asia/Kolkata
+  divisional_charts:
+  - D1
+  - D9
+  - D10
+  - D12
+  - D30
+  house_system: WHOLE_SIGN
+documents:
+  batch_size: 10
+  chunk_overlap: 200
+  chunk_size: 1000
+  supported_formats:
+  - .pdf
+  - .docx
+  - .doc
+  - .txt
+  - .png
+  - .jpg
+  - .jpeg
+email:
+  enabled: false
+  sender_email: ''
+  sender_password: ''
+  smtp_port: 587
+  smtp_server: smtp.gmail.com
+embeddings:
+  device: cpu
+  model: sentence-transformers/all-MiniLM-L6-v2
+llm:
+  context_window: 8192
+  max_tokens: 2000
+  model: llama3.2
+  provider: ollama
+  temperature: 0.7
+logging:
+  file: ./logs/app.log
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  level: INFO
+payment:
+  currency: INR
+  enabled: false
+  pricing:
+    bulk_packs:
+    - price: 40
+      questions: 5
+    - price: 80
+      questions: 10
+    - price: 120
+      questions: 15
+    career_guidance: 10
+    numerology:
+      basic_analysis: 10
+      full_report: 10
+      name_compatibility: 10
+    financial_astrology:
+      enabled: true
+      per_query: 10
+      personalized_report: 10
+      premium_packs:
+      - price: 40
+        queries: 5
+      - price: 80
+        queries: 10
+      - price: 120
+        queries: 15
+      sector_analysis: 10
+    gemstone_recommendations: 10
+    remedy_consultation: 10
+    single_question: 10
+    # Premium Features - All 10 rupees
+    matchmaking: 10
+    muhurat_finder: 10
+    varshaphal: 10
+    dasha_detail: 10
+    name_recommendation: 10
+    # Profile creation is FREE
+    create_profile: 0
+  upi_id: abhi1009.pande-1@okaxis
+  upi_name: KundaliSaga
+  # Coupon System
+  coupons:
+    enabled: true
+    codes:
+      - code: "NEWYEAR50"
+        discount_percent: 50
+        valid_from: "2025-01-01"
+        valid_until: "2025-01-31"
+        description: "New Year Special - 50% off"
+        max_uses: 1000
+      - code: "WEEKEND75"
+        discount_percent: 75
+        valid_days: ["Saturday", "Sunday"]
+        description: "Weekend Bonanza - 75% off"
+        max_uses: 500
+      - code: "FIRST50"
+        discount_percent: 50
+        first_purchase_only: true
+        description: "First purchase - 50% off"
+        max_uses: null
+      - code: "PREMIUM25"
+        discount_percent: 25
+        description: "Premium features discount"
+        features: ["matchmaking", "varshaphal", "dasha_detail"]
+        max_uses: null
+rag:
+  combine_chart_context: true
+  min_relevance_score: 0.5
+  top_k: 5
+storage:
+  backup_enabled: true
+  backup_interval_days: 7
+  base_path: ./data/user_data
+  charts_dir: charts
+  history_dir: history
+  profiles_dir: profiles
+vector_db:
+  collection_name: astrology_books
+  persist_directory: ./data/vector_db
+  type: chromadb

@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_141531_chunk_12",
+  "text": "Customer\nattribute.\n_unique\n If this attribute with\n_msg_Id CUST_MID\nvalue is provided in the\nrequest, the same value\n(Optional)\nwould be reflected in\n5\n\nConnectOne Power API\nthe MSGID of Response.\nIf the attribute is not\npresent in the request,\nthen the ConnectOne-Id\nwill be reflected in the\nvalue part of MSGID\nattribute in the\nresponse.\nNote:\nTo send a message to multiple destination numbers, enter one ADDRESS tag for each number\nwith incremental SEQ field.\nAPI Advanced Parameters Specification\nThere are some other parameters that can be used to send the Unicode, Binary and concatenated\nmassages.\nDefault\nName Parameter Description Required Value Value Type\nIf this value is not set in the\nURL then the application will\nPriority PRTY 1, 2, 3, 4, 5 Account Optional\ntake the default value set at\nthe account level\nValidity period to expire the\nmessage in the set time\nValidity Period VP 1 to 180 minutes 180 Optional\nwhich can be set from 1 to\n180 minutes.\nEnables ending the 0 = Domestic",
+  "metadata": {
+    "source": "ConnectOne_API.PDF",
+    "file_type": ".pdf",
+    "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+  },
+  "chunk_index": 12
+}

@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_141531_chunk_13",
+  "text": "set at\nthe account level\nValidity period to expire the\nmessage in the set time\nValidity Period VP 1 to 180 minutes 180 Optional\nwhich can be set from 1 to\n180 minutes.\nEnables ending the 0 = Domestic\nInternational INTL 0 Optional\nInternational Messages 1 = International\n0 - 17 Required\nMessage Type TYPE (refer Message- 0 for Unicode\nRefer Message-Type Sheet\nType Sheet) Messages\nmin port\nPort number to send the port number=0000\nPort PORT 0 Optional\nspecific messages max port\nnumber=65535\nWAP URL WAPURL Set the value for wap url Permit upto 160 Required\nWAP TEXT WAPTXT Set the value for WAP Text charecters in total Required\nSending Message with Advance Parameters\nYou could use the XML API to submit messages with advance parameters such as DCS, UDHI,\nValidity Period, Priority etc. Below is a sample of the same.\nSample API Call made by Client’s Application\nhttp:// 172.16.2.99/ConnectOneUrl/SendXml/SendSmsXml?data=\n<MESSAGE VER=\"1.2\">\n<USER USERNAME=\"admin\" PASSWORD=\"admin\" DLR=\"0\"/>",
+  "metadata": {
+    "source": "ConnectOne_API.PDF",
+    "file_type": ".pdf",
+    "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+  },
+  "chunk_index": 13
+}

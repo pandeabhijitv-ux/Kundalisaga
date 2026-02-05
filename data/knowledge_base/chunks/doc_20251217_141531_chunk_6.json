@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_141531_chunk_6",
+  "text": "l\n0 - for truncate\nafter 160\n1 - process\nConcatenation concat without change 1 Optional\n0 = Domestic\nInternational intl 1 = International 0 Optional\n2\n\nConnectOne Power API\n0 - 17 (refer Required for\nMessage-Type Unicode Invalid Format : Required\nMessage Type type Sheet) 0 Messages attribute type\nmin port\nnumber=0000\nmax port\nPort port number=65535 0 Optional\nInvalid Format : Required\nWAP URL wapurl Permit upto 160 Required attribute wapurl\ncharecters in Invalid Format : Required\nWAP TEXT waptxt total Required attribute waptxt\nSample Url\nhttp://172.16.2.99/ConnectOneUrl/sendsms/sendsms?dest=919741034219&msg=Hello&uname=admin\n&pwd=admin&send=new\nResponse\nIf Valid Request then the request’s sno. if exists will be given, else the ConnectOne’s generated Id\nwill be given in response.\nEx: 7214669\nIf invalid request, then the error codes will be given back\nEx: Error-107-Invalid Credential\n3\n\nConnectOne Power API\nXML- API\nRequired Environment",
+  "metadata": {
+    "source": "ConnectOne_API.PDF",
+    "file_type": ".pdf",
+    "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+  },
+  "chunk_index": 6
+}

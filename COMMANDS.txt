@@ -1,0 +1,75 @@
+# AstroKnowledge - Quick Commands Reference
+
+## Starting the Application
+
+### Method 1: Direct Command (Recommended)
+```powershell
+C:/AstroKnowledge/.venv/Scripts/python.exe -m streamlit run app.py
+```
+
+### Method 2: With Virtual Environment Activation
+```powershell
+.\.venv\Scripts\Activate.ps1; streamlit run app.py
+```
+
+### Method 3: Using Streamlit Executable
+```powershell
+C:/AstroKnowledge/.venv/Scripts/streamlit.exe run app.py
+```
+
+## Stopping the Application
+- Press `Ctrl + C` in the terminal
+- Or force stop: `Stop-Process -Name streamlit -Force`
+
+## Checking if App is Running
+```powershell
+Get-Process | Where-Object {$_.ProcessName -like "*streamlit*"}
+```
+
+## Running in Background
+Add `-isBackground true` flag when using terminal commands
+
+## Access URLs
+- Local: http://localhost:8501
+- Network: http://[YOUR_IP]:8501
+
+## Common Issues
+
+### Port Already in Use
+```powershell
+# Find process on port 8501
+Get-NetTCPConnection -LocalPort 8501 | Select-Object OwningProcess
+# Kill the process
+Stop-Process -Id [PID] -Force
+```
+
+### Module Not Found
+```powershell
+# Activate environment first
+.\.venv\Scripts\Activate.ps1
+# Reinstall requirements
+pip install -r requirements.txt
+```
+
+## Generating PDF Documentation
+```powershell
+C:/AstroKnowledge/.venv/Scripts/python.exe generate_docs_pdf.py
+```
+
+## Python Commands
+```powershell
+# Python executable path
+C:/AstroKnowledge/.venv/Scripts/python.exe
+
+# Check Python version
+C:/AstroKnowledge/.venv/Scripts/python.exe --version
+
+# Install package
+C:/AstroKnowledge/.venv/Scripts/python.exe -m pip install [package-name]
+```
+
+---
+**Quick Start**: Just copy and run:
+```
+C:/AstroKnowledge/.venv/Scripts/python.exe -m streamlit run app.py
+```

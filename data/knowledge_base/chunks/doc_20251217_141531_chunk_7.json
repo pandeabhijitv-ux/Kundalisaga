@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_141531_chunk_7",
+  "text": "generated Id\nwill be given in response.\nEx: 7214669\nIf invalid request, then the error codes will be given back\nEx: Error-107-Invalid Credential\n3\n\nConnectOne Power API\nXML- API\nRequired Environment\nThe XML-API allows sending SMS through XML queries allowing acceding to connections\nconfigured on ConnectOne from secured networks through firewalls just allowing the outgoing\ntraffic of standard web browsing. Moreover, by using HTTP protocol and XML format for the data\nrepresentation a quick integration with the client’s application is granted since almost all\nprogramming languages have an excellent support for both of them.\nTo use this XML based API, you need to have a system with Internet connectivity on outbound\nport (HTTP) (To change the port Unicel’s help would be required). This connectivity may be direct\nto the Internet, or via a firewall or proxy server.\nSample XML URL Format\nThe below XML API can be used by Client to send the messages to ‘Connections’ configured on\nConnectOne.",
+  "metadata": {
+    "source": "ConnectOne_API.PDF",
+    "file_type": ".pdf",
+    "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+  },
+  "chunk_index": 7
+}

@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_141531_chunk_18",
+  "text": "\" MSGID=\"12347\" STATUS=\"Success\" />\n<RESPONSE ID=\"2\" SEQ=\"2\" MSGID=\"11111\" STATUS=\"Success\" />\n</MESSAGEACK>\nNote : STATUS=\"Success\"  denotes successful submission to the gateways through configured\nconnections.\nVarious Error Status used in ConnectOne\nFor Normal Requests\nError-101-Destination Not Found\nError-102-User Details Not Found\nError-103-Sender Id Not Found\nError-104 Invalid Message Type\nError-105-Message Not Found\nError-106-Message Too Long\nError-107-Invalid User Credentials\nError-108-Invalid Message Priority\nError-109-User Does Not Have International Termination Permission\nError-110-Invalid Message Validity\nError-111-Invalid Concat Parameter\nError-112-Unable To Validate Packet\nError-113-Unable To Save Packet\nError-114-Ip Address Not registered\nError-115-Invalid destination\nError-116-Invalid message\nError-117- Unable To Process\nFor XML Requests\nError-101-Destination Not Found\nError-102-User Details Not Found\nError-103-Sender Id Not Found\nError-104 Invalid Message Type",
+  "metadata": {
+    "source": "ConnectOne_API.PDF",
+    "file_type": ".pdf",
+    "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+  },
+  "chunk_index": 18
+}

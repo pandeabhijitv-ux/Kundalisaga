@@ -1,0 +1,694 @@
+{
+  "documents": [
+    {
+      "id": "doc_20251217_140931",
+      "metadata": {
+        "source": "00 Jyotish_Bhrigu nandi nadi_RG Rao (1).pdf",
+        "file_type": ".pdf",
+        "file_hash": "335d028f08e3290329f8b335bf5823c10a435020a5643ad9e8c32e4c61c2faec"
+      },
+      "num_chunks": 763,
+      "added_at": "2025-12-17T14:09:32.765367"
+    },
+    {
+      "id": "doc_20251217_141042",
+      "metadata": {
+        "source": "00 Jyotish_Bhrigu nandi nadi_RG Rao (1).pdf",
+        "file_type": ".pdf",
+        "file_hash": "335d028f08e3290329f8b335bf5823c10a435020a5643ad9e8c32e4c61c2faec"
+      },
+      "num_chunks": 763,
+      "added_at": "2025-12-17T14:10:42.689047"
+    },
+    {
+      "id": "doc_20251217_141206",
+      "metadata": {
+        "source": "00 Jyotish_Bhrigu nandi nadi_RG Rao (1).pdf",
+        "file_type": ".pdf",
+        "file_hash": "335d028f08e3290329f8b335bf5823c10a435020a5643ad9e8c32e4c61c2faec"
+      },
+      "num_chunks": 763,
+      "added_at": "2025-12-17T14:12:06.850947"
+    },
+    {
+      "id": "doc_20251217_141433",
+      "metadata": {
+        "source": "00 Jyotish_Bhrigu nandi nadi_RG Rao (1).pdf",
+        "file_type": ".pdf",
+        "file_hash": "335d028f08e3290329f8b335bf5823c10a435020a5643ad9e8c32e4c61c2faec"
+      },
+      "num_chunks": 763,
+      "added_at": "2025-12-17T14:14:34.148578"
+    },
+    {
+      "id": "doc_20251217_141446",
+      "metadata": {
+        "source": "00 sapta-rishi-nadi-by-j-n-bhasin.pdf",
+        "file_type": ".pdf",
+        "file_hash": "51b505db6c1668509e59fbb3edf1c032ab489058716a0caf176c648d0de82d08"
+      },
+      "num_chunks": 362,
+      "added_at": "2025-12-17T14:14:46.842928"
+    },
+    {
+      "id": "doc_20251217_141447",
+      "metadata": {
+        "source": "001-Bhrigu-Sanhita-Astrology-Hindi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "b747ba24bf688194a4c0ee96ae00fe57e7ee85a73b759422e827e96d484a5fcf"
+      },
+      "num_chunks": 1,
+      "added_at": "2025-12-17T14:14:47.266945"
+    },
+    {
+      "id": "doc_20251217_141447",
+      "metadata": {
+        "source": "001-Dhanu-Lagna-Fal.pdf",
+        "file_type": ".pdf",
+        "file_hash": "8acf780d7f6e72636ea0f535378bc48e2d20f67d3c09f4d16ae07d0e6f835551"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:14:47.533589"
+    },
+    {
+      "id": "doc_20251217_141447",
+      "metadata": {
+        "source": "001-Kaalsharp-Yog-Shanti-Astrology.pdf",
+        "file_type": ".pdf",
+        "file_hash": "7a5c1f0e2e9b3c828a6f4b79e6b7170af3efad1ff537847b2fb26f34e72ee2a9"
+      },
+      "num_chunks": 1,
+      "added_at": "2025-12-17T14:14:47.783560"
+    },
+    {
+      "id": "doc_20251217_141448",
+      "metadata": {
+        "source": "001-Kanya-Lagna-Fal.pdf",
+        "file_type": ".pdf",
+        "file_hash": "005529fabbe3dd6aad474fe77704ed39359ce3e6160135f26941734a7b493c63"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:14:48.066759"
+    },
+    {
+      "id": "doc_20251217_141448",
+      "metadata": {
+        "source": "001-Kark-Lagna-Fal.pdf",
+        "file_type": ".pdf",
+        "file_hash": "1331afd8269a9ab8e4325fdb03923cd96cb67f687b143941baafee18c748112f"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:14:48.366840"
+    },
+    {
+      "id": "doc_20251217_141448",
+      "metadata": {
+        "source": "001-Kumbh-Lagna-Fal.pdf",
+        "file_type": ".pdf",
+        "file_hash": "8f5bd7347301c61e477d46c581a325965d2ee803127973228547c500cd544d53"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:14:48.667349"
+    },
+    {
+      "id": "doc_20251217_141448",
+      "metadata": {
+        "source": "001-Makar-Lagna-Fal.pdf",
+        "file_type": ".pdf",
+        "file_hash": "96670cfad3812edc3eec077e2cd54159d76980f5565ace41f690489af88e4223"
+      },
+      "num_chunks": 1,
+      "added_at": "2025-12-17T14:14:48.983584"
+    },
+    {
+      "id": "doc_20251217_141449",
+      "metadata": {
+        "source": "001-Meen-Lagna-Fal.pdf",
+        "file_type": ".pdf",
+        "file_hash": "542626551d51b7057e5e4c2fa9cc7e75f95dad8d974d6a689a4bdbdf29aa7130"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:14:49.233696"
+    },
+    {
+      "id": "doc_20251217_141449",
+      "metadata": {
+        "source": "001-Mesh-Lagna-Fal.pdf",
+        "file_type": ".pdf",
+        "file_hash": "9afe555e673b94ccb38fb7f83cddd4b03b3d0627d109b93c494eb8fb4020c2f4"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:14:49.516860"
+    },
+    {
+      "id": "doc_20251217_141449",
+      "metadata": {
+        "source": "001-Mithun-Lagna-Fal.pdf",
+        "file_type": ".pdf",
+        "file_hash": "07c0322d216602f5ce616f1bb7a46a449f9b8fc59b32bc047e45f13bc27ce2bc"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:14:49.783535"
+    },
+    {
+      "id": "doc_20251217_141450",
+      "metadata": {
+        "source": "001-Singh-Lagna-Fal.pdf",
+        "file_type": ".pdf",
+        "file_hash": "0d7f2962173f3463bfb6be11e7a4153c0511827fca156535855b989b27a64387"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:14:50.050126"
+    },
+    {
+      "id": "doc_20251217_141450",
+      "metadata": {
+        "source": "001-Vrishchik-Lagna-Fal.pdf",
+        "file_type": ".pdf",
+        "file_hash": "440d28a1a9ab19aa8280ef0c58a94a46e4fb0978c7eb0c1b2ae59fb531d00959"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:14:50.950543"
+    },
+    {
+      "id": "doc_20251217_141451",
+      "metadata": {
+        "source": "001-Vrish-Lagna-Fal.pdf",
+        "file_type": ".pdf",
+        "file_hash": "1a9787a8815786d99d47ad74dca279c36fb9e1795eba5ad249c1f397adeb51c0"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:14:51.183556"
+    },
+    {
+      "id": "doc_20251217_141451",
+      "metadata": {
+        "source": "002-Kaalsharp-Yog-Shanti-Astrology.pdf",
+        "file_type": ".pdf",
+        "file_hash": "d80870a0514ed00e6df64fdecb73f5665e039051db44b6f781fbf1eeca9d19a0"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:14:51.406232"
+    },
+    {
+      "id": "doc_20251217_141451",
+      "metadata": {
+        "source": "002-Tula-Lagna-Fal.pdf",
+        "file_type": ".pdf",
+        "file_hash": "039a449eb75f4bc4e73c3145bd4225faac601b8ba90d5843d172c08ca1c10682"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:14:51.650179"
+    },
+    {
+      "id": "doc_20251217_141509",
+      "metadata": {
+        "source": "3- jyotish ratnakar by devki nandan singh (संपूर्ण ज्ञान ).pdf",
+        "file_type": ".pdf",
+        "file_hash": "040ec60c8792a3f4b51e59ab6b5766ac3617bfcacc8c604f04bf59f5c7b25501"
+      },
+      "num_chunks": 399,
+      "added_at": "2025-12-17T14:15:09.652020"
+    },
+    {
+      "id": "doc_20251217_141510",
+      "metadata": {
+        "source": "2015.553830.Bhrigu-Sanhita.pdf",
+        "file_type": ".pdf",
+        "file_hash": "f6404f114f9207b57d73146f6f56540c595229d6e6cfc3d8fbcd93edcec9b5bb"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:15:10.684564"
+    },
+    {
+      "id": "doc_20251217_141510",
+      "metadata": {
+        "source": "260581940-Bhrigu-Prashna-Nadi-R-G-Rao.pdf",
+        "file_type": ".pdf",
+        "file_hash": "d70a5eab8235c234c64469854de03bd32854ed95aea38e6ff17a4f6fb342cc34"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:15:10.967401"
+    },
+    {
+      "id": "doc_20251217_141523",
+      "metadata": {
+        "source": "An Introduction to the Study of Astrology - B Suryanarayana Row 1900.pdf",
+        "file_type": ".pdf",
+        "file_hash": "5e9eccdf0ee4c996bf53c9884dc97b1e9f461d422b5cc015730b236eaaf93c80"
+      },
+      "num_chunks": 194,
+      "added_at": "2025-12-17T14:15:23.828890"
+    },
+    {
+      "id": "doc_20251217_141524",
+      "metadata": {
+        "source": "Bharatiya Jyotish - Nemi Chandra Shastri.pdf",
+        "file_type": ".pdf",
+        "file_hash": "97427295db3fd86377833b6996fa0783f1aa227b78f017c92e709a9d74ffe5cb"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:15:24.583925"
+    },
+    {
+      "id": "doc_20251217_141527",
+      "metadata": {
+        "source": "Bharatiya-jyotish - Hindi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "b7f7253f4b6878945d18e7d9496c28087277a6a0f31a6412bbb5ddc60bc906d4"
+      },
+      "num_chunks": 53,
+      "added_at": "2025-12-17T14:15:27.430153"
+    },
+    {
+      "id": "doc_20251217_141529",
+      "metadata": {
+        "source": "bhrigu-samhita-hindi1.pdf",
+        "file_type": ".pdf",
+        "file_hash": "a9a77dbbea0124d2d766bab013dd2bf6ffbf48d117336ea8c7f4e9fd1b21302e"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:15:29.644166"
+    },
+    {
+      "id": "doc_20251217_141530",
+      "metadata": {
+        "source": "Bhrigu-Samhita-part-1 - Hindi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "15d048d9c8d6935aa8d0c6c5c2a9a5b1df2b9fe0e5e52e700bb1c5823ebb8906"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:15:30.250181"
+    },
+    {
+      "id": "doc_20251217_141530",
+      "metadata": {
+        "source": "Chamatkar-Chintamani - Hindi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "eb7269db2b53bca9264c169247e6be61794550ecad450204508c53e5744cfc84"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:15:30.383349"
+    },
+    {
+      "id": "doc_20251217_141531",
+      "metadata": {
+        "source": "ConnectOne_API.PDF",
+        "file_type": ".pdf",
+        "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+      },
+      "num_chunks": 21,
+      "added_at": "2025-12-17T14:15:31.627302"
+    },
+    {
+      "id": "doc_20251217_141531",
+      "metadata": {
+        "source": "docdownloader.com_mantra-tantra-yantra-sadhna-by-laxmi-narayan-sharma.pdf",
+        "file_type": ".pdf",
+        "file_hash": "b11290fe211c1ccfc0f44cdae2d9ecabd90a442725deb20a39f3a463e9002e5d"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:15:31.865655"
+    },
+    {
+      "id": "doc_20251217_141532",
+      "metadata": {
+        "source": "document.pdf",
+        "file_type": ".pdf",
+        "file_hash": "5c6e5514c09a030374524c01aa2ac3ac16984fb4a4f6fd0e40c0730aaa286a55"
+      },
+      "num_chunks": 6,
+      "added_at": "2025-12-17T14:15:32.133281"
+    },
+    {
+      "id": "doc_20251217_141532",
+      "metadata": {
+        "source": "dokumen.tips_bhoj-samhita-shukra-khand-by-dr-bhojraj-dwivedi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "e68cfee0f6b9dc9cad53c69fed1736943d8b0e5e8e069c147189706123fd7865"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:15:32.208100"
+    },
+    {
+      "id": "doc_20251217_141710",
+      "metadata": {
+        "source": "ENCYCLOPEDIA-OF-VEDIC-ASTROLOGY - English.pdf",
+        "file_type": ".pdf",
+        "file_hash": "ef108f09051687c9017d6d977a95565e27de64804973faa10c496544e09b2cd2"
+      },
+      "num_chunks": 1345,
+      "added_at": "2025-12-17T14:17:12.748330"
+    },
+    {
+      "id": "doc_20251217_141756",
+      "metadata": {
+        "source": "Hindu Predictive Astrology ( PDFDrive ).pdf",
+        "file_type": ".pdf",
+        "file_hash": "480b97138a612533982d548e64949873d02f7802bd4ee9b2b7e21c080149fbe8"
+      },
+      "num_chunks": 582,
+      "added_at": "2025-12-17T14:17:57.052698"
+    },
+    {
+      "id": "doc_20251217_141757",
+      "metadata": {
+        "source": "Horaratnam Of Srimanmishra Balabhadra (Vol. 1) - Hindi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "9f550bcd5ef185dc43d9cb15597c38a6875e612764af6db489c34940ff482d5f"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:17:57.323993"
+    },
+    {
+      "id": "doc_20251217_141757",
+      "metadata": {
+        "source": "Horaratnam Of Srimanmishra Balabhadra (Vol. 2) - Hindi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "37ff7326e3082fa88e273c4d0c193f6a9c8a31489773219df64e77cd67284bf4"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:17:57.532878"
+    },
+    {
+      "id": "doc_20251217_141823",
+      "metadata": {
+        "source": "instapdf.in-brihat-parashara-hora-shastra-book-710.pdf",
+        "file_type": ".pdf",
+        "file_hash": "40f12d7c6b42a7625d36bc1cc38576427f4c64f41a8f1353f4945a603a4397ba"
+      },
+      "num_chunks": 854,
+      "added_at": "2025-12-17T14:18:24.341649"
+    },
+    {
+      "id": "doc_20251217_141834",
+      "metadata": {
+        "source": "Jaimini-sutram -Hindi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "3137f73be46c3a6cfe4009a4bf6b65acc88983874fdbfe10cfde20b5eacf69c2"
+      },
+      "num_chunks": 279,
+      "added_at": "2025-12-17T14:18:34.859451"
+    },
+    {
+      "id": "doc_20251217_141844",
+      "metadata": {
+        "source": "Jaiminisutram.pdf",
+        "file_type": ".pdf",
+        "file_hash": "3137f73be46c3a6cfe4009a4bf6b65acc88983874fdbfe10cfde20b5eacf69c2"
+      },
+      "num_chunks": 279,
+      "added_at": "2025-12-17T14:18:44.593599"
+    },
+    {
+      "id": "doc_20251217_141853",
+      "metadata": {
+        "source": "Jataka-Alankar - Hindi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "b11d368369b4403d20f3042032e1fe6f7df0394e35a6b53112f2de19b5fd2b62"
+      },
+      "num_chunks": 275,
+      "added_at": "2025-12-17T14:18:53.372412"
+    },
+    {
+      "id": "doc_20251217_141854",
+      "metadata": {
+        "source": "Jatakabharana-Part1 - Hindi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "50541eb6454bb78893ef47d7dcd26d935fec27380b3fae7c9a0cbce360ef656c"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:18:54.203819"
+    },
+    {
+      "id": "doc_20251217_141854",
+      "metadata": {
+        "source": "Jatakabharana-Part2 - Hindi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "1599a443fe5453eea82a5d401bad9210d2134d1e47962c8dca78088dd316ad3d"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:18:55.014922"
+    },
+    {
+      "id": "doc_20251217_141908",
+      "metadata": {
+        "source": "jyotish new practical application of nadi techniques.pdf",
+        "file_type": ".pdf",
+        "file_hash": "e47b889d97e67058aa7407bd18baec4f760f33746177d0435a4a5a2747fcc82f"
+      },
+      "num_chunks": 239,
+      "added_at": "2025-12-17T14:19:09.634565"
+    },
+    {
+      "id": "doc_20251217_141947",
+      "metadata": {
+        "source": "jyotish_brihat-samhita_m-r-bhat_part-1-of-2_1981.pdf",
+        "file_type": ".pdf",
+        "file_hash": "f4c82cf5baeeeabcc4dd02e234a68437e6b98d6204707f7d4c3b46dbb79e5a94"
+      },
+      "num_chunks": 1093,
+      "added_at": "2025-12-17T14:19:49.004661"
+    },
+    {
+      "id": "doc_20251217_142023",
+      "metadata": {
+        "source": "jyotish_fundamentals-of-astrology_m-ramakrishna-bhat-1.pdf",
+        "file_type": ".pdf",
+        "file_hash": "e5a3ea7f4ad4e2c7aeff1f8011d280a31b7a004a2d13ffd77e1158a8d2169388"
+      },
+      "num_chunks": 915,
+      "added_at": "2025-12-17T14:20:24.651798"
+    },
+    {
+      "id": "doc_20251217_142033",
+      "metadata": {
+        "source": "jyotish_fundamentals-of-raos-system-of-nadi-1.pdf",
+        "file_type": ".pdf",
+        "file_hash": "1a148b82d81ac6634d4c7c95403652c6155db61c8be3ec98d90617bbe5d061a8"
+      },
+      "num_chunks": 177,
+      "added_at": "2025-12-17T14:20:33.894139"
+    },
+    {
+      "id": "doc_20251217_142044",
+      "metadata": {
+        "source": "Jyotish_Rectification of birth time.pdf",
+        "file_type": ".pdf",
+        "file_hash": "e3f66555b37975481f13236f3e65ee560be190925d18dda6390da58985348956"
+      },
+      "num_chunks": 237,
+      "added_at": "2025-12-17T14:20:45.045960"
+    },
+    {
+      "id": "doc_20251217_142058",
+      "metadata": {
+        "source": "Jyotish_Secrets of birth time rectification.pdf",
+        "file_type": ".pdf",
+        "file_hash": "0358f01dc32bb7f1a41dec03eb7c5e72e9147172f2d9a8b8387f9131e356883b"
+      },
+      "num_chunks": 211,
+      "added_at": "2025-12-17T14:20:58.532775"
+    },
+    {
+      "id": "doc_20251217_142252",
+      "metadata": {
+        "source": "Jyotish-Prashna-Prakash - Hindi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "9dce297ceb85115984cd35e27d49156849327d3ddf0ef035258e4ca37ccd992c"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:22:52.307018"
+    },
+    {
+      "id": "doc_20251217_142310",
+      "metadata": {
+        "source": "kalyana-varma-saravali.pdf",
+        "file_type": ".pdf",
+        "file_hash": "39c2ba173fa4c9ca019b47aee35eb3d9c19f61e61f5cfea2f54eb50e0d244f58"
+      },
+      "num_chunks": 695,
+      "added_at": "2025-12-17T14:23:11.048220"
+    },
+    {
+      "id": "doc_20251217_142311",
+      "metadata": {
+        "source": "karmic-control-planets-rahu-amp-ketu-by-m-c-jain_compress.pdf",
+        "file_type": ".pdf",
+        "file_hash": "11ef1d149b32e47d73df889a008a6443e5774d175303f99ad9025668aee344e8"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:23:11.393082"
+    },
+    {
+      "id": "doc_20251217_142327",
+      "metadata": {
+        "source": "Karmvipak samhita.pdf",
+        "file_type": ".pdf",
+        "file_hash": "126417ab4bc166ba09386c223834ddccbaa19872f67cb37d25719723971d9a3b"
+      },
+      "num_chunks": 626,
+      "added_at": "2025-12-17T14:23:27.850768"
+    },
+    {
+      "id": "doc_20251217_142434",
+      "metadata": {
+        "source": "Laghu-parashari-with commentary - Hindi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "ed5fc2adcc2967aef3d413243d9df95760ed978ce2a7f7c309dedab5d0281ec0"
+      },
+      "num_chunks": 112,
+      "added_at": "2025-12-17T14:24:34.518851"
+    },
+    {
+      "id": "doc_20251217_142455",
+      "metadata": {
+        "source": "Lunar-Astro-Magazine-Volume-4-2023 (1).pdf",
+        "file_type": ".pdf",
+        "file_hash": "ae66134420870f6ab63d99029a7d81ddc18098499e4e92b601ede22464a9162b"
+      },
+      "num_chunks": 410,
+      "added_at": "2025-12-17T14:24:55.801405"
+    },
+    {
+      "id": "doc_20251217_142456",
+      "metadata": {
+        "source": "Mantra Vidya - Kanhaiyya Lal Mishra.pdf",
+        "file_type": ".pdf",
+        "file_hash": "3f5b75ec0192789e4617082fa873083d489ed0fdaf15f10ebcf1008754adb0a9"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:24:56.157762"
+    },
+    {
+      "id": "doc_20251217_142523",
+      "metadata": {
+        "source": "mundane-astrology-book_compress.pdf",
+        "file_type": ".pdf",
+        "file_hash": "b692073ea1891f594624016c0878d7c618cdc387b1e68e1abe54135a3551da0f"
+      },
+      "num_chunks": 592,
+      "added_at": "2025-12-17T14:25:24.007456"
+    },
+    {
+      "id": "doc_20251217_142524",
+      "metadata": {
+        "source": "nakshatra_jayestha.pdf",
+        "file_type": ".pdf",
+        "file_hash": "cc2feb70fa94c37a2c59092ccb1edfcc7e46b23e94cf5801b1d4b3fc0d763e9b"
+      },
+      "num_chunks": 18,
+      "added_at": "2025-12-17T14:25:24.509076"
+    },
+    {
+      "id": "doc_20251217_142524",
+      "metadata": {
+        "source": "nakshatra_purva_ashada.pdf",
+        "file_type": ".pdf",
+        "file_hash": "65e8155dbc4513307e798028e10a1d6924ae98773b65b64febbd76036c5590b1"
+      },
+      "num_chunks": 7,
+      "added_at": "2025-12-17T14:25:24.711655"
+    },
+    {
+      "id": "doc_20251217_142524",
+      "metadata": {
+        "source": "Panchanga-Part -1 - Hindi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "bc8713704831909087988a75b80102b2b7673c4f1e2dba3ef5986100bd184012"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:25:24.810685"
+    },
+    {
+      "id": "doc_20251217_142524",
+      "metadata": {
+        "source": "Panchanga-Part -2 - Hindi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "abe3d5e68377e1af49b63232dc8079b8d4b1de2a933e5b559231205b61e93488"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:25:24.889010"
+    },
+    {
+      "id": "doc_20251217_142533",
+      "metadata": {
+        "source": "parabhraman_padathi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "8a77a2c573757c3e0db7bf3c396276ee7c3e9543231cbc8a4e40ed01aad560e1"
+      },
+      "num_chunks": 156,
+      "added_at": "2025-12-17T14:25:33.452062"
+    },
+    {
+      "id": "doc_20251217_142533",
+      "metadata": {
+        "source": "pdfcoffee.com_fundamentals-of-astrology-by-m-ramakrishna-bhat-pdf-free.pdf",
+        "file_type": ".pdf",
+        "file_hash": "5c6e5514c09a030374524c01aa2ac3ac16984fb4a4f6fd0e40c0730aaa286a55"
+      },
+      "num_chunks": 6,
+      "added_at": "2025-12-17T14:25:33.645640"
+    },
+    {
+      "id": "doc_20251217_142534",
+      "metadata": {
+        "source": "Prediction Secrets Naadi Astrology.pdf",
+        "file_type": ".pdf",
+        "file_hash": "f33a9751f17e5fcde9c5dcc00dad3dc7a7c55dd87ffe4c815dbe6647ca624a7e"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:25:35.012151"
+    },
+    {
+      "id": "doc_20251217_142552",
+      "metadata": {
+        "source": "Rahu-Ketu-in-Brighu-Nadi-Astrology.pdf",
+        "file_type": ".pdf",
+        "file_hash": "2cd8f78ac7d17b22c534fcf701f00643d1c736bb0835d9467f5370e81413346f"
+      },
+      "num_chunks": 373,
+      "added_at": "2025-12-17T14:25:52.522413"
+    },
+    {
+      "id": "doc_20251217_142609",
+      "metadata": {
+        "source": "raman-how-to-judge-horoscope-1.pdf",
+        "file_type": ".pdf",
+        "file_hash": "4ed86aac6723314ad2e1d34f43c8d1267ece51d442abd301ea9789980d250404"
+      },
+      "num_chunks": 558,
+      "added_at": "2025-12-17T14:26:10.445702"
+    },
+    {
+      "id": "doc_20251217_142612",
+      "metadata": {
+        "source": "Ratna-Upratna-Sampurna-Gyan - Hindi.pdf",
+        "file_type": ".pdf",
+        "file_hash": "d956253f3827487a43f687d898da89499b3c48001451e75b2effe6b288c7ec6c"
+      },
+      "num_chunks": 22,
+      "added_at": "2025-12-17T14:26:12.867215"
+    },
+    {
+      "id": "doc_20251217_142621",
+      "metadata": {
+        "source": "yantras-heavenly-geometries-aghori.pdf",
+        "file_type": ".pdf",
+        "file_hash": "1f1a0122f796e6bf92cc75f486c1b22a14ab64180f7aafb24b01e22c0ddbf0f0"
+      },
+      "num_chunks": 141,
+      "added_at": "2025-12-17T14:26:21.653828"
+    },
+    {
+      "id": "doc_20251217_142622",
+      "metadata": {
+        "source": "हनुमान तंत्र साधना hanuman tantra sadhna.pdf",
+        "file_type": ".pdf",
+        "file_hash": "77e99daf92fd96093e4424770f037a485b45badf72df03830b27a71373c816be"
+      },
+      "num_chunks": 0,
+      "added_at": "2025-12-17T14:26:22.042227"
+    }
+  ]
+}

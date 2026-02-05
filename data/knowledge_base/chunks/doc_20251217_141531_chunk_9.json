@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_141531_chunk_9",
+  "text": "</SMS>\nWhile calling the above API, the XML tags should be in continuation.\nParameters:\naction: send\ndata: XML tags for sending messages.\nSample API Call made by Client’s Application\nhttp:// 172.16.2.99/ConnectOneUrl/SendXml/SendSmsXml?data=\n<MESSAGE VER=\"1.2\"> <USER USERNAME=\"admin\" PASSWORD=\"admin\" DLR=\"0\"/>\n<SMS TEXT=\"This is first sms\" ID=\"1\">\n<ADDRESS FROM=\"UNICEL\" TO=\"919945014014\" SEQ=\"1\"/>\n<ADDRESS FROM=\"UNICEL\" TO=\"919945016016\" SEQ=\"2\"/>\n</SMS>\n<SMS TEXT=\"This is second sms\" ID=\"2\">\n<ADDRESS FROM=\"UNICEL\" TO=\"919945014014\" SEQ=\"1\"/>\n<ADDRESS FROM=\"UNICEL\" TO=\"919741034219\" SEQ=\"2\"/>\n</SMS>\n</MESSAGE>\n4\n\nConnectOne Power API\nResponse\n<MESSAGEACK>\n<RESPONSE ID=\"1\" SEQ=\"1\" MSGID=\"1644288\" STATUS=\"SUCCESS\" />\n<RESPONSE ID=\"1\" SEQ=\"2\" MSGID=\"1644289\" STATUS=\"SUCCESS\" />\n<RESPONSE ID=\"2\" SEQ=\"1\" MSGID=\"1644290\" STATUS=\"SUCCESS\" />\n<RESPONSE ID=\"2\" SEQ=\"2\" MSGID=\"1644291\" STATUS=\"Error-101-Destination Not Found\" />\n</MESSAGEACK>\nError Codes & Description:",
+  "metadata": {
+    "source": "ConnectOne_API.PDF",
+    "file_type": ".pdf",
+    "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+  },
+  "chunk_index": 9
+}

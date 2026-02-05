@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_142058_chunk_146",
+  "text": "Thus as per their opinion-\n1) Take the lagna longitude at the time of birth. Keep the\nsign part of this longitude aside and consider only the\nDegrees and minutes. Convert it to minutes. Multiply this\nnumber with 3 and divide by 50. Convert the result back\nto longitude. Add the sign portion of lagna longitude to\nthis result. If the sign portion of the resultant longitude is\nmore than 12, subtract 12 from it. The resultant longitude\ncould be the sun's longitude at BT. Thus the formula is-\n(Degree-Min of lagna longitude x 3)/50 + Lagna Sign\nnumber= longitude of sun or its trines.\n2) Take the lagna longitude at the time of birth. Keep the\nsign part of this longitude aside and consider only the\nDegrees and minutes. Do the same for longitude of Moon.\nAdd the Degree-Min portion of Lagna longitude and\nMoon's longitude at query time. Multiply the resultant\nlongitude with 9. This could be navamsa longitude of Sun\nat birth time. Thus the formula is -",
+  "metadata": {
+    "source": "Jyotish_Secrets of birth time rectification.pdf",
+    "file_type": ".pdf",
+    "file_hash": "0358f01dc32bb7f1a41dec03eb7c5e72e9147172f2d9a8b8387f9131e356883b"
+  },
+  "chunk_index": 146
+}

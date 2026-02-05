@@ -1,0 +1,81 @@
+# .gitignore for React Native Mobile App
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Android
+android/.gradle/
+android/app/build/
+android/build/
+android/.idea/
+android/local.properties
+*.iml
+*.hprof
+*.keystore
+!debug.keystore
+
+# iOS (future)
+ios/Pods/
+ios/build/
+ios/*.xcworkspace
+ios/*.xcodeproj
+
+# Metro
+.metro-health-check*
+
+# Environment
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Testing
+coverage/
+.nyc_output/
+
+# Debugging
+.vscode/launch.json
+.vscode/settings.json
+
+# Misc
+*.log
+*.pid
+*.seed
+*.pid.lock
+.expo/
+.expo-shared/

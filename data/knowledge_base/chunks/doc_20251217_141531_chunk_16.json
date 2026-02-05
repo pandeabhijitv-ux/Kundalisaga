@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_141531_chunk_16",
+  "text": "International\nON/OFF 12 digits and starts with 91 Process to domestic\nOFF/ON 12 Digits and does not start with 91 Process to domestic\nOFF 12 Digits and does not start with 91 Process to International\nThere are some countries where the Sender ID is accepted only Numeric; hence, it needs to be\ntaken care of while sending the International messages.\nResponse\nIn case there is any incomplete or incorrect parameter passed in API, it will display the error\nmessage. The following table gives a list of various status used in ConnectOne.\nExample 1\nSample Request\nhttp:// 172.16.2.99/ConnectOneUrl/SendXml/SendSmsXml?data=\n<MESSAGE VER=\"1.2\">\n<USER USERNAME=\"xxxx\" PASSWORD=\"xxxx\" DLR=\"0\"/>\n<SMS TEXT=\"093909010917093E092E093E002000200939094B00200917092F093E\" ID=\"2\"\nPRTY=\"2\" TYPE =”2”>\n<ADDRESS FROM=\" Sender2\" TO=\"919986102384\" SEQ=\"1\" CUST_MID=\"12347\"/>\n<ADDRESS FROM=\" Sender2\" TO=\"93201476\" SEQ=\"2\"/>\n</SMS>\n</MESSAGE>\nSample Response\n<MESSAGEACK>",
+  "metadata": {
+    "source": "ConnectOne_API.PDF",
+    "file_type": ".pdf",
+    "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+  },
+  "chunk_index": 16
+}

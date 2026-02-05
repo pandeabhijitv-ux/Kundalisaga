@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_141531_chunk_19",
+  "text": "n\nError-116-Invalid message\nError-117- Unable To Process\nFor XML Requests\nError-101-Destination Not Found\nError-102-User Details Not Found\nError-103-Sender Id Not Found\nError-104 Invalid Message Type\nError-105-Message Not Found\nError-106-Message Too Long\nError-107-Invalid User Credentials\nError-108-Invalid Message Priority\nError-109-User Does Not Have International Termination Permission\nError-110-Invalid Message Validity\nError-111-Invalid Concat Parameter\nError-112-Unable To Validate Packet\nError-113-Unable To Save Packet\nError-114-Ip Address Not registered\nError-115-Invalid destination\n8\n\nConnectOne Power API\nError-116-Invalid message\nError-117-Unable To Process\nError-118-Invalid Sequence Number\nError-119-Invalid Data\nError-120-Invalid XML Format\nError-121-Invalid Sms Tag\nError-122-Invalid address Tag\nError-123-WAP Message NotFound\nError-124-WAPURL Not Found\nError-125-Sequence Number Required\nError-126-Invalid Port\nError-127-Unable To Process\nMessage Types Supported\nNormalText = 0,",
+  "metadata": {
+    "source": "ConnectOne_API.PDF",
+    "file_type": ".pdf",
+    "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+  },
+  "chunk_index": 19
+}

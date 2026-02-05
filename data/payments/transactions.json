@@ -1,0 +1,19 @@
+[
+  {
+    "transaction_id": "FMPIB4111189109",
+    "user_email": "shardul.pande2601@gmail.com",
+    "credits_added": 1,
+    "payment_method": "UPI",
+    "timestamp": "2025-12-21T20:20:55.115843",
+    "notes": "Self-reported",
+    "status": "completed"
+  },
+  {
+    "transaction_id": "USE_20251221202143",
+    "user_email": "shardul.pande2601@gmail.com",
+    "credits_used": 1,
+    "timestamp": "2025-12-21T20:21:43.402906",
+    "reason": "Remedy consultation for Shardul Pande ",
+    "status": "completed"
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_141531_chunk_5",
+  "text": "ncoming requests from the Internet on port,\ndefault (HTTP) (To change the port Unicel’s help would be required).\nDefault\nName Parameter Validation Value Type Response when invalid\nInvalid Username or\nUsername uname Required Password\nInvalid Username or\nPassword Pass Required Password\nInvalid Format : Required\nSenderID send Required attribute send\nIf Missing :- Invalid Format\n: Destination missing\nLogic will as per On Validation :- Invalid\nDestination dest \"Routing Logic\" Required Destination\nMax 1224 Invalid Format : Required\nMessage msg Characters Required attribute msg\nCustomer can provide.\nIf not provided ConnectOne\nMessage will generate it in\nReference ID sno Long Integer Optional response.\nPriority prty 1, 2, 3, 4, 5 Account Optional\nValidity Period vp 1 to 180 minutes 180 Optional\n0 - for truncate\nafter 160\n1 - process\nConcatenation concat without change 1 Optional\n0 = Domestic\nInternational intl 1 = International 0 Optional\n2\n\nConnectOne Power API\n0 - 17 (refer Required for",
+  "metadata": {
+    "source": "ConnectOne_API.PDF",
+    "file_type": ".pdf",
+    "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+  },
+  "chunk_index": 5
+}
