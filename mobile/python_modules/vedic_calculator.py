@@ -1,18 +1,36 @@
 """
-Vedic Calculator Module for Mobile
-Wrapper around the existing VedicAstrologyEngine for mobile app integration
+Vedic Calculator Module for Mobile (Using Pre-computed Database)
+SQLite-based ephemeris for Android compatibility
 """
 
 import json
 import sys
 import os
-
-# Add parent directory to path to import from src
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from src.astrology_engine import VedicAstrologyEngine, BirthDetails
 from datetime import datetime
 import pytz
+
+# Add parent directory to path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+try:
+    # Import database-based calculator (for mobile)
+    from src.astrology_engine.vedic_calculator_lite import (
+        VedicAstrologyEngine, BirthDetails
+    )
+    CALCULATOR_TYPE = "Ephemeris Database (Swiss Ephemeris Quality)"
+except ImportError as e:
+    print(f"Failed to import lite calculator: {e}")
+    try:
+        # Fallback to Swiss Ephemeris (for desktop)
+        from src.astrology_engine.vedic_calculator import (
+            VedicAstrologyEngine, BirthDetails
+        )
+        CALCULATOR_TYPE = "Swiss Ephemeris"
+    except ImportError:
+        # Last resort - basic calculator
+        CALCULATOR_TYPE = "Basic"
+        VedicAstrologyEngine = None
+        BirthDetails = None
 
 def calculate_chart(name, date_str, time_str, location, latitude, longitude, timezone_str):
     """

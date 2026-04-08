@@ -636,6 +636,9 @@ def main():
             <div style='font-weight: 600; color: #FF6B35; font-size: 1.1rem;'>Krittika Apps</div>
             <div style='font-size: 0.75rem; color: #666; margin-top: 5px;'>Sharp. Supreme. Protective.</div>
             <div style='font-size: 0.7rem; color: #999; margin-top: 10px;'>© 2026 Krittika Apps</div>
+            <div style='font-size: 0.7rem; color: #666; margin-top: 10px;'>
+                <a href='https://github.com/pandeabhijitv-ux/kundalisaga/blob/main/PRIVACY_POLICY.md' target='_blank' style='color: #FF6B35; text-decoration: none;'>Privacy Policy</a>
+            </div>
         </div>
     """, unsafe_allow_html=True)
     
@@ -6374,6 +6377,14 @@ def show_settings():
     
     All your data stays on your device. No cloud APIs used for LLM processing.
     """)
+    
+    st.markdown("---")
+    st.markdown("### 📄 Privacy & Legal")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("🔒 [Privacy Policy](https://github.com/pandeabhijitv-ux/kundalisaga/blob/main/PRIVACY_POLICY.md)")
+    with col2:
+        st.markdown("💻 [Source Code](https://github.com/pandeabhijitv-ux/kundalisaga)")
 
 
 # ===== AUTHENTICATION FUNCTIONS =====

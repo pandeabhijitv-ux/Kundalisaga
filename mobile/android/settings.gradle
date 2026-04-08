@@ -1,0 +1,4 @@
+rootProject.name = 'KundaliSaga'
+
+// Include app module
+include ':app'

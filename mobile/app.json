@@ -1,4 +1,18 @@
 {
-  "name": "KundaliSaga",
-  "displayName": "KundaliSaga - Vedic Astrology AI"
+  "expo": {
+    "name": "KundaliSaga",
+    "slug": "kundalii-saga-mobile",
+    "owner": "pande.abhijit.v",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "android": {
+      "package": "com.kundalii.saga",
+      "versionCode": 1
+    },
+    "extra": {
+      "eas": {
+        "projectId": "61002ebc-fa68-4e6a-a137-2bfdfa58c561"
+      }
+    }
+  }
 }

@@ -15,7 +15,6 @@ buildscript {
     }
     dependencies {
         classpath("com.android.tools.build:gradle:8.1.1")
-        classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
         // Chaquopy plugin for Python integration
         classpath("com.chaquo.python:gradle:14.0.2")
@@ -27,5 +26,6 @@ allprojects {
         google()
         mavenCentral()
         maven { url 'https://chaquo.com/maven' }
+        maven { url 'https://chaquo.com/maven-central' }
     }
 }

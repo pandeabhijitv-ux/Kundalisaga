@@ -1,91 +1,254 @@
-# AstroKnowledge - Vedic Astrology AI Assistant
+# KundaliSaga - Vedic Astrology AI Assistant
 
-A privacy-focused, local-first Vedic astrology application that combines ancient wisdom from thousands of books with AI-powered insights.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Privacy Policy](https://img.shields.io/badge/Privacy-Local%20First-green)](PRIVACY_POLICY.md)
+[![Google Play](https://img.shields.io/badge/Google%20Play-Coming%20Soon-blue)]()
 
-## Features
+A privacy-focused, local-first Vedic astrology application that combines ancient wisdom with AI-powered insights. Available as **web app** (Streamlit) and **mobile app** (Android).
 
-- 📚 **Document Ingestion**: Process thousands of astrology books (PDF, DOCX, TXT, images)
-- 🔮 **Vedic Astrology Engine**: Birth charts, Dashas, Transits, Compatibility
-- 🤖 **AI-Powered Q&A**: RAG-based system with local LLM (no cloud APIs)
-- 🏥 **Remedies**: Context-aware astrological remedies
-- 👨‍👩‍👧‍👦 **Family Profiles**: Manage multiple family member profiles
-- 🔒 **100% Private**: All data stays on your device
+## 🌟 Why KundaliSaga?
 
-## Technology Stack
+- **🔒 100% Private**: All data stays on YOUR device - no cloud APIs, no tracking
+- **📱 Cross-Platform**: Web app + Native Android mobile app
+- **🤖 AI-Powered**: Local LLM (Ollama) for intelligent interpretations
+- **📚 Knowledge-Rich**: RAG system with astrology knowledge base
+- **🔮 Complete Vedic System**: Swiss Ephemeris for accurate calculations
+- **💰 Affordable**: One-time payment, no subscriptions
 
-- **Backend**: Python 3.10+
-- **Document Processing**: unstructured, pdfplumber, python-docx, pytesseract
-- **Vector Database**: ChromaDB (local)
-- **Embeddings**: sentence-transformers (local models)
-- **LLM**: Ollama (Llama 3.2, Mistral, etc.)
-- **Astrology**: pyswisseph + custom Vedic engine
-- **Storage**: File-based (JSON/JSONL)
-- **UI**: Streamlit (prototype), React Native (mobile - future)
+## ✨ Features
 
-## Quick Start
+### Core Astrology
+- 📊 **Birth Chart Analysis**: Complete Vedic horoscope (D-1, D-9, and more)
+- 🌙 **Dasha Systems**: Vimshottari, Yogini, Ashtottari with predictions
+- 🌍 **Transit Analysis**: Current planetary positions and effects
+- 💑 **Compatibility**: Relationship compatibility analysis
+- 🔢 **Numerology**: Life path, destiny, and lucky numbers
+
+### AI & Knowledge
+- 💬 **Ask Questions**: AI-powered Q&A about your chart
+- 🏥 **Remedies**: Personalized mantras, gemstones, and rituals
+- 📖 **Knowledge Base**: Searchable astrology knowledge database
+- 🧠 **Context-Aware**: Answers based on YOUR birth chart
+
+### User Management
+- 👨‍👩‍👧‍👦 **Family Profiles**: Manage multiple family member charts
+- 📜 **History**: Track all your queries and insights
+- 💳 **Credits System**: Simple credit-based payment (UPI)
+- 🌐 **Multi-Language**: English, Hindi, Marathi support
+
+## 🛠 Technology Stack
+
+### Backend
+- **Python 3.10+**: Core application logic
+- **pyswisseph**: Swiss Ephemeris for Vedic calculations
+- **Ollama**: Local LLM (Llama 3.2, Mistral)
+- **ChromaDB**: Local vector database
+- **sentence-transformers**: Local embeddings
+
+### Frontend
+- **Streamlit**: Web application UI
+- **React Native**: Mobile app (Android)
+- **Chaquopy**: Python-Java bridge for mobile
+
+### Storage
+- **File-based**: JSON/JSONL (no external database needed)
+- **Local Vector DB**: ChromaDB for semantic search
+- **Portable**: Easy backup - just copy the data folder!
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-1. **Python 3.10+**
-2. **Ollama** - Install from [ollama.ai](https://ollama.ai)
+1. **Python 3.10+**: [Download Python](https://www.python.org/downloads/)
+2. **Ollama**: [Install Ollama](https://ollama.ai)
    ```bash
    # After installing Ollama, pull a model:
    ollama pull llama3.2
    ```
 
-### Installation
+### Installation (Web App)
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
-cd AstroKnowledge
+git clone https://github.com/pandeabhijitv-ux/kundalisaga.git
+cd kundalisaga
 
 # Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python -m venv .venv
+
+# Activate virtual environment
+# Windows PowerShell:
+.\.venv\Scripts\Activate.ps1
+# Linux/Mac:
+source .venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
-
-# Download Vedic astrology ephemeris data (automatic on first run)
 ```
 
-### Running the Application
+### Running the Web App
 
 ```bash
-# Start the Streamlit app
-streamlit run app.py
-```
+# Make sure Ollama is running (in another terminal):
+ollama serve
 
-Visit `http://localhost:8501` in your browser.
-
-## Project Structure
+# A📁 Project Structure
 
 ```
-AstroKnowledge/
-├── app.py                          # Main Streamlit application
+KundaliSaga/
+├── app.py                          # Main Streamlit application (7800+ lines)
 ├── config/
 │   └── config.yaml                 # Application configuration
 ├── src/
-│   ├── document_processor/         # PDF/DOCX/Image processing
-│   ├── astrology_engine/           # Vedic calculations
-│   ├── rag_system/                 # RAG & LLM integration
+│   ├── astrology_engine/           # Vedic calculations (Swiss Ephemeris wrapper)
+│   ├── rag_system/                 # RAG & LLM integration (ChromaDB)
+│   ├── simple_rag/                 # Fallback text search
 │   ├── user_manager/               # Profile & history management
-│   └── remedy_engine/              # Remedy suggestions
+│   ├── auth/                       # Email OTP, password authentication
+│   ├── payment/                    # Credit system, UPI payments
+│   ├── remedy_engine/              # Remedy suggestions
+│   ├── numerology/                 # Numerology calculations
+│   ├── career_guidance/            # Career analysis
+│   └── financial_astrology/        # Financial predictions
 ├── data/
-│   ├── books/                      # Your astrology books (raw)
-│   ├── vector_db/                  # ChromaDB storage
-│   └── user_data/                  # User profiles & history
-└── tests/                          # Unit tests
-```
+│   ├── users/                      # User accounts (JSON)
+│  📱 Usage
 
-## Usage
+### 1. Create Account
+- Email + Password OR Email OTP authentication
+- Secure bcrypt password hashing
+- Session management
 
-### 1. Ingest Astrology Books
+### 2. Create Profile
+1. Go to "👤 Manage Profiles"
+2. Add your birth details (date, time, place)
+3. Add family members if needed
 
-1. Place your books in `data/books/` folder
-2. Go to "📚 Document Management" in the app
-3. Click "Process All Books"
+### 3. Generate Birth Chart
+1. Go to "📊 Birth Chart"
+2. Select profile
+3. View planetary positions, houses, aspects
+
+### 4. Check Dasha Periods
+1. Go to "🌙 Dasha Analysis"
+2. See current and upcoming planetary periods
+3. Get predictions for each period
+
+### 5. Ask AI Questions
+1. Go to "💬 Ask Me Anything"
+2. Type your question (e.g., "When will I get married?")
+3. Get AI-powered answers based on your chart
+
+### 6. Get Remedies
+1. Go to "🏥 Remedies"
+2. Select weak/afflicted planet
+3. Get mantras, gemstones, rituals, and donation suggestions
+⚙️ Configuration
+
+Edit `config/config.yaml` to customize:
+
+### Astrology Settings
+- **Ayanamsa**: Lahiri (default), Raman, KP, etc.
+- **House System**: Whole Sign (default), Placidus, Equal
+- **Dasha Systems**: Vimshottari, Yogini, Ashtottari
+
+### LLM Settings
+- **Model**: llama3.2, mistral, etc.
+- **Provider**: ollama (local)
+- **Temperature**: 0.7 (default)
+
+### Payment Settings
+- **Pricing**: 10 INR per feature
+- **UPI ID**: Configure your payment details
+- **Coupon Codes**: Add promotional codes
+
+### Language
+- English (default)
+- Hindi (हिंदी)
+- Marathi (मराठी)
+
+## 🔒 Privacy & Security
+
+**KundaliSaga is built with privacy at its core.**
+
+- ✅ **No Cloud APIs**: All processing happens locally
+- ✅ **No Tracking**: Zero analytics or telemetry
+- ✅ **No Data Sharing**: Your data never leaves your device
+- ✅ **Open Source**: Verify our privacy claims in code
+- ✅ **Encrypted Passwords**: bcrypt hashing with salt
+- ✅ **Session Security**: Secure token-based sessions
+
+📄 **Full Privacy Policy**: [PRIVACY_POLICY.md](PRIVACY_POLICY.md)
+
+## 📊 Data Storage
+
+All🎯 Roadmap
+
+### Completed ✅
+- [x] Web app (Streamlit)
+- [x] Android mobile app (React Native + Chaquopy)
+- [x] Birth chart calculations (Swiss Ephemeris)
+- [x] Dasha analysis (Vimshottari, Yogini, Ashtottari)
+- [x] AI-powered Q&A (RAG + Ollama)
+- [x] Remedies system
+- [x] Numerology integration
+- [x] User authentication (Email OTP + Password)
+- [x] Credit-based payment system (UPI)
+- [x] Multi-language support (EN/HI/MR)
+
+### In Progress 🚧
+- [ ] Google Play Store submission
+- [ ] iOS app (React Native)
+
+### Planned 📅
+- [ ] More divisional charts (D-2, D-3, D-4, etc.)
+- [ ] Muhurta (auspicious timing) calculations
+- [ ] Prashna (Horary) astrology
+- [ ] Advanced transit predictions
+- [ ] Varshaphal (annual predictions)
+- [ ] Match-making with more algorithms
+- [ ] AI-powered chart interpretation improvements
+- [ ] Offline LLM models bundled in mobile app
+
+## 📜 License
+
+MIT License - See [LICENSE](LICENSE) file
+
+Copyright © 2026 Krittika Apps
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📞 Contact & Support
+
+- **GitHub**: [pandeabhijitv-ux/kundalisaga](https://github.com/pandeabhijitv-ux/kundalisaga)
+- **Issues**: [Report bugs or request features](https://github.com/pandeabhijitv-ux/kundalisaga/issues)
+- **Email**: support@kundalisaga.com
+
+## 🙏 Acknowledgments
+
+- **Swiss Ephemeris**: High-precision astronomical calculations
+- **Ollama**: Making local LLM accessible
+- **ChromaDB**: Excellent local vector database
+- **Streamlit**: Rapid prototyping framework
+- **React Native**: Cross-platform mobile development
+- **Chaquopy**: Python-Android integration
+
+---
+
+**Made with ❤️ by Krittika Apps**  
+*Sharp. Supreme. Protective.*
+
+[![Star on GitHub](https://img.shields.io/github/stars/pandeabhijitv-ux/kundalisaga?style=social)](https://github.com/pandeabhijitv-ux/kundalisaga)
+
+**Backup**: Simply copy the entire `data/` folder to backup all user data."
 
 ### 2. Create User Profile
 

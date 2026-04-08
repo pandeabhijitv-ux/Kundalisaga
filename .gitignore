@@ -9,17 +9,20 @@ env/
 ENV/
 .venv
 
-# Data
+# Data (IMPORTANT: Keep user data private)
 data/books/*
 !data/books/.gitkeep
 data/vector_db/*
 !data/vector_db/.gitkeep
 data/user_data/*
 !data/user_data/.gitkeep
+data/users/
+data/payments/
 
 # Logs
 logs/
 *.log
+build_log.txt
 
 # Environment
 .env
@@ -42,3 +45,33 @@ htmlcov/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Ephemeris files (large binaries)
+*.bsp
+
+# Mobile - React Native / Android
+mobile/node_modules/
+mobile/android/build/
+mobile/android/app/build/
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/android/keystore.properties
+mobile/android/app/release/
+mobile/android/app/debug/
+mobile/.expo/
+mobile/dist/
+
+# Android signing keys (CRITICAL: Never commit!)
+*.jks
+*.keystore
+
+# Gradle
+.gradle/
+
+# Build outputs
+*.apk
+*.aab
+*.ipa
+
+# PDF outputs (can be regenerated)
+docs_pdf/

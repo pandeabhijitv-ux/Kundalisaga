@@ -29,6 +29,7 @@ ios/*.xcodeproj
 .env
 .env.local
 .env.production
+credentials/
 
 # IDE
 .vscode/

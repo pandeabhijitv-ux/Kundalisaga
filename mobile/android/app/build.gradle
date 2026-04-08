@@ -1,15 +1,10 @@
-apply plugin: "com.android.application"
-apply plugin: "com.facebook.react"
-// Apply Chaquopy plugin for Python
-apply plugin: "com.chaquo.python.android"
-
-react {
-    /* Folders */
-    root = file("../")
-    reactNativeDir = file("../node_modules/react-native")
-    codegenDir = file("../node_modules/@react-native/codegen")
-    cliFile = file("../node_modules/react-native/cli.js")
+plugins {
+    id 'com.android.application'
+    id 'com.chaquo.python'
 }
+
+import java.util.Properties
+import java.io.FileInputStream
 
 /**
  * Set this to true to create four separate APKs instead of one,
@@ -24,16 +19,24 @@ def enableSeparateBuildPerCPUArchitecture = false
  */
 def enableProguardInReleaseBuilds = false
 
-android {
-    ndkVersion rootProject.ext.ndkVersion
-    compileSdkVersion rootProject.ext.compileSdkVersion
+def isEasBuild = System.getenv("EAS_BUILD") == "true"
+def pythonExecutable = System.getenv("PYTHON_EXECUTABLE")
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+android {
     namespace "com.kundalii.saga"
+    compileSdk 35
+    ndkVersion "25.1.8937393"
 
     defaultConfig {
         applicationId "com.kundalii.saga"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdkVersion 24
+        targetSdkVersion 35
         versionCode 1
         versionName "1.0.0"
         
@@ -43,21 +46,18 @@ android {
         }
         
         python {
-            // Python version
-            version "3.9"
+            // Python version - use 3.8 for best Chaquopy compatibility
+            version "3.8"
             
-            // Install pip packages
+            // Install only pure Python packages (no native code)
             pip {
-                install "pyswisseph==2.10.3.2"
-                install "pytz==2023.3"
-                install "geopy==2.4.1"
-                install "timezonefinder==6.2.0"
-                install "pandas==2.1.4"
-                install "numpy==1.26.2"
+                install "pytz==2023.3"  // Timezone support
             }
-            
-            // Include your Python source files
-            buildPython "../python_modules"
+
+            // Use environment-provided Python executable for CI/local portability
+            if (pythonExecutable != null && !pythonExecutable.trim().isEmpty()) {
+                buildPython pythonExecutable
+            }
         }
     }
 
@@ -68,6 +68,19 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (isEasBuild && project.hasProperty("android.injected.signing.store.file")) {
+                storeFile file(project.property("android.injected.signing.store.file"))
+                storePassword project.property("android.injected.signing.store.password")
+                keyAlias project.property("android.injected.signing.key.alias")
+                keyPassword project.property("android.injected.signing.key.password")
+            } else if (keystorePropertiesFile.exists()) {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
     }
 
     buildTypes {
@@ -75,7 +88,11 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            signingConfig signingConfigs.debug
+            if (isEasBuild || keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.release
+            } else {
+                signingConfig signingConfigs.debug
+            }
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
@@ -92,25 +109,16 @@ android {
 
     sourceSets {
         main {
-            // Include Python modules
-            assets.srcDirs = ['../python_modules']
+            // Include Python modules as assets
+            assets.srcDirs += ['../../python_modules']
+            // Main Java/Kotlin source
+            java.srcDirs += ['src/main/java']
         }
     }
 }
 
 dependencies {
-    implementation("com.facebook.react:react-android")
-    implementation("com.facebook.react:hermes-android")
-    
-    debugImplementation("com.facebook.flipper:flipper:0.182.0")
-    debugImplementation("com.facebook.flipper:flipper-network-plugin:0.182.0")
-
-    if (hermesEnabled.toBoolean()) {
-        implementation("com.facebook.react:hermes-android")
-    } else {
-        implementation jscFlavor
-    }
+    // Minimal dependencies for Python-only build
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
 }
-
-apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle")
-applyNativeModulesAppBuildGradle(project)
