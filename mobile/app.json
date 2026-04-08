@@ -5,8 +5,33 @@
     "owner": "pande.abhijit.v",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FF6B35"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "description": "Privacy-first Vedic Astrology app with AI - Birth Charts, Dasha, Remedies & More",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kundalii.saga"
+    },
     "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#FF6B35"
+      },
       "package": "com.kundalii.saga",
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ],
       "versionCode": 1
     },
     "extra": {
