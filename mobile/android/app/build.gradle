@@ -3,6 +3,9 @@ plugins {
     id 'com.chaquo.python'
 }
 
+// React Native auto-linking
+apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+
 import java.util.Properties
 import java.io.FileInputStream
 
@@ -39,6 +42,10 @@ android {
         targetSdkVersion 35
         versionCode 1
         versionName "1.0.0"
+        
+        // BuildConfig fields for React Native
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false"
+        buildConfigField "boolean", "IS_HERMES_ENABLED", "true"
         
         // Chaquopy Python configuration
         ndk {
@@ -98,6 +105,10 @@ android {
         }
     }
 
+    buildFeatures {
+        buildConfig true
+    }
+
     splits {
         abi {
             reset()
@@ -118,7 +129,14 @@ android {
 }
 
 dependencies {
-    // Minimal dependencies for Python-only build
+    // React Native core
+    implementation 'com.facebook.react:react-android'
+    implementation 'com.facebook.react:hermes-android'
+    
+    // React Native dependencies
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    
+    // Android core dependencies
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
 }
