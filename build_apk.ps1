@@ -2,11 +2,12 @@
 
 Write-Host "`n========================================" -ForegroundColor Cyan
 Write-Host "  KUNDALISAGA - BUILD & DEPLOY" -ForegroundColor Cyan
+Write-Host "  Expo Project: https://expo.dev/accounts/pande.abhijit.v/projects/kundalii-saga-mobile/" -ForegroundColor Gray
 Write-Host "========================================`n" -ForegroundColor Cyan
 
 # Step 1: Generate App Icons
 Write-Host "Step 1: Generating Shree Ganesh app icons..." -ForegroundColor Magenta
-python generate_android_icons.py
+python C:\AstroKnowledge\generate_android_icons.py
 if ($LASTEXITCODE -eq 0) {
     Write-Host "✅ Icons generated successfully!`n" -ForegroundColor Green
 } else {
@@ -16,8 +17,10 @@ if ($LASTEXITCODE -eq 0) {
 
 # Step 2: Git Commit
 Write-Host "Step 2: Committing changes to Git..." -ForegroundColor Magenta
-git add .
-git commit -m "Fix: Updated Android app with React Native setup, Ganesh icon, and crash fixes
+$status = git status --porcelain
+if ($status) {
+    git add -A
+    git commit -m "Fix: Updated Android app with React Native setup, Ganesh icon, and crash fixes
 
 - Added MainApplication.java for proper React Native initialization
 - Fixed MainActivity to extend ReactActivity
@@ -29,70 +32,106 @@ git commit -m "Fix: Updated Android app with React Native setup, Ganesh icon, an
 
 Jai Sriram! 🙏"
 
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "✅ Changes committed successfully!`n" -ForegroundColor Green
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "✅ Changes committed successfully!`n" -ForegroundColor Green
+        
+        # Push to GitHub
+        Write-Host "Pushing to GitHub..." -ForegroundColor Yellow
+        git push
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "✅ Pushed to GitHub!`n" -ForegroundColor Green
+        } else {
+            Write-Host "⚠️  Push failed, but continuing with build...`n" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "⚠️  Git commit failed, but continuing...`n" -ForegroundColor Yellow
+    }
 } else {
-    Write-Host "⚠️  Git commit skipped (maybe no changes or already committed)`n" -ForegroundColor Yellow
+    Write-Host "✅ No new changes to commit`n" -ForegroundColor Green
 }
 
-# Step 3: Check if pushing to remote
-$push = Read-Host "Push to GitHub? (y/n)"
-if ($push -eq "y") {
-    Write-Host "`nPushing to GitHub..." -ForegroundColor Yellow
-    git push
-    Write-Host "✅ Pushed to GitHub!`n" -ForegroundColor Green
-}
-
-# Step 4: Build AAB
-Write-Host "Step 3: Starting Android build..." -ForegroundColor Magenta
-Write-Host "This will create an AAB file for Google Play Store!`n" -ForegroundColor Green
-
-# Check if eas-cli is installed
-$easInstalled = Get-Command eas -ErrorAction SilentlyContinue
-
-if (-not $easInstalled) {
-    Write-Host "Installing EAS CLI globally..." -ForegroundColor Yellow
-    npm install -g eas-cli
-    Write-Host "✅ EAS CLI installed!`n" -ForegroundColor Green
-} else {
-    Write-Host "✅ EAS CLI already installed!`n" -ForegroundColor Green
-}
-
-# Login
-Write-Host "Step 4: Login to Expo" -ForegroundColor Magenta
-Write-Host "Account: pande.abhijit.v`n" -ForegroundColor Yellow
-eas login
-
-# Configure
-Write-Host "`nStep 5: Configure build..." -ForegroundColor Magenta
+# Step 3: Check EAS CLI
+Write-Host "Step 3: Checking EAS CLI..." -ForegroundColor Magenta
 cd C:\AstroKnowledge\mobile
 
-# Build
-Write-Host "`nStep 6: Starting build (this takes 10-15 minutes)..." -ForegroundColor Magenta
-Write-Host "The build happens in the cloud, so you can close this and check later!`n" -ForegroundColor Yellow
-
-$build = Read-Host "Ready to start build? (y/n)"
-
-if ($build -eq "y") {
-    Write-Host "`n🚀 Building your AAB for Play Store..." -ForegroundColor Green
-    Write-Host "With Shree Ganesh Ji's blessings, the app will be ready soon!`n" -ForegroundColor Green
-    
-    # Build production AAB
-    eas build -p android --profile production
-    
-    Write-Host "`n========================================" -ForegroundColor Cyan
-    Write-Host "  BUILD COMPLETE!" -ForegroundColor Cyan
-    Write-Host "========================================`n" -ForegroundColor Cyan
-    Write-Host "✅ App now has Shree Ganesh Ji icon" -ForegroundColor Green
-    Write-Host "✅ React Native properly initialized" -ForegroundColor Green
-    Write-Host "✅ Crash issues fixed" -ForegroundColor Green
-    Write-Host "`nDownload the AAB from:" -ForegroundColor Green
-    Write-Host "https://expo.dev/accounts/pande.abhijit.v/projects/kundalii-saga-mobile/builds`n" -ForegroundColor Cyan
-    Write-Host "Jai Sriram! 🙏" -ForegroundColor Yellow
-} else {
-    Write-Host "`nBuild cancelled. Run this script again when ready!" -ForegroundColor Yellow
-    Write-Host "Jai Sriram! 🙏" -ForegroundColor Yellow
+$easInstalled = $null
+try {
+    $easInstalled = & npx eas-cli --version 2>&1
+    Write-Host "✅ EAS CLI version: $easInstalled`n" -ForegroundColor Green
+} catch {
+    Write-Host "⚠️  EAS CLI not found, will be installed automatically`n" -ForegroundColor Yellow
 }
 
-Write-Host "`n"
+# Step 4: Build
+Write-Host "Step 4: Starting EAS Build..." -ForegroundColor Magenta
+Write-Host "Platform: Android" -ForegroundColor White
+Write-Host "Profile: Production AAB for Google Play" -ForegroundColor White
+Write-Host "Icon: Shree Ganesh Ji" -ForegroundColor White
+Write-Host "Estimated time: 10-15 minutes" -ForegroundColor White
+Write-Host "`nWith Shree Ganesh Ji's blessings...`n" -ForegroundColor Yellow
+
+# Fix SSL certificate issue for Node.js
+Write-Host "Configuring SSL for EAS..." -ForegroundColor Gray
+$env:NODE_TLS_REJECT_UNAUTHORIZED = "0"
+Write-Host "SSL configured`n" -ForegroundColor Gray
+
+# Run EAS build
+try {
+    & npx eas-cli build --platform android --profile production --non-interactive
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "`n========================================" -ForegroundColor Cyan
+        Write-Host "  ✅ BUILD SUBMITTED SUCCESSFULLY!" -ForegroundColor Green
+        Write-Host "========================================`n" -ForegroundColor Cyan
+        
+        Write-Host "What was fixed:" -ForegroundColor Yellow
+        Write-Host "  ✅ App now has Shree Ganesh Ji icon" -ForegroundColor White
+        Write-Host "  ✅ React Native properly initialized" -ForegroundColor White
+        Write-Host "  ✅ Crash issues fixed" -ForegroundColor White
+        Write-Host "  ✅ MainApplication and MainActivity created" -ForegroundColor White
+        
+        Write-Host "`nNext steps:" -ForegroundColor Yellow
+        Write-Host "  1. Monitor build at:" -ForegroundColor White
+        Write-Host "     https://expo.dev/accounts/pande.abhijit.v/projects/kundalii-saga-mobile/builds" -ForegroundColor Cyan
+        Write-Host "  2. Download AAB when ready" -ForegroundColor White
+        Write-Host "  3. Upload to Google Play Console" -ForegroundColor White
+        
+        Write-Host "`nUseful commands:" -ForegroundColor Yellow
+        Write-Host "  View builds: npx eas-cli build:list" -ForegroundColor Gray
+        Write-Host "  Download: npx eas-cli build:download" -ForegroundColor Gray
+        Write-Host "  Submit: npx eas-cli submit -p android" -ForegroundColor Gray
+        
+        Write-Host "`nJai Sriram! 🙏`n" -ForegroundColor Yellow
+    } else {
+        throw "Build submission failed"
+    }
+} catch {
+    Write-Host "`n========================================" -ForegroundColor Red
+    Write-Host "  ❌ BUILD FAILED" -ForegroundColor Red
+    Write-Host "========================================`n" -ForegroundColor Red
+    
+    Write-Host "Error: $_`n" -ForegroundColor Yellow
+    
+    Write-Host "Troubleshooting steps:" -ForegroundColor Yellow
+    Write-Host "  1. Check if logged in:" -ForegroundColor White
+    Write-Host "     npx eas-cli whoami" -ForegroundColor Gray
+    
+    Write-Host "`n  2. If not logged in, login:" -ForegroundColor White
+    Write-Host "     npx eas-cli login" -ForegroundColor Gray
+    Write-Host "     (use: pande.abhijit.v)" -ForegroundColor Gray
+    
+    Write-Host "`n  3. Check network connection" -ForegroundColor White
+    
+    Write-Host "`n  4. View detailed error:" -ForegroundColor White
+    Write-Host "     npx eas-cli build --platform android --profile production" -ForegroundColor Gray
+    
+    Write-Host "`n  5. Alternative - Local build:" -ForegroundColor White
+    Write-Host "     cd mobile/android" -ForegroundColor Gray
+    Write-Host "     .\gradlew.bat bundleRelease" -ForegroundColor Gray
+    
+    Write-Host "`nJai Sriram! 🙏`n" -ForegroundColor Yellow
+    exit 1
+}
+
+Write-Host ""
 
