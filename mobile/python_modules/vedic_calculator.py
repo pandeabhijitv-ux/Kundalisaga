@@ -33,6 +33,37 @@ except ImportError as e:
         VedicAstrologyEngine = None
         BirthDetails = None
 
+
+def _parse_birth_datetime(date_str, time_str):
+    """Parse flexible date/time input from mobile form.
+
+    Accepts date formats like YYYY-MM-DD or YYYY/MM/DD and time formats
+    like HH:MM, HH.MM, HH, HH:MM:SS.
+    """
+    date_clean = str(date_str).strip().replace('/', '-')
+    date_parts = date_clean.split('-')
+    if len(date_parts) != 3:
+        raise ValueError("Date must be in YYYY-MM-DD format")
+
+    year = int(float(date_parts[0]))
+    month = int(float(date_parts[1]))
+    day = int(float(date_parts[2]))
+
+    time_clean = str(time_str).strip().replace('.', ':')
+    time_parts = [p for p in time_clean.split(':') if p != '']
+    if len(time_parts) == 0:
+        raise ValueError("Time must be in HH:MM format")
+
+    hour = int(float(time_parts[0]))
+    minute = int(float(time_parts[1])) if len(time_parts) > 1 else 0
+
+    if hour < 0 or hour > 23:
+        raise ValueError("Hour must be between 0 and 23")
+    if minute < 0 or minute > 59:
+        raise ValueError("Minute must be between 0 and 59")
+
+    return datetime(year, month, day, hour, minute)
+
 def calculate_chart(name, date_str, time_str, location, latitude, longitude, timezone_str):
     """
     Calculate Vedic birth chart
@@ -50,14 +81,8 @@ def calculate_chart(name, date_str, time_str, location, latitude, longitude, tim
         JSON string with chart data
     """
     try:
-        # Parse date and time
-        date_parts = date_str.split('-')
-        time_parts = time_str.split(':')
-        
-        birth_date = datetime(
-            int(date_parts[0]), int(date_parts[1]), int(date_parts[2]),
-            int(time_parts[0]), int(time_parts[1])
-        )
+        # Parse flexible date/time from mobile input
+        birth_date = _parse_birth_datetime(date_str, time_str)
         
         # Build BirthDetails compatible with both lite and full engines.
         birth_details = BirthDetails(
