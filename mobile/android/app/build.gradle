@@ -61,6 +61,7 @@ android {
             // Install only pure Python packages (no native code)
             pip {
                 install "pytz==2023.3"  // Timezone support
+                install "pyyaml==6.0.1" // YAML config loader support
             }
 
             // Use environment-provided Python executable for CI/local portability
