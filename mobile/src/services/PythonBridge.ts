@@ -7,6 +7,13 @@ import {NativeModules} from 'react-native';
 
 const {PythonBridge} = NativeModules;
 
+// Check if PythonBridge native module is available
+const isPythonBridgeAvailable = !!PythonBridge;
+
+if (!isPythonBridgeAvailable) {
+  console.warn('⚠️ PythonBridge native module not available. Python features will be disabled.');
+}
+
 export interface BirthDetails {
   name: string;
   date: string;
@@ -45,6 +52,9 @@ export interface NumerologyData {
 export const calculateChart = async (
   birthDetails: BirthDetails,
 ): Promise<ChartData> => {
+  if (!isPythonBridgeAvailable) {
+    throw new Error('Python bridge not available');
+  }
   try {
     const result = await PythonBridge.calculateChart(birthDetails);
     return result;
@@ -58,6 +68,9 @@ export const calculateChart = async (
  * Get Astrological Remedies
  */
 export const getRemedies = async (chartData: ChartData): Promise<RemedyData> => {
+  if (!isPythonBridgeAvailable) {
+    throw new Error('Python bridge not available');
+  }
   try {
     const result = await PythonBridge.getRemedies(chartData);
     return result;
@@ -74,6 +87,9 @@ export const calculateNumerology = async (
   name: string,
   dateOfBirth: string,
 ): Promise<NumerologyData> => {
+  if (!isPythonBridgeAvailable) {
+    throw new Error('Python bridge not available');
+  }
   try {
     const result = await PythonBridge.calculateNumerology(name, dateOfBirth);
     return result;
@@ -87,12 +103,16 @@ export const calculateNumerology = async (
  * Get Current Dasha Period
  */
 export const getCurrentDasha = async (dateOfBirth: string): Promise<any> => {
+  if (!isPythonBridgeAvailable) {
+    console.log('Python bridge not available, skipping dasha calculation');
+    return null; // Return null instead of throwing
+  }
   try {
     const result = await PythonBridge.getCurrentDasha(dateOfBirth);
     return result;
   } catch (error) {
     console.error('Error getting dasha:', error);
-    throw error;
+    return null; // Graceful fallback
   }
 };
 
