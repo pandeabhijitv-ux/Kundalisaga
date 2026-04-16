@@ -129,6 +129,8 @@ android {
 
     sourceSets {
         main {
+            // Chaquopy Python source modules for native bridge imports.
+            python.srcDirs = ['../../python_modules']
             // Include Python modules as assets
             assets.srcDirs += ['../../python_modules']
             // Include vector icon fonts

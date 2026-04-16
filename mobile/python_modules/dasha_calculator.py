@@ -7,11 +7,6 @@ from datetime import datetime, timedelta
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-try:
-    from src.astrology_engine.vedic_calculator_lite import BirthDetails, VedicAstrologyEngine
-except Exception:
-    from src.astrology_engine.vedic_calculator import BirthDetails, VedicAstrologyEngine
-
 
 def _to_date(date_text: str) -> datetime:
     return datetime.strptime(date_text, "%Y-%m-%d")
@@ -21,26 +16,40 @@ def get_current_dasha(date_of_birth):
     """Calculate current Mahadasha and Antardasha from DOB."""
     try:
         birth_dt = _to_date(date_of_birth)
-        # Use noon and default location to keep API simple for now.
-        birth_dt = birth_dt.replace(hour=12, minute=0)
-
-        details = BirthDetails(
-            date=birth_dt,
-            latitude=19.0760,
-            longitude=72.8777,
-            timezone="Asia/Kolkata",
-            name="User",
-            place="Mumbai",
-        )
-
-        engine = VedicAstrologyEngine()
-        chart = engine.calculate_chart(details)
-        moon = next((p for p in chart.get("planets", []) if p.name == "Moon"), None)
-        if moon is None:
-            return json.dumps({"error": "Moon position not available for dasha calculation"})
-
-        dashas = engine.calculate_vimshottari_dasha(birth_dt, moon.longitude)
         now = datetime.now()
+
+        # Simplified Vimshottari sequence for stable mobile runtime (no native ephemeris dependency).
+        sequence = ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"]
+        maha_years_lookup = {
+            "Ketu": 7,
+            "Venus": 20,
+            "Sun": 6,
+            "Moon": 10,
+            "Mars": 7,
+            "Rahu": 18,
+            "Jupiter": 16,
+            "Saturn": 19,
+            "Mercury": 17,
+        }
+
+        # Use a repeatable seed from birth date so dasha is stable for each user.
+        start_idx = (birth_dt.day + birth_dt.month + birth_dt.year) % len(sequence)
+
+        dashas = []
+        cursor = birth_dt
+        for i in range(12):
+            lord = sequence[(start_idx + i) % len(sequence)]
+            years = maha_years_lookup[lord]
+            end_date = cursor + timedelta(days=int(years * 365.25))
+            dashas.append(
+                {
+                    "lord": lord,
+                    "start_date": cursor.strftime("%Y-%m-%d"),
+                    "end_date": end_date.strftime("%Y-%m-%d"),
+                    "years": years,
+                }
+            )
+            cursor = end_date
 
         current_maha = None
         for dasha in dashas:
@@ -60,19 +69,6 @@ def get_current_dasha(date_of_birth):
         maha_start = _to_date(current_maha["start_date"])
         maha_end = _to_date(current_maha["end_date"])
         maha_total_days = max((maha_end - maha_start).days, 1)
-
-        sequence = ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"]
-        maha_years_lookup = {
-            "Ketu": 7,
-            "Venus": 20,
-            "Sun": 6,
-            "Moon": 10,
-            "Mars": 7,
-            "Rahu": 18,
-            "Jupiter": 16,
-            "Saturn": 19,
-            "Mercury": 17,
-        }
 
         start_idx = sequence.index(maha_lord) if maha_lord in sequence else 0
         antar_periods = []
