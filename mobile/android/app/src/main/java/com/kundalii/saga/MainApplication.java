@@ -2,11 +2,12 @@ package com.kundalii.saga;
 
 import android.app.Application;
 import android.content.res.Configuration;
+import androidx.annotation.NonNull;
 
-import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
+import com.facebook.react.shell.MainReactPackage;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactNativeHost;
 import com.facebook.soloader.SoLoader;
@@ -14,6 +15,7 @@ import com.facebook.soloader.SoLoader;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class MainApplication extends Application implements ReactApplication {
@@ -26,11 +28,9 @@ public class MainApplication extends Application implements ReactApplication {
 
         @Override
         protected List<ReactPackage> getPackages() {
-            @SuppressWarnings("UnnecessaryLocalVariable")
-            List<ReactPackage> packages = new PackageList(this).getPackages();
-            // Add custom packages here if needed
-            // packages.add(new PythonBridgePackage());
-            return packages;
+            return Arrays.<ReactPackage>asList(
+                new MainReactPackage()
+            );
         }
 
         @Override
@@ -59,7 +59,7 @@ public class MainApplication extends Application implements ReactApplication {
         super.onCreate();
         
         // Initialize SoLoader for React Native
-        SoLoader.init(this, /* native exopackage */ false);
+        SoLoader.init(this, false);
         
         // Initialize Python/Chaquopy
         if (!Python.isStarted()) {
@@ -67,13 +67,12 @@ public class MainApplication extends Application implements ReactApplication {
         }
         
         if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-            // If you opted-in for the New Architecture, we load the native entry point for this app.
             DefaultNewArchitectureEntryPoint.load();
         }
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
     }
 }

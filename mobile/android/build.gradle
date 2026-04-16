@@ -25,9 +25,24 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        // React Native and JSC
-        maven { url("$rootDir/../node_modules/react-native/android") }
-        maven { url("$rootDir/../node_modules/jsc-android/dist") }
+        
+        // React Native repository
+        maven {
+            url "https://maven.pkg.github.com/facebook/react-native"
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.token") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+        
+        // React Native from node_modules
+        maven {
+            url("$rootDir/../node_modules/react-native/android")
+        }
+        maven {
+            url("$rootDir/../node_modules/jsc-android/dist")
+        }
+        
         // Chaquopy
         maven { url 'https://chaquo.com/maven' }
         maven { url 'https://chaquo.com/maven-central' }
