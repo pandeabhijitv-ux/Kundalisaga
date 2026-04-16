@@ -37,8 +37,8 @@ android {
         applicationId "com.kundalii.saga"
         minSdkVersion 24
         targetSdkVersion 35
-        versionCode 2
-        versionName "1.0.1"
+        versionCode 5
+        versionName "1.0.4"
         
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false"
         buildConfigField "boolean", "IS_HERMES_ENABLED", "true"
@@ -128,6 +128,8 @@ android {
         main {
             // Include Python modules as assets
             assets.srcDirs += ['../../python_modules']
+            // Include vector icon fonts
+            assets.srcDirs += ['../../node_modules/react-native-vector-icons/Fonts']
             // Main Java/Kotlin source
             java.srcDirs += ['src/main/java']
         }

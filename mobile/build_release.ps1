@@ -1,15 +1,13 @@
-# KundaliSaga - Quick Build Script
-# Automatically increments version and builds AAB
+# KundaliSaga - Production Build Script
+# ALWAYS increments version and bundles JavaScript
 
 param(
     [ValidateSet('patch', 'minor', 'major')]
-    [string]$VersionType = 'patch',
-    
-    [switch]$SkipVersionIncrement
+    [string]$VersionType = 'patch'
 )
 
 Write-Host "═══════════════════════════════════════════════════" -ForegroundColor Cyan
-Write-Host "   KundaliSaga Android Build" -ForegroundColor White
+Write-Host "   KundaliSaga Android Build v1.0+" -ForegroundColor White
 Write-Host "═══════════════════════════════════════════════════" -ForegroundColor Cyan
 Write-Host ""
 
@@ -21,17 +19,43 @@ Write-Host "✓ Java Home: $env:JAVA_HOME" -ForegroundColor Green
 Push-Location $PSScriptRoot
 
 try {
-    # Increment version (unless skipped)
-    if (-not $SkipVersionIncrement) {
-        Write-Host "`n📝 Incrementing version ($VersionType)..." -ForegroundColor Yellow
-        & .\increment_version.ps1 -Type $VersionType
-        if ($LASTEXITCODE -ne 0) {
-            throw "Version increment failed"
-        }
-    } else {
-        Write-Host "`n⏭️  Skipping version increment" -ForegroundColor Gray
+    # ALWAYS increment version
+    Write-Host "`n📝 Auto-incrementing version ($VersionType)..." -ForegroundColor Yellow
+    & .\increment_version.ps1 -Type $VersionType
+    if ($LASTEXITCODE -ne 0) {
+        throw "Version increment failed"
     }
 
+    # Bundle React Native JavaScript
+    Write-Host "`n📦 Bundling React Native JavaScript..." -ForegroundColor Yellow
+    
+    # Create assets directory if it doesn't exist
+    $assetsDir = "android\app\src\main\assets"
+    if (-not (Test-Path $assetsDir)) {
+        New-Item -ItemType Directory -Path $assetsDir -Force | Out-Null
+    }
+    
+    # Bundle JavaScript for production
+    npx react-native bundle `
+        --platform android `
+        --dev false `
+        --entry-file index.js `
+        --bundle-output android/app/src/main/assets/index.android.bundle `
+        --assets-dest android/app/src/main/res/
+    
+    if ($LASTEXITCODE -ne 0) {
+        throw "JavaScript bundling failed"
+    }
+    
+    # Verify bundle was created
+    $bundlePath = "android\app\src\main\assets\index.android.bundle"
+    if (Test-Path $bundlePath) {
+        $bundleSize = [math]::Round((Get-Item $bundlePath).Length / 1KB, 2)
+        Write-Host "   ✓ Bundle created: $bundleSize KB" -ForegroundColor Green
+    } else {
+        throw "JavaScript bundle not found after bundling"
+    }
+    
     # Build AAB
     Write-Host "`n🔨 Building Android App Bundle..." -ForegroundColor Yellow
     Push-Location android
