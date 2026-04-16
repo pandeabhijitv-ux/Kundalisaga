@@ -14,6 +14,10 @@ import com.facebook.soloader.SoLoader;
 
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
+import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
+import com.swmansion.gesturehandler.RNGestureHandlerPackage;
+import com.th3rdwave.safeareacontext.SafeAreaContextPackage;
+import com.swmansion.rnscreens.RNScreensPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +34,11 @@ public class MainApplication extends Application implements ReactApplication {
         protected List<ReactPackage> getPackages() {
             return Arrays.<ReactPackage>asList(
                 new MainReactPackage(),
-                new PythonBridgePackage() // Add our custom package
+                new PythonBridgePackage(),
+                new AsyncStoragePackage(),
+                new RNGestureHandlerPackage(),
+                new SafeAreaContextPackage(),
+                new RNScreensPackage()
             );
         }
 

@@ -16,19 +16,7 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 import {AuthProvider, useAuth} from './src/contexts/AuthContext';
 import SplashScreen from './src/screens/SplashScreen';
-
-// Theme colors matching your Streamlit app
-export const THEME = {
-  background: '#FFF5E6',
-  primary: '#FF6B35',
-  secondary: '#F9C74F',
-  text: '#333333',
-  textLight: '#666666',
-  card: '#FFFFF0',
-  success: '#4CAF50',
-  warning: '#FF9800',
-  error: '#F44336',
-};
+import {THEME} from './src/constants/theme';
 
 const AppContent = () => {
   const {isLoading} = useAuth();

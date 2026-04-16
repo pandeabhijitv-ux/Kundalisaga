@@ -12,10 +12,23 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {THEME} from '../../../App';
+import {THEME} from '../../constants/theme';
 import {useAuth} from '../../contexts/AuthContext';
 import {getCurrentDasha} from '../../services/PythonBridge';
+
+const EMOJI_ICONS: {[key: string]: string} = {
+  'Birth Chart': '📜',
+  Profiles: '👥',
+  'Ask Question': '💬',
+  Remedies: '🕉️',
+  Numerology: '🔢',
+  'Current Dasha': '🪐',
+  'Knowledge Search': '📚',
+  Compatibility: '❤️',
+  'Career Guidance': '💼',
+  'Financial Astrology': '💰',
+  'Navagraha Mantras': '🎵',
+};
 
 const HomeScreen = ({navigation}: any) => {
   const {user, isGuest, logout} = useAuth();
@@ -27,10 +40,9 @@ const HomeScreen = ({navigation}: any) => {
 
   const loadDashaInfo = async () => {
     try {
-      // Example: Load current dasha for logged in user
-      if (user) {
-        // const dasha = await getCurrentDasha('1990-01-01');
-        // setCurrentDasha(dasha);
+      const dasha = await getCurrentDasha('1990-01-01');
+      if (dasha) {
+        setCurrentDasha(dasha);
       }
     } catch (error) {
       console.error('Error loading dasha:', error);
@@ -40,31 +52,74 @@ const HomeScreen = ({navigation}: any) => {
   const features = [
     {
       title: 'Birth Chart',
-      icon: 'chart-donut',
       color: '#FF6B35',
       screen: 'Horoscope',
       description: 'Calculate Vedic horoscope',
     },
     {
       title: 'Profiles',
-      icon: 'account-group',
       color: '#F9C74F',
       screen: 'Profiles',
       description: 'Manage family profiles',
     },
     {
       title: 'Ask Question',
-      icon: 'chat-question',
       color: '#4ECDC4',
       screen: 'Ask',
       description: 'Get astrological insights',
     },
     {
       title: 'Remedies',
-      icon: 'meditation',
       color: '#95E1D3',
       screen: 'Remedies',
       description: 'Personalized solutions',
+    },
+    {
+      title: 'Numerology',
+      color: '#9C6ADE',
+      screen: 'Numerology',
+      description: 'Life path and destiny numbers',
+    },
+    {
+      title: 'Current Dasha',
+      color: '#5C7AEA',
+      screen: 'Dasha',
+      description: 'Mahadasha and antardasha',
+    },
+    {
+      title: 'Knowledge Search',
+      color: '#2A9D8F',
+      screen: 'Ask',
+      params: {preset: 'knowledge'},
+      description: 'Search astrology knowledge base',
+    },
+    {
+      title: 'Compatibility',
+      color: '#E76F51',
+      screen: 'Horoscope',
+      params: {preset: 'compatibility'},
+      description: 'Basic compatibility workflow',
+    },
+    {
+      title: 'Career Guidance',
+      color: '#457B9D',
+      screen: 'Ask',
+      params: {preset: 'career'},
+      description: 'Career-focused question prompts',
+    },
+    {
+      title: 'Financial Astrology',
+      color: '#2B9348',
+      screen: 'Ask',
+      params: {preset: 'finance'},
+      description: 'Money and timing insights',
+    },
+    {
+      title: 'Navagraha Mantras',
+      color: '#8D99AE',
+      screen: 'Remedies',
+      params: {preset: 'mantras'},
+      description: 'Planetary mantra recommendations',
     },
   ];
 
@@ -84,12 +139,12 @@ const HomeScreen = ({navigation}: any) => {
 
         {isGuest ? (
           <View style={styles.guestBanner}>
-            <Icon name="information" size={20} color={THEME.warning} />
+            <Text style={styles.inlineEmoji}>ℹ️</Text>
             <Text style={styles.guestText}>Guest Mode - Limited Features</Text>
           </View>
         ) : (
           <View style={styles.userInfo}>
-            <Icon name="account-circle" size={24} color={THEME.primary} />
+            <Text style={styles.inlineEmoji}>👤</Text>
             <Text style={styles.userName}>Welcome, {user?.name}!</Text>
           </View>
         )}
@@ -102,8 +157,10 @@ const HomeScreen = ({navigation}: any) => {
             <TouchableOpacity
               key={index}
               style={[styles.featureCard, {borderLeftColor: feature.color}]}
-              onPress={() => navigation.navigate(feature.screen)}>
-              <Icon name={feature.icon} size={40} color={feature.color} />
+              onPress={() => navigation.navigate(feature.screen, feature.params)}>
+              <View style={[styles.featureIconWrap, {backgroundColor: `${feature.color}20`}]}>
+                <Text style={styles.featureIconText}>{EMOJI_ICONS[feature.title] || '✨'}</Text>
+              </View>
               <Text style={styles.featureTitle}>{feature.title}</Text>
               <Text style={styles.featureDescription}>
                 {feature.description}
@@ -116,16 +173,16 @@ const HomeScreen = ({navigation}: any) => {
           <View style={styles.dashaCard}>
             <Text style={styles.dashaTitle}>Current Dasha</Text>
             <Text style={styles.dashaText}>
-              Mahadasha: {currentDasha.mahadasha}
+              Mahadasha: {currentDasha.mahadasha_name || currentDasha?.mahadasha?.planet || currentDasha.mahadasha}
             </Text>
             <Text style={styles.dashaText}>
-              Antardasha: {currentDasha.antardasha}
+              Antardasha: {currentDasha.antardasha_name || currentDasha?.antardasha?.planet || currentDasha.antardasha}
             </Text>
           </View>
         )}
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Icon name="logout" size={20} color={THEME.error} />
+          <Text style={styles.inlineEmoji}>🚪</Text>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
       </View>
@@ -165,6 +222,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: THEME.textLight,
     marginTop: 5,
+  },
+  inlineEmoji: {
+    fontSize: 18,
   },
   guestBanner: {
     flexDirection: 'row',
@@ -224,6 +284,16 @@ const styles = StyleSheet.create({
     color: THEME.text,
     marginTop: 10,
     textAlign: 'center',
+  },
+  featureIconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  featureIconText: {
+    fontSize: 30,
   },
   featureDescription: {
     fontSize: 12,

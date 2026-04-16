@@ -120,8 +120,11 @@ export const getCurrentDasha = async (dateOfBirth: string): Promise<any> => {
  * Search Knowledge Base
  */
 export const searchKnowledge = async (query: string): Promise<any> => {
+  if (!isPythonBridgeAvailable) {
+    throw new Error('Python bridge not available');
+  }
   try {
-    const result = await PythonBridge.searchKnowledge(query);
+    const result = await PythonBridge.searchKnowledgeBase(query);
     return result;
   } catch (error) {
     console.error('Error searching knowledge:', error);

@@ -1,82 +1,78 @@
-"""
-Remedy Calculator Module for Mobile
-Wrapper around the existing RemedyEngine for mobile app integration
-"""
+"""Remedy calculator wrapper for mobile bridge."""
 
 import json
-import sys
 import os
+import sys
 
-# Add parent directory to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.remedy_engine import RemedyEngine
 
+
+def _collect_by_type(planet_remedies):
+    gemstones = []
+    mantras = []
+    fasting = []
+    charity = []
+    daily_practices = []
+
+    for planet_name, payload in planet_remedies.items():
+        for remedy in payload.get("remedies", []):
+            remedy_type = remedy.get("type", "")
+            normalized = {"planet": planet_name, **remedy}
+
+            if "Gemstone" in remedy_type:
+                gemstones.append(normalized)
+            elif "Mantra" in remedy_type:
+                mantras.append(normalized)
+            elif remedy_type == "Fasting":
+                fasting.append(normalized)
+            elif remedy_type == "Charity":
+                charity.append(normalized)
+            elif remedy_type == "Practice":
+                daily_practices.append(remedy.get("description", ""))
+
+    return gemstones, mantras, fasting, charity, daily_practices
+
+
 def get_remedies(chart_json):
-    """
-    Get remedies based on chart data
-    
-    Args:
-        chart_json: JSON string containing chart data
-    
-    Returns:
-        JSON string with remedy recommendations
-    """
+    """Generate remedies based on chart context and return bridge-friendly JSON."""
     try:
-        chart_data = json.loads(chart_json)
-        
-        # Create remedy engine
+        chart_data = json.loads(chart_json) if chart_json else {}
         engine = RemedyEngine()
-        
-        # For now, return sample remedies
-        # TODO: Integrate with actual chart analysis
+
+        suggestions = engine.suggest_remedies(chart_data, specific_concern="general well-being")
+        planet_remedies = suggestions.get("planet_remedies", {})
+
+        gemstones, mantras, fasting, charity, daily_practices = _collect_by_type(planet_remedies)
+
+        # Backfill from universal remedies when chart issues are sparse.
+        for universal in suggestions.get("universal_remedies", []):
+            if "Mantra" in universal.get("type", ""):
+                mantras.append(
+                    {
+                        "planet": "Universal",
+                        "type": universal.get("type"),
+                        "mantra": universal.get("mantra") or universal.get("description", ""),
+                        "benefits": universal.get("benefits", ""),
+                        "frequency": universal.get("frequency", ""),
+                    }
+                )
+
+        daily_practices.extend(suggestions.get("general_advice", []))
+
         result = {
-            'gemstones': [
-                {
-                    'name': 'Ruby',
-                    'planet': 'Sun',
-                    'benefits': 'Boosts confidence, leadership, and vitality',
-                    'wearing_day': 'Sunday',
-                    'metal': 'Gold',
-                    'finger': 'Ring finger'
-                }
-            ],
-            'mantras': [
-                {
-                    'planet': 'Sun',
-                    'mantra': 'Om Suryaya Namaha',
-                    'repetitions': 108,
-                    'time': 'Early morning facing east',
-                    'benefits': 'Strengthens Sun, improves health and status'
-                }
-            ],
-            'fasting': [
-                {
-                    'day': 'Sunday',
-                    'for_planet': 'Sun',
-                    'instructions': 'Avoid salt, eat once after sunset',
-                    'duration': 'Full day or partial'
-                }
-            ],
-            'charity': [
-                {
-                    'day': 'Sunday',
-                    'items': 'Wheat, jaggery, red cloth',
-                    'beneficiary': 'Temples, poor people',
-                    'planet': 'Sun'
-                }
-            ],
-            'daily_practices': [
-                'Offer water to Sun at sunrise',
-                'Chant Gayatri Mantra 108 times',
-                'Light ghee lamp in front of deity'
-            ]
+            "identified_issues": suggestions.get("identified_issues", []),
+            "gemstones": gemstones,
+            "mantras": mantras,
+            "fasting": fasting,
+            "charity": charity,
+            "daily_practices": [item for item in daily_practices if item],
         }
-        
+
         return json.dumps(result)
-        
     except Exception as e:
-        return json.dumps({'error': str(e)})
+        return json.dumps({"error": str(e)})
 
 
 if __name__ == '__main__':

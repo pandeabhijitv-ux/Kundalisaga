@@ -25,5 +25,16 @@
 -keep class androidx.** { *; }
 -keep interface androidx.** { *; }
 
-# Keep application class
--keep class com.kundalii.saga.MainApplication { *; }
+# Keep application class and all our custom classes
+-keep class com.kundalii.saga.** { *; }
+-keep interface com.kundalii.saga.** { *; }
+
+# Keep MainApplication specifically
+-keep public class com.kundalii.saga.MainApplication
+
+# Keep MainActivity
+-keep public class com.kundalii.saga.MainActivity
+
+# Keep all native modules
+-keep class com.kundalii.saga.PythonBridgeModule { *; }
+-keep class com.kundalii.saga.PythonBridgePackage { *; }

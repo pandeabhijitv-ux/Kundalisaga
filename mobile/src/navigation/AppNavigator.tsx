@@ -4,10 +4,10 @@
  */
 
 import React from 'react';
+import {Text} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {THEME} from '../../App';
+import {THEME} from '../constants/theme';
 import {useAuth} from '../contexts/AuthContext';
 
 // Import screens
@@ -18,9 +18,23 @@ import ProfilesScreen from '../screens/profiles/ProfilesScreen';
 import HoroscopeScreen from '../screens/horoscope/HoroscopeScreen';
 import RemediesScreen from '../screens/remedies/RemediesScreen';
 import AskQuestionScreen from '../screens/ask/AskQuestionScreen';
+import NumerologyScreen from '../screens/NumerologyScreen';
+import DashaScreen from '../screens/DashaScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+
+const TAB_ICONS: {[key: string]: string} = {
+  Home: '🏠',
+  Profiles: '👨‍👩‍👧‍👦',
+  Horoscope: '🪐',
+  Ask: '💬',
+  Remedies: '🕉️',
+};
+
+const TabEmojiIcon = ({routeName, size}: {routeName: string; size: number}) => (
+  <Text style={{fontSize: size - 2}}>{TAB_ICONS[routeName] || '✨'}</Text>
+);
 
 const MainTabs = () => {
   return (
@@ -42,9 +56,7 @@ const MainTabs = () => {
         component={HomeScreen}
         options={{
           tabBarLabel: 'Home',
-          tabBarIcon: ({color, size}) => (
-            <Icon name="home" size={size} color={color} />
-          ),
+          tabBarIcon: ({size}) => <TabEmojiIcon routeName="Home" size={size} />,
         }}
       />
       <Tab.Screen
@@ -52,9 +64,7 @@ const MainTabs = () => {
         component={ProfilesScreen}
         options={{
           tabBarLabel: 'Profiles',
-          tabBarIcon: ({color, size}) => (
-            <Icon name="account-group" size={size} color={color} />
-          ),
+          tabBarIcon: ({size}) => <TabEmojiIcon routeName="Profiles" size={size} />,
         }}
       />
       <Tab.Screen
@@ -62,9 +72,7 @@ const MainTabs = () => {
         component={HoroscopeScreen}
         options={{
           tabBarLabel: 'Horoscope',
-          tabBarIcon: ({color, size}) => (
-            <Icon name="zodiac-leo" size={size} color={color} />
-          ),
+          tabBarIcon: ({size}) => <TabEmojiIcon routeName="Horoscope" size={size} />,
         }}
       />
       <Tab.Screen
@@ -72,9 +80,7 @@ const MainTabs = () => {
         component={AskQuestionScreen}
         options={{
           tabBarLabel: 'Ask',
-          tabBarIcon: ({color, size}) => (
-            <Icon name="chat-question" size={size} color={color} />
-          ),
+          tabBarIcon: ({size}) => <TabEmojiIcon routeName="Ask" size={size} />,
         }}
       />
       <Tab.Screen
@@ -82,9 +88,7 @@ const MainTabs = () => {
         component={RemediesScreen}
         options={{
           tabBarLabel: 'Remedies',
-          tabBarIcon: ({color, size}) => (
-            <Icon name="meditation" size={size} color={color} />
-          ),
+          tabBarIcon: ({size}) => <TabEmojiIcon routeName="Remedies" size={size} />,
         }}
       />
     </Tab.Navigator>
@@ -105,7 +109,19 @@ const AppNavigator = () => {
           <Stack.Screen name="Register" component={RegisterScreen} />
         </>
       ) : (
-        <Stack.Screen name="Main" component={MainTabs} />
+        <>
+          <Stack.Screen name="Main" component={MainTabs} />
+          <Stack.Screen
+            name="Numerology"
+            component={NumerologyScreen}
+            options={{headerShown: true, title: 'Numerology'}}
+          />
+          <Stack.Screen
+            name="Dasha"
+            component={DashaScreen}
+            options={{headerShown: true, title: 'Current Dasha'}}
+          />
+        </>
       )}
     </Stack.Navigator>
   );

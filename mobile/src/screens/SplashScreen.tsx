@@ -5,7 +5,7 @@
 
 import React from 'react';
 import {View, Text, ActivityIndicator, StyleSheet, Image} from 'react-native';
-import {THEME} from '../../App';
+import {THEME} from '../constants/theme';
 
 const SplashScreen = () => {
   return (

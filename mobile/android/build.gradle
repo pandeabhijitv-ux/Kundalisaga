@@ -7,14 +7,14 @@ buildscript {
         compileSdkVersion = 35
         targetSdkVersion = 35
         ndkVersion = "25.1.8937393"
-        kotlinVersion = "1.9.0"
+        kotlinVersion = "2.0.20"
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.1.1")
+        classpath("com.android.tools.build:gradle:8.5.2")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
         // Chaquopy plugin for Python integration
         classpath("com.chaquo.python:gradle:14.0.2")
@@ -26,16 +26,7 @@ allprojects {
         google()
         mavenCentral()
         
-        // React Native repository
-        maven {
-            url "https://maven.pkg.github.com/facebook/react-native"
-            credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
-                password = project.findProperty("gpr.token") ?: System.getenv("GITHUB_TOKEN")
-            }
-        }
-        
-        // React Native from node_modules
+        // React Native from node_modules (primary source)
         maven {
             url("$rootDir/../node_modules/react-native/android")
         }
@@ -43,8 +34,25 @@ allprojects {
             url("$rootDir/../node_modules/jsc-android/dist")
         }
         
-        // Chaquopy
-        maven { url 'https://chaquo.com/maven' }
-        maven { url 'https://chaquo.com/maven-central' }
+        // Chaquopy Python repositories - SCOPED to only Chaquopy artifacts
+        maven { 
+            url 'https://chaquo.com/maven'
+            content {
+                includeGroup("com.chaquo.python")
+            }
+        }
+        maven { 
+            url 'https://chaquo.com/maven-central'
+            content {
+                includeGroup("com.chaquo.python")
+            }
+        }
+    }
+    
+    // Force Kotlin JVM target to 17 (compatible with Java 21 and Kotlin 1.9.0)
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            jvmTarget = "17"
+        }
     }
 }

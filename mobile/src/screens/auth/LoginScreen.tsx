@@ -12,7 +12,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import {THEME} from '../../../App';
+import {THEME} from '../../constants/theme';
 import {useAuth} from '../../contexts/AuthContext';
 
 const LoginScreen = ({navigation}: any) => {

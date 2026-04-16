@@ -1,46 +1,127 @@
-"""
-Dasha Calculator Module for Mobile
-"""
+"""Dasha calculator wrapper for mobile bridge."""
 
 import json
-from datetime import datetime
+import os
+import sys
+from datetime import datetime, timedelta
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+try:
+    from src.astrology_engine.vedic_calculator_lite import BirthDetails, VedicAstrologyEngine
+except Exception:
+    from src.astrology_engine.vedic_calculator import BirthDetails, VedicAstrologyEngine
+
+
+def _to_date(date_text: str) -> datetime:
+    return datetime.strptime(date_text, "%Y-%m-%d")
+
 
 def get_current_dasha(date_of_birth):
-    """
-    Get current Dasha periods
-    
-    Args:
-        date_of_birth: DOB in format 'YYYY-MM-DD'
-    
-    Returns:
-        JSON string with dasha information
-    """
+    """Calculate current Mahadasha and Antardasha from DOB."""
     try:
-        result = {
-            'mahadasha': {
-                'planet': 'Venus',
-                'start_date': '2020-01-01',
-                'end_date': '2040-01-01',
-                'duration_years': 20
-            },
-            'antardasha': {
-                'planet': 'Mars',
-                'start_date': '2024-01-01',
-                'end_date': '2025-03-01',
-                'duration_months': 15
-            },
-            'pratyantardasha': {
-                'planet': 'Mercury',
-                'start_date': '2026-01-01',
-                'end_date': '2026-02-15'
-            },
-            'interpretation': 'Venus Mahadasha brings focus on relationships, luxury, and creative pursuits...'
+        birth_dt = _to_date(date_of_birth)
+        # Use noon and default location to keep API simple for now.
+        birth_dt = birth_dt.replace(hour=12, minute=0)
+
+        details = BirthDetails(
+            date=birth_dt,
+            latitude=19.0760,
+            longitude=72.8777,
+            timezone="Asia/Kolkata",
+            name="User",
+            place="Mumbai",
+        )
+
+        engine = VedicAstrologyEngine()
+        chart = engine.calculate_chart(details)
+        moon = next((p for p in chart.get("planets", []) if p.name == "Moon"), None)
+        if moon is None:
+            return json.dumps({"error": "Moon position not available for dasha calculation"})
+
+        dashas = engine.calculate_vimshottari_dasha(birth_dt, moon.longitude)
+        now = datetime.now()
+
+        current_maha = None
+        for dasha in dashas:
+            start = _to_date(dasha["start_date"])
+            end = _to_date(dasha["end_date"])
+            if start <= now <= end:
+                current_maha = dasha
+                break
+
+        if current_maha is None and dashas:
+            current_maha = dashas[0]
+
+        if current_maha is None:
+            return json.dumps({"error": "Unable to determine current dasha"})
+
+        maha_lord = current_maha["lord"]
+        maha_start = _to_date(current_maha["start_date"])
+        maha_end = _to_date(current_maha["end_date"])
+        maha_total_days = max((maha_end - maha_start).days, 1)
+
+        sequence = ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"]
+        maha_years_lookup = {
+            "Ketu": 7,
+            "Venus": 20,
+            "Sun": 6,
+            "Moon": 10,
+            "Mars": 7,
+            "Rahu": 18,
+            "Jupiter": 16,
+            "Saturn": 19,
+            "Mercury": 17,
         }
-        
+
+        start_idx = sequence.index(maha_lord) if maha_lord in sequence else 0
+        antar_periods = []
+        cursor = maha_start
+        for i in range(9):
+            antar_lord = sequence[(start_idx + i) % 9]
+            antar_days = int(maha_total_days * (maha_years_lookup[antar_lord] / 120.0))
+            antar_days = max(antar_days, 1)
+            antar_end = min(cursor + timedelta(days=antar_days), maha_end)
+            antar_periods.append(
+                {
+                    "planet": antar_lord,
+                    "start_date": cursor.strftime("%Y-%m-%d"),
+                    "end_date": antar_end.strftime("%Y-%m-%d"),
+                }
+            )
+            cursor = antar_end
+            if cursor >= maha_end:
+                break
+
+        current_antar = next(
+            (
+                antar
+                for antar in antar_periods
+                if _to_date(antar["start_date"]) <= now <= _to_date(antar["end_date"])
+            ),
+            antar_periods[0] if antar_periods else None,
+        )
+
+        result = {
+            "mahadasha": {
+                "planet": maha_lord,
+                "start_date": current_maha["start_date"],
+                "end_date": current_maha["end_date"],
+                "duration_years": round(current_maha.get("years", 0), 2),
+            },
+            "antardasha": current_antar
+            or {"planet": "Unknown", "start_date": "-", "end_date": "-"},
+            "mahadasha_name": maha_lord,
+            "antardasha_name": (current_antar or {}).get("planet", "Unknown"),
+            "interpretation": (
+                f"{maha_lord} Mahadasha with {(current_antar or {}).get('planet', 'Unknown')} "
+                "Antardasha is currently active."
+            ),
+        }
+
         return json.dumps(result)
-        
     except Exception as e:
-        return json.dumps({'error': str(e)})
+        return json.dumps({"error": str(e)})
 
 
 if __name__ == '__main__':

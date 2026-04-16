@@ -8,6 +8,7 @@ import sys
 import os
 from datetime import datetime
 import pytz
+import inspect
 
 # Add parent directory to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -58,20 +59,22 @@ def calculate_chart(name, date_str, time_str, location, latitude, longitude, tim
             int(time_parts[0]), int(time_parts[1])
         )
         
-        # Create BirthDetails
+        # Build BirthDetails compatible with both lite and full engines.
         birth_details = BirthDetails(
-            name=name,
-            birth_date=birth_date,
-            birth_time=birth_date.time(),
-            location=location,
+            date=birth_date,
             latitude=latitude,
             longitude=longitude,
-            timezone=timezone_str
+            timezone=timezone_str,
+            name=name,
+            place=location,
         )
         
         # Calculate chart
         engine = VedicAstrologyEngine()
         chart = engine.calculate_chart(birth_details)
+
+        chart_planets = chart.get('planets', []) if isinstance(chart, dict) else getattr(chart, 'planets', [])
+        chart_asc = chart.get('ascendant') if isinstance(chart, dict) else getattr(chart, 'ascendant', None)
         
         # Convert to JSON-serializable format
         result = {
@@ -82,21 +85,22 @@ def calculate_chart(name, date_str, time_str, location, latitude, longitude, tim
             'planets': [],
             'houses': [],
             'ascendant': {
-                'sign': chart.ascendant.sign if hasattr(chart, 'ascendant') else 'Unknown',
-                'degree': chart.ascendant.degree if hasattr(chart, 'ascendant') else 0
-            }
+                'sign': getattr(chart_asc, 'sign', 'Unknown') if chart_asc else 'Unknown',
+                'degree': getattr(chart_asc, 'degree_in_sign', 0) if chart_asc else 0
+            },
+            'dasha': {}
         }
         
         # Add planets
-        if hasattr(chart, 'planets'):
-            for planet in chart.planets:
-                result['planets'].append({
-                    'name': planet.name,
-                    'sign': planet.sign,
-                    'degree': planet.degree,
-                    'house': planet.house,
-                    'is_retrograde': planet.is_retrograde if hasattr(planet, 'is_retrograde') else False
-                })
+        for planet in chart_planets:
+            result['planets'].append({
+                'name': getattr(planet, 'name', 'Unknown'),
+                'sign': getattr(planet, 'sign', 'Unknown'),
+                'degree': round(getattr(planet, 'degree_in_sign', 0), 4),
+                'longitude': round(getattr(planet, 'longitude', 0), 4),
+                'house': getattr(planet, 'house', 1),
+                'is_retrograde': getattr(planet, 'is_retrograde', False),
+            })
         
         # Add houses
         if hasattr(chart, 'houses'):
@@ -106,6 +110,33 @@ def calculate_chart(name, date_str, time_str, location, latitude, longitude, tim
                     'sign': house.sign,
                     'degree': house.degree
                 })
+
+        # Add current dasha summary where possible.
+        moon = next((p for p in result['planets'] if p['name'] == 'Moon'), None)
+        if moon:
+            try:
+                dasha_fn = engine.calculate_vimshottari_dasha
+                params = list(inspect.signature(dasha_fn).parameters.keys())
+                if len(params) >= 2 and params[0] == 'moon_longitude':
+                    dashas = dasha_fn(moon['longitude'], birth_date)
+                else:
+                    dashas = dasha_fn(birth_date, moon['longitude'])
+                now = datetime.now()
+                active = None
+                for d in dashas:
+                    d_start = datetime.strptime(d['start_date'], '%Y-%m-%d')
+                    d_end = datetime.strptime(d['end_date'], '%Y-%m-%d')
+                    if d_start <= now <= d_end:
+                        active = d
+                        break
+                if active:
+                    result['dasha'] = {
+                        'mahadasha': active['lord'],
+                        'start_date': active['start_date'],
+                        'end_date': active['end_date']
+                    }
+            except Exception:
+                result['dasha'] = {}
         
         return json.dumps(result)
         

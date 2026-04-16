@@ -37,11 +37,14 @@ android {
         applicationId "com.kundalii.saga"
         minSdkVersion 24
         targetSdkVersion 35
-        versionCode 6
-        versionName "1.0.5"
+        versionCode 13
+        versionName "1.0.13"
         
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false"
         buildConfigField "boolean", "IS_HERMES_ENABLED", "true"
+        
+        // Enable multidex for large APKs
+        multiDexEnabled true
         
         // Filter out invalid language codes from React Native/Facebook libraries
         resConfigs "en", "hi", "bn", "te", "mr", "ta", "gu", "kn", "ml", "pa", "or", "as"
@@ -142,8 +145,76 @@ dependencies {
     implementation "com.facebook.react:react-android:$react_native_version"
     implementation "com.facebook.react:hermes-android:$react_native_version"
     
+    // Multidex support for large apps
+    implementation 'androidx.multidex:multidex:2.0.1'
+    
     // React Native dependencies
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
+    
+    // Gesture Handler
+    implementation project(':react-native-gesture-handler')
+
+    // Async Storage
+    implementation project(':react-native-async-storage_async-storage')
+    implementation project(':react-native-safe-area-context')
+    implementation project(':react-native-screens')
 }
+
+// React Native Bundle Task - Generate JavaScript bundle for release builds
+project.ext.react = [
+    bundleAssetName: "index.android.bundle",
+    entryFile: "index.js",
+    root: "../../"
+]
+
+def reactRoot = file("../../")
+def inputExcludes = ["android/**", "ios/**"]
+def bundleAssetName = "index.android.bundle"
+def jsBundleDir = file("$projectDir/src/main/assets")
+def jsResDir = file("$projectDir/src/main/res")
+
+task bundleReleaseJsAndAssets(type: Exec) {
+    description = "Generate JavaScript bundle for release"
+    
+    // Create the output directory
+    doFirst {
+        jsBundleDir.mkdirs()
+        jsResDir.mkdirs()
+        file("$jsBundleDir/$bundleAssetName").delete()
+    }
+    
+    // On Windows, we need to use cmd.exe
+    if (System.properties['os.name'].toLowerCase().contains('windows')) {
+        commandLine "cmd", "/c", "npx", "react-native", "bundle",
+            "--platform", "android",
+            "--dev", "false",
+            "--entry-file", "index.js",
+            "--bundle-output", "$jsBundleDir/$bundleAssetName",
+            "--assets-dest", "$jsResDir"
+    } else {
+        commandLine "npx", "react-native", "bundle",
+            "--platform", "android",
+            "--dev", "false",
+            "--entry-file", "index.js",
+            "--bundle-output", "$jsBundleDir/$bundleAssetName",
+            "--assets-dest", "$jsResDir"
+    }
+    
+    workingDir reactRoot
+}
+
+// Make bundle task run before merge assets
+afterEvaluate {
+    android.applicationVariants.all { variant ->
+        def targetName = variant.name.capitalize()
+        def generateAssetsTask = tasks.findByName("merge${targetName}Assets")
+        if (generateAssetsTask) {
+            generateAssetsTask.dependsOn(bundleReleaseJsAndAssets)
+        }
+    }
+}
+
+// The generated bundle directory is already consumed by the merge-assets pipeline.
+// Adding it again as a source set causes duplicate index.android.bundle entries in bundleRelease.
