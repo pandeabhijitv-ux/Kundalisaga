@@ -10,8 +10,10 @@ from datetime import datetime
 import pytz
 import inspect
 
-# Add parent directory to path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Ensure bundled mobile python modules are resolved before workspace-level packages.
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+if MODULE_DIR not in sys.path:
+    sys.path.insert(0, MODULE_DIR)
 
 try:
     # Import database-based calculator (for mobile)
