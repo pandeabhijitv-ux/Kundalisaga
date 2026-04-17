@@ -5,10 +5,15 @@ import os
 import yaml
 from pathlib import Path
 from typing import Any, Dict
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv  # type: ignore
+except Exception:
+    # dotenv is optional on mobile builds.
+    load_dotenv = None
 
-# Load environment variables
-load_dotenv()
+# Load environment variables when python-dotenv is available.
+if load_dotenv is not None:
+    load_dotenv()
 
 
 class Config:
@@ -28,13 +33,36 @@ class Config:
     
     def load_config(self, config_path: str = None):
         """Load configuration from YAML file"""
+        default_config = {
+            'storage': {
+                'base_path': 'data'
+            },
+            'vector_db': {
+                'persist_directory': 'data/vector_db'
+            },
+            'llm': {
+                'model': 'llama3.2',
+                'host': 'http://localhost:11434'
+            },
+            'astrology': {},
+            'rag': {}
+        }
+
         if config_path is None:
             # Default config path
             base_dir = Path(__file__).parent.parent.parent
             config_path = base_dir / "config" / "config.yaml"
-        
-        with open(config_path, 'r') as f:
-            self._config = yaml.safe_load(f)
+
+        config_path = Path(config_path)
+        if config_path.exists():
+            with open(config_path, 'r', encoding='utf-8') as f:
+                loaded = yaml.safe_load(f) or {}
+            merged = default_config.copy()
+            for key, value in loaded.items():
+                merged[key] = value
+            self._config = merged
+        else:
+            self._config = default_config
         
         # Override with environment variables if present
         self._apply_env_overrides()

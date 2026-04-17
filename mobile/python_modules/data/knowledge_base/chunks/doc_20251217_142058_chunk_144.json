@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_142058_chunk_144",
+  "text": "birth time. Method\n-3: Take the lagna longitude at the time of query. Keep the\nsign part of this longitude aside and consider only the Degrees\nand minutes. Do the same for longitude of Moon. Add the\nDegree-Min portion of Lagna longitude and Moon's longitude\nat query time. Multiply the resultant longitude with 9. This\ncould be navamsa longitude of Sun at birth time] The\ninterpreters of this sloka tells us that since 'the trines could\nbe considered everywhere' these resultant longitude could be\neither the longitude of sun at BT or its trines.\nAs per Prasnamarga out of the many methods available\nfor determining longitude of Sun from the lagna longitude at\nquery time, the one that suit the natural possibility (i.e. at the\nlOth month of pregnancy) should be taken. Three methods\nfor determining BT from query time is given in the above\nsloka.\nSome astrologers argue that these methods can be used\nfor BT rectification as well. As per them, when used for BT",
+  "metadata": {
+    "source": "Jyotish_Secrets of birth time rectification.pdf",
+    "file_type": ".pdf",
+    "file_hash": "0358f01dc32bb7f1a41dec03eb7c5e72e9147172f2d9a8b8387f9131e356883b"
+  },
+  "chunk_index": 144
+}

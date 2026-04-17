@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_141531_chunk_4",
+  "text": "ce applying the following\ntechnologies and concepts:\n HTTP/HTTPS communications using the GET and POST methods for parameter passing\n A programming language such as Java, C/C++, Visual Basic or PHP\n In case of XML API, the guide assumes that you have basic knowledge of XML language\n Application designed in the above Language should be capable of capturing the ID (ID).\nNormal API\nRequired Environment\nIn order to use the HTTP/HTTPS based API, you will need to have a system that has internet\nconnectivity on outbound port (HTTP). This connectivity may be direct to the internet, or may be\nvia a firewall or proxy server.\nAdditionally, should you wish to receive delivery reports (DLRs) from the ConnectOne system,\nyou must have a web server that is able to receive incoming requests from the Internet on port,\ndefault (HTTP) (To change the port Unicel’s help would be required).\nDefault\nName Parameter Validation Value Type Response when invalid\nInvalid Username or",
+  "metadata": {
+    "source": "ConnectOne_API.PDF",
+    "file_type": ".pdf",
+    "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+  },
+  "chunk_index": 4
+}

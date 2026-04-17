@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_141531_chunk_20",
+  "text": "lid address Tag\nError-123-WAP Message NotFound\nError-124-WAPURL Not Found\nError-125-Sequence Number Required\nError-126-Invalid Port\nError-127-Unable To Process\nMessage Types Supported\nNormalText = 0,\nUnicodeCovertedToHex = 1,\nUnicode = 2,\nRingtone = 3,\nBinary = 4,\nWapPush = 5,\nPictureMsg = 6,\nOperatorLogo = 7,\nVCard = 8,\nVCardSecure = 9,\nVCalendar = 10,\nVCalendarSecure = 11,\nEMailNotification = 12,\nDmcpObsolete = 13,\nCgiCli = 14,\nDefaultFlashSMS = 15,\nUnicodeFlashSMS = 16,\nUnicodeFlashSMSConvertedToHex = 17\n9",
+  "metadata": {
+    "source": "ConnectOne_API.PDF",
+    "file_type": ".pdf",
+    "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+  },
+  "chunk_index": 20
+}

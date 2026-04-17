@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_141531_chunk_11",
+  "text": "ers. There\ncan be multiple SMS tags to send\nSMS SMS different messages.\nTEXT parameter contains the\nText TEXT message to be sent.\nShall start from\n1 if multiple SMS\nID parameter contains the messages\nId ID unique id for the message present 1\nADDRESS tag shall be within SMS\ntag. There can be several\nADDRESS tags distinguished\nAddress ADDRESS through unique SEQ number\nIf Alpha-Numeric then 8\nFROM parameter under characters.\nADDRESS tag contains the e.g sender1\nsender id of the message. Can be If Digits = 12 e.g.\nFrom FROM Alphanumeric or Digits. 919986280508\nTO parameter contains the\nmobile\nTo TO number of the recipient e.g 919986280508\nSEQ contains sequence number Shall start from 1\nSequence SEQ for each mobile number in if multiple ADDRESS 1\nThis attribute is an optional\nCustomer\nattribute.\n_unique\n If this attribute with\n_msg_Id CUST_MID\nvalue is provided in the\nrequest, the same value\n(Optional)\nwould be reflected in\n5\n\nConnectOne Power API\nthe MSGID of Response.",
+  "metadata": {
+    "source": "ConnectOne_API.PDF",
+    "file_type": ".pdf",
+    "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+  },
+  "chunk_index": 11
+}

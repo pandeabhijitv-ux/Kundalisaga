@@ -4,7 +4,9 @@ import json
 import os
 import sys
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+if MODULE_DIR not in sys.path:
+    sys.path.insert(0, MODULE_DIR)
 
 from src.remedy_engine import RemedyEngine
 
@@ -15,6 +17,9 @@ def _collect_by_type(planet_remedies):
     fasting = []
     charity = []
     daily_practices = []
+
+    if not isinstance(planet_remedies, dict):
+        return gemstones, mantras, fasting, charity, daily_practices
 
     for planet_name, payload in planet_remedies.items():
         for remedy in payload.get("remedies", []):
@@ -35,10 +40,29 @@ def _collect_by_type(planet_remedies):
     return gemstones, mantras, fasting, charity, daily_practices
 
 
+def _normalize_chart(chart_data):
+    """Normalize chart payload from mobile format into remedy-engine format."""
+    if not isinstance(chart_data, dict):
+        return {}
+
+    normalized = dict(chart_data)
+    planets = normalized.get("planets", {})
+
+    if isinstance(planets, list):
+        planets_map = {}
+        for item in planets:
+            if isinstance(item, dict) and item.get("name"):
+                planets_map[item["name"]] = item
+        normalized["planets"] = planets_map
+
+    return normalized
+
+
 def get_remedies(chart_json):
     """Generate remedies based on chart context and return bridge-friendly JSON."""
     try:
         chart_data = json.loads(chart_json) if chart_json else {}
+        chart_data = _normalize_chart(chart_data)
         engine = RemedyEngine()
 
         suggestions = engine.suggest_remedies(chart_data, specific_concern="general well-being")

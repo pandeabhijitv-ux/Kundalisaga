@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_141531_chunk_15",
+  "text": "nternational Flag\nWhen international flag is set, messages will be processed to international gateway and\ninternational commercials for your respective local country will be applicable. The following\naction would be taken when the Intl parameter is set as ON/OFF and the Destination Number is\nentered with different length:\nAPI International Flag Destination Number Length Action\nOFF 9 digits and Less than 9 digits Reject\nON 9 digits and Less than 9 digits Reject\nON 9 digits and Less than 9 digits Process to international\nOFF 10 Digits Process to Domestic\nON 10 Digits Process to international\nON 10 Digits Process to Domestic\nOFF/ON 11 digits or more than 12 digits Reject\nOFF/ON 11 digits or more than 12 digits Process to International\nON/OFF 12 digits and starts with 91 Process to domestic\nOFF/ON 12 Digits and does not start with 91 Process to domestic\nOFF 12 Digits and does not start with 91 Process to International",
+  "metadata": {
+    "source": "ConnectOne_API.PDF",
+    "file_type": ".pdf",
+    "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+  },
+  "chunk_index": 15
+}

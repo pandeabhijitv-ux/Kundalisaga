@@ -62,6 +62,7 @@ android {
             pip {
                 install "pytz==2023.3"  // Timezone support
                 install "pyyaml==6.0.1" // YAML config loader support
+                install "python-dotenv==1.0.1" // Environment variable loader parity with PWA
             }
 
             // Use environment-provided Python executable for CI/local portability

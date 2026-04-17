@@ -6,10 +6,29 @@ Simple search in knowledge base
 import json
 import sys
 import os
+from pathlib import Path
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+if MODULE_DIR not in sys.path:
+    sys.path.insert(0, MODULE_DIR)
 
 from src.simple_rag.simple_search import SimpleKnowledgeBase
+
+
+def _resolve_storage_path() -> Path:
+    """Resolve a writable/readable knowledge-base path for mobile and local dev."""
+    module_path = Path(MODULE_DIR)
+    candidates = [
+        module_path / "data" / "knowledge_base",  # Bundled mobile path
+        module_path.parent / "data" / "knowledge_base",  # Local workspace fallback
+    ]
+
+    for path in candidates:
+        if (path / "index.json").exists() or path.exists():
+            return path
+
+    # Default to bundled location.
+    return candidates[0]
 
 def search(query):
     """
@@ -22,7 +41,7 @@ def search(query):
         JSON string with search results
     """
     try:
-        kb = SimpleKnowledgeBase()
+        kb = SimpleKnowledgeBase(str(_resolve_storage_path()))
         results = kb.search(query, top_k=5)
         
         formatted_results = {

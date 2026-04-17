@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_141531_chunk_10",
+  "text": "\"SUCCESS\" />\n<RESPONSE ID=\"2\" SEQ=\"1\" MSGID=\"1644290\" STATUS=\"SUCCESS\" />\n<RESPONSE ID=\"2\" SEQ=\"2\" MSGID=\"1644291\" STATUS=\"Error-101-Destination Not Found\" />\n</MESSAGEACK>\nError Codes & Description:\nIf invalid request, then the error codes will be given back\nEx: Error-107-Invalid Credential\nConnectOne API Parameters Specification\nThe following table gives a list of ConnectOne XML-API tags that need to be set while creating API\ncalls for distinct message services.\nDefault\nName XML Tag Description Required Value Value\nVER is for internal checks. It\nVersion VER should be set to 1.2 1.2\nUser name of the sender of the\nUsername USERNAME message Username\nPassword PASSWORD Password as provided by Unicel Password\nThis tag holds the message to be\nsent to mobile numbers. There\ncan be multiple SMS tags to send\nSMS SMS different messages.\nTEXT parameter contains the\nText TEXT message to be sent.\nShall start from\n1 if multiple SMS\nID parameter contains the messages",
+  "metadata": {
+    "source": "ConnectOne_API.PDF",
+    "file_type": ".pdf",
+    "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+  },
+  "chunk_index": 10
+}

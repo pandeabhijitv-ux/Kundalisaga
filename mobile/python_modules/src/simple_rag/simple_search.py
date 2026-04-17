@@ -12,7 +12,12 @@ class SimpleKnowledgeBase:
     """Simple text-based knowledge base for astrology books"""
     
     def __init__(self, storage_path: str = "data/knowledge_base"):
-        self.storage_path = Path(storage_path)
+        path_obj = Path(storage_path)
+        if not path_obj.is_absolute():
+            base_dir = Path(__file__).resolve().parents[3]
+            path_obj = base_dir / path_obj
+
+        self.storage_path = path_obj
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self.index_file = self.storage_path / "index.json"
         self.chunks_dir = self.storage_path / "chunks"

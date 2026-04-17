@@ -1,0 +1,10 @@
+{
+  "id": "doc_20251217_141531_chunk_14",
+  "text": "is a sample of the same.\nSample API Call made by Client’s Application\nhttp:// 172.16.2.99/ConnectOneUrl/SendXml/SendSmsXml?data=\n<MESSAGE VER=\"1.2\">\n<USER USERNAME=\"admin\" PASSWORD=\"admin\" DLR=\"0\"/>\n<SMS TEXT=\"This is first sms on xml\" ID=\"1\" VP=\"120\" INTL=\"1\">\n6\n\nConnectOne Power API\n<ADDRESS FROM=\"Sender1\" TO=\"919986102383\" SEQ=\"1\" CUST_MID=\"12345\"/>\n<ADDRESS FROM=\" Sender1\" TO=\"919986102384\" SEQ=\"2\" CUST_MID=\"12346\"/>\n</SMS>\n<SMS TEXT=\"093909010917093E092E093E002000200939094B00200917092F093E\" ID=\"2\"\nPRTY=\"2\" TYPE =”2”>\n<ADDRESS FROM=\" Sender2\" TO=\"919986102384\" SEQ=\"1\" CUST_MID=\"12347\"/>\n<ADDRESS FROM=\" Sender2\" TO=\"919243201476\" SEQ=\"2\"/>\n</SMS>\n</MESSAGE>\nAll custom parameters will be applicable based on each message ID submitted to ConnectOne\nInternational Flag\nWhen international flag is set, messages will be processed to international gateway and\ninternational commercials for your respective local country will be applicable. The following",
+  "metadata": {
+    "source": "ConnectOne_API.PDF",
+    "file_type": ".pdf",
+    "file_hash": "c85cb9c707fd3dc353a1f23767f28a2169c7042ae07e51ab6597656250fb2182"
+  },
+  "chunk_index": 14
+}

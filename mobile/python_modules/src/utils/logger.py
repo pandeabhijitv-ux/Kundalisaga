@@ -18,10 +18,6 @@ def setup_logger(name: str = "AstroKnowledge", log_level: str = "INFO") -> loggi
     Returns:
         Configured logger instance
     """
-    # Create logs directory
-    log_dir = Path("logs")
-    log_dir.mkdir(exist_ok=True)
-    
     # Create logger
     logger = logging.getLogger(name)
     logger.setLevel(getattr(logging, log_level.upper()))
@@ -30,7 +26,7 @@ def setup_logger(name: str = "AstroKnowledge", log_level: str = "INFO") -> loggi
     if logger.handlers:
         return logger
     
-    # Console handler
+    # Console handler is always available.
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
     console_format = logging.Formatter(
@@ -38,20 +34,26 @@ def setup_logger(name: str = "AstroKnowledge", log_level: str = "INFO") -> loggi
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     console_handler.setFormatter(console_format)
-    
-    # File handler
-    log_file = log_dir / f"app_{datetime.now().strftime('%Y%m%d')}.log"
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(logging.DEBUG)
-    file_format = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    file_handler.setFormatter(file_format)
-    
-    # Add handlers
     logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
+
+    # File logging is optional: Android assets paths can be read-only.
+    try:
+        log_dir = Path(os.environ.get("ASTRO_LOG_DIR", "logs"))
+        if not log_dir.exists():
+            log_dir.mkdir(parents=True, exist_ok=True)
+
+        log_file = log_dir / f"app_{datetime.now().strftime('%Y%m%d')}.log"
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.DEBUG)
+        file_format = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        file_handler.setFormatter(file_format)
+        logger.addHandler(file_handler)
+    except Exception:
+        # Console-only logging keeps runtime features working in restricted FS envs.
+        pass
     
     return logger
 
