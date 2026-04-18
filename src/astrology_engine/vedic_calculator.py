@@ -124,6 +124,51 @@ class VedicAstrologyEngine:
         self.ayanamsa_mode = ayanamsa_map.get(ayanamsa_name, swe.SIDM_LAHIRI)
         swe.set_sid_mode(self.ayanamsa_mode)
         self.logger.info(f"Ayanamsa changed to {ayanamsa_name}")
+
+    def _compose_place_label(self, location) -> str:
+        """Build a compact human-readable place label with locality + district context."""
+        raw_address = getattr(location, "raw", {}).get("address", {})
+        if not raw_address:
+            return location.address
+
+        locality = (
+            raw_address.get("city")
+            or raw_address.get("town")
+            or raw_address.get("village")
+            or raw_address.get("hamlet")
+            or raw_address.get("municipality")
+            or raw_address.get("suburb")
+        )
+        subdistrict = raw_address.get("subdistrict") or raw_address.get("county")
+        district = raw_address.get("state_district") or raw_address.get("district")
+        state = raw_address.get("state")
+        country = raw_address.get("country")
+
+        parts = [locality, subdistrict, district, state, country]
+        cleaned_parts = []
+        seen = set()
+        for part in parts:
+            if not part:
+                continue
+            lowered = part.strip().lower()
+            if lowered in seen:
+                continue
+            seen.add(lowered)
+            cleaned_parts.append(part.strip())
+
+        return ", ".join(cleaned_parts) if cleaned_parts else location.address
+
+    def _location_to_dict(self, location, tf: TimezoneFinder) -> Dict:
+        timezone = tf.timezone_at(lat=location.latitude, lng=location.longitude)
+        if not timezone:
+            timezone = tf.closest_timezone_at(lat=location.latitude, lng=location.longitude)
+
+        return {
+            'latitude': float(location.latitude),
+            'longitude': float(location.longitude),
+            'timezone': timezone or 'UTC',
+            'place': self._compose_place_label(location)
+        }
     
     def get_location_info(self, place_name: str) -> Optional[Dict]:
         """
@@ -137,18 +182,26 @@ class VedicAstrologyEngine:
         """
         try:
             geolocator = Nominatim(user_agent="astro_knowledge")
-            location = geolocator.geocode(place_name)
+            location = geolocator.geocode(
+                place_name,
+                country_codes="in",
+                addressdetails=True,
+                language="en",
+                exactly_one=True,
+            )
+
+            # Fallback for non-India locations.
+            if not location:
+                location = geolocator.geocode(
+                    place_name,
+                    addressdetails=True,
+                    language="en",
+                    exactly_one=True,
+                )
             
             if location:
                 tf = TimezoneFinder()
-                timezone = tf.timezone_at(lat=location.latitude, lng=location.longitude)
-                
-                return {
-                    'latitude': location.latitude,
-                    'longitude': location.longitude,
-                    'timezone': timezone,
-                    'place': location.address
-                }
+                return self._location_to_dict(location, tf)
         except Exception as e:
             self.logger.error(f"Error getting location info: {str(e)}")
         
@@ -167,20 +220,31 @@ class VedicAstrologyEngine:
         """
         try:
             geolocator = Nominatim(user_agent="astro_knowledge")
-            locations = geolocator.geocode(place_name, exactly_one=False, limit=limit)
+            locations = geolocator.geocode(
+                place_name,
+                exactly_one=False,
+                limit=limit,
+                country_codes="in",
+                addressdetails=True,
+                language="en",
+            )
+
+            # Fallback for non-India locations.
+            if not locations:
+                locations = geolocator.geocode(
+                    place_name,
+                    exactly_one=False,
+                    limit=limit,
+                    addressdetails=True,
+                    language="en",
+                )
             
             if locations:
                 results = []
                 tf = TimezoneFinder()
                 
                 for loc in locations:
-                    timezone = tf.timezone_at(lat=loc.latitude, lng=loc.longitude)
-                    results.append({
-                        'latitude': loc.latitude,
-                        'longitude': loc.longitude,
-                        'timezone': timezone,
-                        'place': loc.address
-                    })
+                    results.append(self._location_to_dict(loc, tf))
                 
                 return results
         except Exception as e:

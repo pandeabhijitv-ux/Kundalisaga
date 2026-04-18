@@ -3,11 +3,12 @@ AstroKnowledge - Main Streamlit Application
 Vedic Astrology AI Assistant
 """
 import streamlit as st
-from datetime import datetime, time as datetime_time
+from datetime import datetime, date as datetime_date, time as datetime_time
 import pandas as pd
 from pathlib import Path
 import yaml
 import time
+import re
 
 from src.document_processor import DocumentProcessor
 from src.astrology_engine import VedicAstrologyEngine, BirthDetails
@@ -1128,20 +1129,45 @@ def show_user_profiles():
             
             parsed_lat = None
             parsed_lon = None
+
+            def _parse_coordinate_pair(text: str):
+                """Parse latitude/longitude from free text while preserving N/S/E/W signs."""
+                pattern = re.compile(r"([+-]?\d+(?:\.\d+)?)\s*([NnSsEeWw])?")
+                matches = pattern.findall(text)
+                values = []
+
+                for num_str, direction in matches:
+                    value = float(num_str)
+                    if direction and direction.upper() in {"S", "W"}:
+                        value = -abs(value)
+                    values.append(value)
+
+                if len(values) < 2:
+                    return None
+
+                lat_candidate, lon_candidate = values[0], values[1]
+
+                # If first value cannot be latitude but second can, swap them.
+                if not (-90 <= lat_candidate <= 90) and (-90 <= lon_candidate <= 90):
+                    lat_candidate, lon_candidate = lon_candidate, lat_candidate
+
+                if not (-90 <= lat_candidate <= 90 and -180 <= lon_candidate <= 180):
+                    return None
+
+                return lat_candidate, lon_candidate
             
             if coords_paste:
                 try:
-                    cleaned = coords_paste.replace("°", "").replace("N", "").replace("S", "").replace("E", "").replace("W", "")
-                    parts = [p.strip() for p in cleaned.replace(",", " ").split() if p.strip()]
-                    
-                    if len(parts) >= 2:
-                        parsed_lat = float(parts[0])
-                        parsed_lon = float(parts[1])
+                    parsed = _parse_coordinate_pair(coords_paste.replace("°", " "))
+                    if parsed:
+                        parsed_lat, parsed_lon = parsed
                         st.success(f"✅ Parsed: {parsed_lat:.4f}°, {parsed_lon:.4f}°")
                         if st.button("✅ Use these coordinates", key="use_parsed_coords"):
                             st.session_state.selected_birth_place = f"Location at {parsed_lat:.4f}°, {parsed_lon:.4f}°"
                             st.session_state.selected_coordinates = (parsed_lat, parsed_lon)
                             st.rerun()
+                    else:
+                        st.warning("⚠️ Could not parse coordinates. Please use format like 19.0760, 72.8777")
                 except:
                     st.warning("⚠️ Could not parse coordinates")
         
@@ -1162,9 +1188,11 @@ def show_user_profiles():
             with col1:
                 birth_date = st.date_input(
                     f"{get_text('birth_date')}*", 
-                    value=datetime(1990, 1, 1),
-                    min_value=datetime(1800, 1, 1),
-                    max_value=datetime.now()
+                    value=datetime_date(1990, 1, 1),
+                    min_value=datetime_date(1800, 1, 1),
+                    max_value=datetime_date.today(),
+                    format="DD/MM/YYYY",
+                    help="Tap/click to open calendar"
                 )
                 
                 # Time input with seconds precision

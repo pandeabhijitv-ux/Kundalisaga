@@ -17,17 +17,29 @@ import {useAuth} from '../../contexts/AuthContext';
 import {getCurrentDasha} from '../../services/PythonBridge';
 
 const EMOJI_ICONS: {[key: string]: string} = {
-  'Birth Chart': '📜',
-  Profiles: '👥',
-  'Ask Question': '💬',
-  Remedies: '🕉️',
-  Numerology: '🔢',
-  'Current Dasha': '🪐',
-  'Knowledge Search': '📚',
-  Compatibility: '❤️',
-  'Career Guidance': '💼',
-  'Financial Astrology': '💰',
-  'Navagraha Mantras': '🎵',
+  'Get Remedies': '🕉️',
+  'Ask Question': '❓',
+  'Financial': '📊',
+  'Gemstones': '💎',
+  'Numerology': '🔢',
+  'Matchmaking': '❤️',
+  'Muhurat': '⏰',
+  'Varshaphal': '📅',
+  'Dasha Analysis': '🪐',
+  'Name Guide': '✨',
+};
+
+const ACTION_LABELS: {[key: string]: string} = {
+  'Get Remedies': 'View',
+  'Ask Question': 'Ask',
+  'Financial': 'View',
+  'Gemstones': 'View',
+  'Numerology': 'View',
+  'Matchmaking': 'Check',
+  'Muhurat': 'Find',
+  'Varshaphal': 'View',
+  'Dasha Analysis': 'Analyze',
+  'Name Guide': 'Suggest',
 };
 
 const HomeScreen = ({navigation}: any) => {
@@ -51,75 +63,70 @@ const HomeScreen = ({navigation}: any) => {
 
   const features = [
     {
-      title: 'Birth Chart',
-      color: '#FF6B35',
-      screen: 'Horoscope',
-      description: 'Calculate Vedic horoscope',
-    },
-    {
-      title: 'Profiles',
-      color: '#F9C74F',
-      screen: 'Profiles',
-      description: 'Manage family profiles',
+      title: 'Get Remedies',
+      color: '#FF8FA3',
+      screen: 'Remedies',
+      description: 'Lal Kitab remedies & lifestyle changes',
     },
     {
       title: 'Ask Question',
-      color: '#4ECDC4',
+      color: '#87CEEB',
       screen: 'Ask',
-      description: 'Get astrological insights',
+      description: 'Instant answers about career, wealth, relationships',
     },
     {
-      title: 'Remedies',
-      color: '#95E1D3',
-      screen: 'Remedies',
-      description: 'Personalized solutions',
+      title: 'Financial',
+      color: '#7B68EE',
+      screen: 'Ask',
+      params: {preset: 'finance'},
+      description: 'Market trends using planetary transits',
+    },
+    {
+      title: 'Gemstones',
+      color: '#FF69B4',
+      screen: 'Ask',
+      params: {preset: 'gemstones'},
+      description: 'Personalized recommendations from chart analysis',
     },
     {
       title: 'Numerology',
-      color: '#9C6ADE',
+      color: '#90EE90',
       screen: 'Numerology',
-      description: 'Life path and destiny numbers',
+      description: 'Life Path, Expression & Soul numbers',
     },
     {
-      title: 'Current Dasha',
-      color: '#5C7AEA',
+      title: 'Matchmaking',
+      color: '#FF6B35',
+      screen: 'Ask',
+      params: {preset: 'matchmaking'},
+      description: 'Kundali Milan & compatibility analysis',
+    },
+    {
+      title: 'Muhurat',
+      color: '#F9C74F',
+      screen: 'Ask',
+      params: {preset: 'muhurat'},
+      description: 'Auspicious timing for important events',
+    },
+    {
+      title: 'Varshaphal',
+      color: '#00CED1',
+      screen: 'Ask',
+      params: {preset: 'varshaphal'},
+      description: 'Annual predictions & yearly forecast',
+    },
+    {
+      title: 'Dasha Analysis',
+      color: '#9370DB',
       screen: 'Dasha',
-      description: 'Mahadasha and antardasha',
+      description: 'Detailed planetary period predictions',
     },
     {
-      title: 'Knowledge Search',
-      color: '#2A9D8F',
+      title: 'Name Guide',
+      color: '#20B2AA',
       screen: 'Ask',
-      params: {preset: 'knowledge'},
-      description: 'Search astrology knowledge base',
-    },
-    {
-      title: 'Compatibility',
-      color: '#E76F51',
-      screen: 'Horoscope',
-      params: {preset: 'compatibility'},
-      description: 'Basic compatibility workflow',
-    },
-    {
-      title: 'Career Guidance',
-      color: '#457B9D',
-      screen: 'Ask',
-      params: {preset: 'career'},
-      description: 'Career-focused question prompts',
-    },
-    {
-      title: 'Financial Astrology',
-      color: '#2B9348',
-      screen: 'Ask',
-      params: {preset: 'finance'},
-      description: 'Money and timing insights',
-    },
-    {
-      title: 'Navagraha Mantras',
-      color: '#8D99AE',
-      screen: 'Remedies',
-      params: {preset: 'mantras'},
-      description: 'Planetary mantra recommendations',
+      params: {preset: 'name'},
+      description: 'Lucky names based on numerology',
     },
   ];
 
@@ -151,20 +158,21 @@ const HomeScreen = ({navigation}: any) => {
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.sectionTitle}>Quick Access</Text>
+        <Text style={styles.sectionTitle}>Welcome to KundaliSaga</Text>
         <View style={styles.featuresGrid}>
           {features.map((feature, index) => (
             <TouchableOpacity
               key={index}
-              style={[styles.featureCard, {borderLeftColor: feature.color}]}
+              style={[styles.featureCard, {backgroundColor: feature.color}]}
               onPress={() => navigation.navigate(feature.screen, feature.params)}>
-              <View style={[styles.featureIconWrap, {backgroundColor: `${feature.color}20`}]}>
-                <Text style={styles.featureIconText}>{EMOJI_ICONS[feature.title] || '✨'}</Text>
-              </View>
+              <Text style={styles.featureIconText}>{EMOJI_ICONS[feature.title] || '✨'}</Text>
               <Text style={styles.featureTitle}>{feature.title}</Text>
-              <Text style={styles.featureDescription}>
+              <Text style={styles.featureDescriptionLight}>
                 {feature.description}
               </Text>
+              <View style={styles.actionBtn}>
+                <Text style={styles.actionBtnText}>{ACTION_LABELS[feature.title] || 'View'}</Text>
+              </View>
             </TouchableOpacity>
           ))}
         </View>
@@ -266,40 +274,43 @@ const styles = StyleSheet.create({
   },
   featureCard: {
     width: '48%',
-    backgroundColor: THEME.card,
     padding: 15,
-    borderRadius: 15,
+    borderRadius: 12,
     marginBottom: 15,
-    alignItems: 'center',
-    borderLeftWidth: 4,
+    minHeight: 140,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.15,
     shadowRadius: 4,
-    elevation: 2,
+    elevation: 3,
   },
   featureTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
-    color: THEME.text,
-    marginTop: 10,
-    textAlign: 'center',
-  },
-  featureIconWrap: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
+    color: 'white',
+    marginTop: 8,
   },
   featureIconText: {
-    fontSize: 30,
+    fontSize: 24,
   },
-  featureDescription: {
+  featureDescriptionLight: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.85)',
+    marginTop: 4,
+    lineHeight: 15,
+  },
+  actionBtn: {
+    marginTop: 10,
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    borderRadius: 6,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    alignSelf: 'flex-start',
+  },
+  actionBtnText: {
+    color: 'white',
     fontSize: 12,
-    color: THEME.textLight,
-    marginTop: 5,
-    textAlign: 'center',
+    fontWeight: '600',
   },
   dashaCard: {
     backgroundColor: THEME.card,
