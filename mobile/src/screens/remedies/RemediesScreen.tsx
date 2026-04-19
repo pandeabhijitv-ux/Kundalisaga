@@ -22,8 +22,8 @@ const RemediesScreen = () => {
     setLoading(true);
     try {
       const response = await getRemedies({planets: [], houses: [], ascendant: {}, dasha: {}} as any);
-      if (response?.error) {
-        Alert.alert('Remedy Error', response.error);
+      if ((response as any)?.error) {
+        Alert.alert('Remedy Error', (response as any).error);
       }
       setData(response);
     } catch (error: any) {

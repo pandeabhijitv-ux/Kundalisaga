@@ -3,7 +3,11 @@ Transit Tracker
 Tracks current planetary positions and transits for market analysis
 """
 
-import swisseph as swe
+try:
+    import swisseph as swe
+    HAS_SWE = True
+except ImportError:
+    HAS_SWE = False
 from datetime import datetime, timedelta
 from typing import Dict, List, Tuple
 
@@ -24,12 +28,14 @@ class TransitTracker:
     
     def __init__(self):
         """Initialize transit tracker"""
-        # Set Swiss Ephemeris path
-        swe.set_ephe_path('/usr/share/ephe')  # Update path as needed
+        if HAS_SWE:
+            swe.set_ephe_path('/usr/share/ephe')
     
     def get_current_transits(self) -> Dict:
         """Get current planetary positions"""
         try:
+            if not HAS_SWE:
+                return {'success': False, 'error': 'Ephemeris not available on this platform', 'transits': {}}
             now = datetime.now()
             jd = self._datetime_to_jd(now)
             
@@ -91,8 +97,13 @@ class TransitTracker:
     
     def _datetime_to_jd(self, dt: datetime) -> float:
         """Convert datetime to Julian Day"""
-        return swe.julday(dt.year, dt.month, dt.day,
-                         dt.hour + dt.minute/60.0 + dt.second/3600.0)
+        if HAS_SWE:
+            return swe.julday(dt.year, dt.month, dt.day,
+                             dt.hour + dt.minute/60.0 + dt.second/3600.0)
+        import calendar
+        epoch = datetime(1970, 1, 1)
+        delta = dt - epoch
+        return 2440587.5 + delta.total_seconds() / 86400.0
     
     def _get_sign(self, longitude: float) -> str:
         """Get zodiac sign from longitude"""

@@ -4,7 +4,11 @@ Maps planetary positions and strengths to business/career sectors
 """
 
 from typing import Dict, List, Tuple
-import swisseph as swe
+try:
+    import swisseph as swe
+    HAS_SWE = True
+except ImportError:
+    HAS_SWE = False
 from datetime import datetime
 
 

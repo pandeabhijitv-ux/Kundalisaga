@@ -21,17 +21,18 @@ import RemediesScreen from '../screens/remedies/RemediesScreen';
 import AskQuestionScreen from '../screens/ask/AskQuestionScreen';
 import NumerologyScreen from '../screens/NumerologyScreen';
 import DashaScreen from '../screens/DashaScreen';
-import CareerScreen from '../screens/CareerScreen';
-import FinancialScreen from '../screens/FinancialScreen';
 import GemstoneScreen from '../screens/GemstoneScreen';
-import MatchmakingScreen from '../screens/MatchmakingScreen';
-import SoulmateScreen from '../screens/SoulmateScreen';
-import MuhuratScreen from '../screens/MuhuratScreen';
-import VarshaphalScreen from '../screens/VarshaphalScreen';
-import NameRecommendationScreen from '../screens/NameRecommendationScreen';
 import BuyCreditsScreen from '../screens/BuyCreditsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import StotrasScreen from '../screens/StotrasScreen';
+
+const CareerScreen = require('../screens/CareerScreen').default;
+const FinancialScreen = require('../screens/FinancialScreen').default;
+const MatchmakingScreen = require('../screens/MatchmakingScreen').default;
+const SoulmateScreen = require('../screens/SoulmateScreen').default;
+const MuhuratScreen = require('../screens/MuhuratScreen').default;
+const VarshaphalScreen = require('../screens/VarshaphalScreen').default;
+const NameRecommendationScreen = require('../screens/NameRecommendationScreen').default;
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -50,10 +51,14 @@ const TabEmojiIcon = ({routeName, size}: {routeName: string; size: number}) => (
 
 const MainTabs = () => {
   const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [currentSidebarScreen, setCurrentSidebarScreen] = useState('Home');
 
-  const HamburgerButton = ({navigation}: any) => (
+  const HamburgerButton = ({routeName}: {routeName: string}) => (
     <TouchableOpacity
-      onPress={() => setSidebarVisible(true)}
+      onPress={() => {
+        setCurrentSidebarScreen(routeName);
+        setSidebarVisible(true);
+      }}
       style={{paddingHorizontal: 14, paddingVertical: 8}}>
       <Text style={{fontSize: 20}}>☰</Text>
     </TouchableOpacity>
@@ -62,7 +67,7 @@ const MainTabs = () => {
   return (
     <>
       <Tab.Navigator
-        screenOptions={({navigation}) => ({
+        screenOptions={({route}) => ({
           tabBarActiveTintColor: THEME.primary,
           tabBarInactiveTintColor: THEME.textLight,
           tabBarStyle: {
@@ -73,7 +78,7 @@ const MainTabs = () => {
             backgroundColor: THEME.background,
           },
           headerTintColor: THEME.primary,
-          headerLeft: () => <HamburgerButton navigation={navigation} />,
+          headerLeft: () => <HamburgerButton routeName={route.name} />,
         })}>
         <Tab.Screen
           name="Home"
@@ -120,7 +125,7 @@ const MainTabs = () => {
       <SidebarMenu
         visible={sidebarVisible}
         onClose={() => setSidebarVisible(false)}
-        currentScreen="Home"
+        currentScreen={currentSidebarScreen}
       />
     </>
   );
@@ -128,44 +133,60 @@ const MainTabs = () => {
 
 const AppNavigator = () => {
   const {user, isGuest} = useAuth();
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [currentSidebarScreen, setCurrentSidebarScreen] = useState('Home');
+
+  const openSidebar = (screenName: string) => {
+    setCurrentSidebarScreen(screenName);
+    setSidebarVisible(true);
+  };
+
+  const stackScreenOptions = (title: string, routeName: string) => ({
+    headerShown: true,
+    title,
+    headerStyle: {backgroundColor: THEME.background},
+    headerTintColor: THEME.primary,
+    headerRight: () => (
+      <TouchableOpacity
+        onPress={() => openSidebar(routeName)}
+        style={{paddingHorizontal: 14, paddingVertical: 8}}>
+        <Text style={{fontSize: 20}}>☰</Text>
+      </TouchableOpacity>
+    ),
+  });
 
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}>
-      {!user && !isGuest ? (
-        <>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Register" component={RegisterScreen} />
-        </>
-      ) : (
-        <>
-          <Stack.Screen name="Main" component={MainTabs} />
-          <Stack.Screen
-            name="Numerology"
-            component={NumerologyScreen}
-            options={{headerShown: true, title: 'Numerology'}}
-          />
-          <Stack.Screen
-            name="Dasha"
-            component={DashaScreen}
-            options={{headerShown: true, title: 'Current Dasha'}}
-          />
-          <Stack.Screen name="Career" component={CareerScreen} options={{headerShown: true, title: 'Career Guidance'}} />
-          <Stack.Screen name="Financial" component={FinancialScreen} options={{headerShown: true, title: 'Financial Outlook'}} />
-          <Stack.Screen name="Gemstone" component={GemstoneScreen} options={{headerShown: true, title: 'Gemstone Guide'}} />
-          <Stack.Screen name="Matchmaking" component={MatchmakingScreen} options={{headerShown: true, title: 'Matchmaking'}} />
-          <Stack.Screen name="Soulmate" component={SoulmateScreen} options={{headerShown: true, title: 'Soulmate Analysis'}} />
-          <Stack.Screen name="Muhurat" component={MuhuratScreen} options={{headerShown: true, title: 'Muhurat Finder'}} />
-          <Stack.Screen name="Varshaphal" component={VarshaphalScreen} options={{headerShown: true, title: 'Varshaphal'}} />
-          <Stack.Screen name="NameRecommendation" component={NameRecommendationScreen} options={{headerShown: true, title: 'Name Recommendation'}} />
-          <Stack.Screen name="BuyCredits" component={BuyCreditsScreen} options={{headerShown: true, title: 'Buy Credits'}} />
-          <Stack.Screen name="Settings" component={SettingsScreen} options={{headerShown: true, title: 'Settings'}} />
-          <Stack.Screen name="Stotras" component={StotrasScreen} options={{headerShown: true, title: 'Stotras & Prayers'}} />
-        </>
-      )}
-    </Stack.Navigator>
+    <>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}>
+        {!user && !isGuest ? (
+          <>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+          </>
+        ) : (
+          <>
+            <Stack.Screen name="Main" component={MainTabs} />
+            <Stack.Screen name="Numerology" component={NumerologyScreen} options={stackScreenOptions('Numerology', 'Numerology')} />
+            <Stack.Screen name="Dasha" component={DashaScreen} options={stackScreenOptions('Current Dasha', 'Dasha')} />
+            <Stack.Screen name="Career" component={CareerScreen} options={stackScreenOptions('Career Guidance', 'Career')} />
+            <Stack.Screen name="Financial" component={FinancialScreen} options={stackScreenOptions('Financial Outlook', 'Financial')} />
+            <Stack.Screen name="Gemstone" component={GemstoneScreen} options={stackScreenOptions('Gemstone Guide', 'Gemstone')} />
+            <Stack.Screen name="Matchmaking" component={MatchmakingScreen} options={stackScreenOptions('Matchmaking', 'Matchmaking')} />
+            <Stack.Screen name="Soulmate" component={SoulmateScreen} options={stackScreenOptions('Soulmate Analysis', 'Soulmate')} />
+            <Stack.Screen name="Muhurat" component={MuhuratScreen} options={stackScreenOptions('Muhurat Finder', 'Muhurat')} />
+            <Stack.Screen name="Varshaphal" component={VarshaphalScreen} options={stackScreenOptions('Varshaphal', 'Varshaphal')} />
+            <Stack.Screen name="NameRecommendation" component={NameRecommendationScreen} options={stackScreenOptions('Name Recommendation', 'NameRecommendation')} />
+            <Stack.Screen name="BuyCredits" component={BuyCreditsScreen} options={stackScreenOptions('Buy Credits', 'BuyCredits')} />
+            <Stack.Screen name="Settings" component={SettingsScreen} options={stackScreenOptions('Settings', 'Settings')} />
+            <Stack.Screen name="Stotras" component={StotrasScreen} options={stackScreenOptions('Stotras & Prayers', 'Stotras')} />
+          </>
+        )}
+      </Stack.Navigator>
+      <SidebarMenu visible={sidebarVisible} onClose={() => setSidebarVisible(false)} currentScreen={currentSidebarScreen} />
+    </>
   );
 };
 

@@ -112,6 +112,102 @@ public class PythonBridgeModule extends ReactContextBaseJavaModule {
         }
     }
 
+    @ReactMethod
+    public void analyzeCareer(String chartJson, Promise promise) {
+        try {
+            Python py = Python.getInstance();
+            PyObject module = py.getModule("career_analyzer");
+            PyObject result = module.callAttr("analyze_career", chartJson);
+            promise.resolve(jsonStringToWritableMap(result.toString()));
+        } catch (Exception e) {
+            promise.reject("ERROR", e.getMessage());
+        }
+    }
+
+    @ReactMethod
+    public void analyzeFinancial(String chartJson, Promise promise) {
+        try {
+            Python py = Python.getInstance();
+            PyObject module = py.getModule("financial_analyzer");
+            PyObject result = module.callAttr("analyze_financial", chartJson);
+            promise.resolve(jsonStringToWritableMap(result.toString()));
+        } catch (Exception e) {
+            promise.reject("ERROR", e.getMessage());
+        }
+    }
+
+    @ReactMethod
+    public void getGemstoneRecommendations(String chartJson, String question, Promise promise) {
+        try {
+            Python py = Python.getInstance();
+            PyObject module = py.getModule("gemstone_recommender");
+            PyObject result = module.callAttr("get_gemstone_recommendations", chartJson, question);
+            promise.resolve(jsonStringToWritableMap(result.toString()));
+        } catch (Exception e) {
+            promise.reject("ERROR", e.getMessage());
+        }
+    }
+
+    @ReactMethod
+    public void analyzeCompatibility(String chartAJson, String chartBJson, Promise promise) {
+        try {
+            Python py = Python.getInstance();
+            PyObject module = py.getModule("matchmaking_analyzer");
+            PyObject result = module.callAttr("analyze_compatibility", chartAJson, chartBJson);
+            promise.resolve(jsonStringToWritableMap(result.toString()));
+        } catch (Exception e) {
+            promise.reject("ERROR", e.getMessage());
+        }
+    }
+
+    @ReactMethod
+    public void getMuhuratAnalysis(String chartJson, String eventType, Promise promise) {
+        try {
+            Python py = Python.getInstance();
+            PyObject module = py.getModule("muhurat_analyzer");
+            PyObject result = module.callAttr("get_muhurat_analysis", chartJson, eventType);
+            promise.resolve(jsonStringToWritableMap(result.toString()));
+        } catch (Exception e) {
+            promise.reject("ERROR", e.getMessage());
+        }
+    }
+
+    @ReactMethod
+    public void analyzeVarshaphal(String chartJson, Promise promise) {
+        try {
+            Python py = Python.getInstance();
+            PyObject module = py.getModule("varshaphal_analyzer");
+            PyObject result = module.callAttr("analyze_varshaphal", chartJson);
+            promise.resolve(jsonStringToWritableMap(result.toString()));
+        } catch (Exception e) {
+            promise.reject("ERROR", e.getMessage());
+        }
+    }
+
+    @ReactMethod
+    public void analyzeSoulmate(String chartJson, String gender, Promise promise) {
+        try {
+            Python py = Python.getInstance();
+            PyObject module = py.getModule("soulmate_analyzer");
+            PyObject result = module.callAttr("analyze_soulmate", chartJson, gender);
+            promise.resolve(jsonStringToWritableMap(result.toString()));
+        } catch (Exception e) {
+            promise.reject("ERROR", e.getMessage());
+        }
+    }
+
+    @ReactMethod
+    public void getNameRecommendations(String chartJson, String gender, Promise promise) {
+        try {
+            Python py = Python.getInstance();
+            PyObject module = py.getModule("name_recommender");
+            PyObject result = module.callAttr("get_name_recommendations", chartJson, gender);
+            promise.resolve(jsonStringToWritableMap(result.toString()));
+        } catch (Exception e) {
+            promise.reject("ERROR", e.getMessage());
+        }
+    }
+
     private WritableMap jsonStringToWritableMap(String jsonString) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonString);
         return jsonObjectToWritableMap(jsonObject);

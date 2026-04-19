@@ -12,22 +12,20 @@ import {
   FlatList,
   Alert,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {THEME} from '../../constants/theme';
-
-interface Profile {
-  id: string;
-  name: string;
-  date: string;
-  time: string;
-  location: string;
-}
-
-const STORAGE_KEY = 'kundali_profiles';
+import {
+  UserProfile,
+  getActiveProfileId,
+  getProfiles,
+  saveProfiles,
+  setActiveProfileId,
+} from '../../services/profileData';
 
 const ProfilesScreen = () => {
-  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [profiles, setProfiles] = useState<UserProfile[]>([]);
+  const [activeProfileId, setActiveProfile] = useState<string | null>(null);
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [date, setDate] = useState('1990-01-01');
   const [time, setTime] = useState('12:00');
   const [location, setLocation] = useState('Mumbai');
@@ -38,18 +36,23 @@ const ProfilesScreen = () => {
 
   const loadProfiles = async () => {
     try {
-      const raw = await AsyncStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        setProfiles(JSON.parse(raw));
+      const data = await getProfiles();
+      const active = await getActiveProfileId();
+      setProfiles(data);
+      if (active) {
+        setActiveProfile(active);
+      } else if (data.length > 0) {
+        await setActiveProfileId(data[0].id);
+        setActiveProfile(data[0].id);
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to load profiles');
     }
   };
 
-  const saveProfiles = async (nextProfiles: Profile[]) => {
+  const persistProfiles = async (nextProfiles: UserProfile[]) => {
     setProfiles(nextProfiles);
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(nextProfiles));
+    await saveProfiles(nextProfiles);
   };
 
   const addProfile = async () => {
@@ -58,17 +61,29 @@ const ProfilesScreen = () => {
       return;
     }
 
-    const newProfile: Profile = {
+    const newProfile: UserProfile = {
       id: `${Date.now()}`,
       name: name.trim(),
+      email: email.trim() || undefined,
       date,
       time,
       location,
     };
 
     const next = [newProfile, ...profiles];
-    await saveProfiles(next);
+    await persistProfiles(next);
+    if (!activeProfileId) {
+      await setActiveProfileId(newProfile.id);
+      setActiveProfile(newProfile.id);
+    }
     setName('');
+    setEmail('');
+  };
+
+  const selectActiveProfile = async (id: string) => {
+    await setActiveProfileId(id);
+    setActiveProfile(id);
+    Alert.alert('Active Profile Updated', 'This profile will be used for analytics and predictions.');
   };
 
   const deleteProfile = (id: string) => {
@@ -79,7 +94,14 @@ const ProfilesScreen = () => {
         style: 'destructive',
         onPress: async () => {
           const next = profiles.filter(p => p.id !== id);
-          await saveProfiles(next);
+          await persistProfiles(next);
+          if (activeProfileId === id) {
+            const nextActive = next[0]?.id || null;
+            if (nextActive) {
+              await setActiveProfileId(nextActive);
+            }
+            setActiveProfile(nextActive);
+          }
         },
       },
     ]);
@@ -92,13 +114,21 @@ const ProfilesScreen = () => {
       <View style={styles.formCard}>
         <TextInput
           style={styles.input}
-          placeholder="Name"
+          placeholder="Full Name"
           value={name}
           onChangeText={setName}
         />
         <TextInput
           style={styles.input}
-          placeholder="Date (YYYY-MM-DD)"
+          placeholder="Email Address (optional)"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Date of Birth (YYYY-MM-DD)"
           value={date}
           onChangeText={setDate}
         />
@@ -128,16 +158,25 @@ const ProfilesScreen = () => {
           <Text style={styles.emptyText}>No profiles saved yet.</Text>
         }
         renderItem={({item}) => (
-          <View style={styles.profileCard}>
+          <TouchableOpacity
+            style={[
+              styles.profileCard,
+              activeProfileId === item.id && styles.activeProfileCard,
+            ]}
+            onPress={() => selectActiveProfile(item.id)}>
             <View>
               <Text style={styles.profileName}>{item.name}</Text>
+              {item.email ? <Text style={styles.profileMeta}>📧 {item.email}</Text> : null}
               <Text style={styles.profileMeta}>{item.date} | {item.time}</Text>
-              <Text style={styles.profileMeta}>{item.location}</Text>
+              <Text style={styles.profileMeta}>📍 {item.location}</Text>
+              {activeProfileId === item.id ? (
+                <Text style={styles.activeTag}>Active Profile</Text>
+              ) : null}
             </View>
             <TouchableOpacity onPress={() => deleteProfile(item.id)}>
               <Text style={styles.deleteText}>Delete</Text>
             </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
         )}
       />
     </View>
@@ -194,6 +233,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  activeProfileCard: {
+    borderWidth: 1.5,
+    borderColor: THEME.primary,
+  },
   profileName: {
     fontSize: 16,
     fontWeight: '700',
@@ -205,6 +248,12 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     color: THEME.error,
+    fontWeight: '700',
+  },
+  activeTag: {
+    marginTop: 6,
+    color: THEME.primary,
+    fontSize: 12,
     fontWeight: '700',
   },
   emptyText: {

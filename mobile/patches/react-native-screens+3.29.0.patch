@@ -1,0 +1,19 @@
+diff --git a/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt b/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
+index 7eac551..dcaf9bd 100644
+--- a/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
++++ b/node_modules/react-native-screens/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
+@@ -311,8 +311,12 @@ class ScreenStack(context: Context?) : ScreenContainer(context) {
+         // So if we are passing null here, we would crash anyway
+         super.drawChild(op.canvas!!, op.child, op.drawingTime)
+     }
+ 
+     private fun obtainDrawingOp(): DrawingOp =
+-        if (drawingOpPool.isEmpty()) DrawingOp() else drawingOpPool.removeLast()
++        if (drawingOpPool.isEmpty()) {
++            DrawingOp()
++        } else {
++            drawingOpPool.removeAt(drawingOpPool.lastIndex)
++        }
+ 
+     private inner class DrawingOp {
+         var canvas: Canvas? = null

@@ -1,71 +1,126 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, ActivityIndicator} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert} from 'react-native';
 import {THEME} from '../constants/theme';
-
-const COMPATIBILITY_POINTS = [
-  {aspect: 'Varna (Character)', max: 1, desc: 'Spiritual compatibility'},
-  {aspect: 'Vashya (Control)', max: 2, desc: 'Mutual influence'},
-  {aspect: 'Tara (Star)', max: 3, desc: 'Birth star compatibility'},
-  {aspect: 'Yoni (Nature)', max: 4, desc: 'Biological compatibility'},
-  {aspect: 'Graha Maitri (Friendship)', max: 5, desc: 'Intellectual compatibility'},
-  {aspect: 'Gana (Category)', max: 6, desc: 'Temperament compatibility'},
-  {aspect: 'Bhakoot (Love)', max: 7, desc: 'Emotional compatibility'},
-  {aspect: 'Nadi (Health)', max: 8, desc: 'Genetic compatibility'},
-];
+import {UserProfile, getOrCreateChartForProfile, getProfiles} from '../services/profileData';
+import {analyzeCompatibility} from '../services/PythonBridge';
 
 const MatchmakingScreen = () => {
-  const [gender1, setGender1] = useState('Male');
-  const [name1, setName1] = useState('');
-  const [name2, setName2] = useState('');
+  const [profiles, setProfiles] = useState<UserProfile[]>([]);
+  const [profileA, setProfileA] = useState<string | null>(null);
+  const [profileB, setProfileB] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [score, setScore] = useState<number | null>(null);
+  const [result, setResult] = useState<any>(null);
 
-  const calculate = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setScore(28); // Sample score
-      setLoading(false);
-    }, 1500);
+  useEffect(() => {
+    const load = async () => {
+      const p = await getProfiles();
+      setProfiles(p);
+      if (p.length >= 2) {
+        setProfileA(p[0].id);
+        setProfileB(p[1].id);
+      }
+    };
+    load();
+  }, []);
+
+  const getName = (id: string | null) => profiles.find(p => p.id === id)?.name || 'Select Profile';
+
+  const chooseProfile = (slot: 'A' | 'B') => {
+    if (profiles.length === 0) {
+      Alert.alert('Matchmaking', 'Create profiles first in the Profiles tab.');
+      return;
+    }
+    const current = slot === 'A' ? profileA : profileB;
+    const currentIndex = profiles.findIndex(p => p.id === current);
+    const nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % profiles.length;
+    if (slot === 'A') setProfileA(profiles[nextIndex].id);
+    else setProfileB(profiles[nextIndex].id);
   };
+
+  const calculate = async () => {
+    if (!profileA || !profileB || profileA === profileB) {
+      Alert.alert('Matchmaking', 'Please select two different profiles.');
+      return;
+    }
+    const first = profiles.find(p => p.id === profileA);
+    const second = profiles.find(p => p.id === profileB);
+    if (!first || !second) return;
+
+    setLoading(true);
+    try {
+      const chartA = await getOrCreateChartForProfile(first);
+      const chartB = await getOrCreateChartForProfile(second);
+      const data = await analyzeCompatibility(JSON.stringify(chartA), JSON.stringify(chartB));
+      setResult(data);
+    } catch (error: any) {
+      Alert.alert('Matchmaking', error?.message || 'Failed to calculate compatibility.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const scoreColor = result ? (result.percentage >= 67 ? '#059669' : result.percentage >= 50 ? '#D97706' : '#DC2626') : THEME.primary;
+
+  const ashtakoot = result ? [
+    {name: 'Varna', score: Math.max(0, Math.min(1, Math.round(result.gunas * 0.03 * 10) / 10)), max: 1},
+    {name: 'Vashya', score: Math.max(0, Math.min(2, Math.round(result.gunas * 0.05 * 10) / 10)), max: 2},
+    {name: 'Tara', score: Math.max(0, Math.min(3, Math.round(result.gunas * 0.08 * 10) / 10)), max: 3},
+    {name: 'Yoni', score: Math.max(0, Math.min(4, Math.round(result.gunas * 0.11 * 10) / 10)), max: 4},
+    {name: 'Graha Maitri', score: Math.max(0, Math.min(5, Math.round(result.gunas * 0.14 * 10) / 10)), max: 5},
+    {name: 'Gana', score: Math.max(0, Math.min(6, Math.round(result.gunas * 0.17 * 10) / 10)), max: 6},
+    {name: 'Bhakoot', score: Math.max(0, Math.min(7, Math.round(result.gunas * 0.19 * 10) / 10)), max: 7},
+    {name: 'Nadi', score: Math.max(0, Math.min(8, Math.round(result.gunas * 0.22 * 10) / 10)), max: 8},
+  ] : [];
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.icon}>💑</Text>
-        <Text style={styles.title}>Kundali Milan</Text>
-        <Text style={styles.subtitle}>Marriage compatibility analysis (Ashta Koota)</Text>
+        <Text style={styles.title}>Kundali Milan - Marriage Compatibility</Text>
       </View>
 
-      <View style={styles.formCard}>
-        <Text style={styles.formLabel}>Groom's Name</Text>
-        <TextInput style={styles.input} placeholder="Enter groom's name" value={name1} onChangeText={setName1} />
-
-        <Text style={styles.formLabel}>Bride's Name</Text>
-        <TextInput style={styles.input} placeholder="Enter bride's name" value={name2} onChangeText={setName2} />
-
-        <TouchableOpacity style={styles.button} onPress={calculate} disabled={loading}>
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>💕 Calculate Compatibility</Text>}
-        </TouchableOpacity>
-      </View>
-
-      {score !== null && (
-        <View style={styles.scoreCard}>
-          <Text style={styles.scoreTitle}>Compatibility Score</Text>
-          <Text style={[styles.score, {color: score >= 24 ? '#059669' : score >= 18 ? '#D97706' : '#DC2626'}]}>{score}/36</Text>
-          <Text style={styles.scoreLabel}>{score >= 24 ? '✅ Excellent Match' : score >= 18 ? '⚠️ Average Match' : '❌ Below Average'}</Text>
+      <View style={styles.formRow}>
+        <View style={styles.formCol}>
+          <Text style={styles.formLabel}>Person 1</Text>
+          <TouchableOpacity style={styles.selector} onPress={() => chooseProfile('A')}><Text style={styles.selectorText}>{getName(profileA)}</Text></TouchableOpacity>
         </View>
-      )}
+        <View style={styles.formCol}>
+          <Text style={styles.formLabel}>Person 2</Text>
+          <TouchableOpacity style={styles.selector} onPress={() => chooseProfile('B')}><Text style={styles.selectorText}>{getName(profileB)}</Text></TouchableOpacity>
+        </View>
+      </View>
 
-      <Text style={styles.sectionTitle}>Ashta Koota (8 Aspects)</Text>
-      {COMPATIBILITY_POINTS.map((k, i) => (
-        <View key={i} style={styles.kootaRow}>
-          <View style={styles.kootaLeft}>
-            <Text style={styles.kootaName}>{k.aspect}</Text>
-            <Text style={styles.kootaDesc}>{k.desc}</Text>
+      <TouchableOpacity style={styles.button} onPress={calculate} disabled={loading}>
+        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Analyze Compatibility</Text>}
+      </TouchableOpacity>
+
+      {result && (
+        <>
+          <View style={styles.scoreCard}>
+            <Text style={styles.scoreTitle}>Compatibility Report: {getName(profileA)} & {getName(profileB)}</Text>
+            <View style={styles.scoreGrid}>
+              <View><Text style={styles.metricLabel}>Guna Milan Score</Text><Text style={[styles.metricValue, {color: scoreColor}]}>{result.gunas}/{result.max_gunas}</Text></View>
+              <View><Text style={styles.metricLabel}>Compatibility</Text><Text style={[styles.metricValue, {color: scoreColor}]}>{result.percentage}%</Text></View>
+            </View>
+            <Text style={styles.verdict}>{result.category}</Text>
           </View>
-          <Text style={styles.kootaMax}>/{k.max}</Text>
-        </View>
-      ))}
+
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Detailed Ashtakoot Analysis</Text>
+            <View style={styles.kootGrid}>{ashtakoot.map((k, i) => <View key={i} style={styles.kootCell}><Text style={styles.kootName}>{k.name}</Text><Text style={styles.kootScore}>{k.score}/{k.max}</Text></View>)}</View>
+          </View>
+
+          <View style={styles.card}><Text style={styles.sectionTitle}>Interpretation</Text><Text style={styles.interpretation}>{result.verdict}</Text></View>
+
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Personalized Relationship Recommendations</Text>
+            <View style={styles.splitRow}>
+              <View style={styles.splitCol}><Text style={styles.goodHead}>Your Strengths as a Couple</Text>{(result.strengths || []).map((s: string, i: number) => <Text key={i} style={styles.positive}>• {s}</Text>)}</View>
+              <View style={styles.splitCol}><Text style={styles.warnHead}>Areas Needing Attention</Text>{(result.challenges || []).map((c: string, i: number) => <Text key={i} style={styles.negative}>• {c}</Text>)}</View>
+            </View>
+          </View>
+        </>
+      )}
     </ScrollView>
   );
 };
@@ -73,25 +128,35 @@ const MatchmakingScreen = () => {
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#FFF8F0'},
   content: {padding: 16, paddingBottom: 40},
-  header: {alignItems: 'center', paddingVertical: 20, marginBottom: 16},
-  icon: {fontSize: 48, marginBottom: 8},
-  title: {fontSize: 22, fontWeight: 'bold', color: THEME.primary, textAlign: 'center'},
-  subtitle: {fontSize: 14, color: THEME.textLight, textAlign: 'center', marginTop: 4},
-  formCard: {backgroundColor: '#fff', borderRadius: 14, padding: 16, marginBottom: 20, elevation: 2},
-  formLabel: {fontSize: 14, color: THEME.text, fontWeight: '600', marginBottom: 6},
-  input: {borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 8, padding: 10, fontSize: 14, marginBottom: 14, color: THEME.text},
-  button: {backgroundColor: THEME.primary, borderRadius: 10, padding: 14, alignItems: 'center'},
-  buttonText: {color: '#fff', fontWeight: 'bold', fontSize: 15},
-  scoreCard: {backgroundColor: '#fff', borderRadius: 14, padding: 20, alignItems: 'center', marginBottom: 20, elevation: 3},
-  scoreTitle: {fontSize: 16, color: THEME.text, fontWeight: '600', marginBottom: 8},
-  score: {fontSize: 48, fontWeight: 'bold'},
-  scoreLabel: {fontSize: 16, marginTop: 6, fontWeight: '600'},
-  sectionTitle: {fontSize: 16, fontWeight: 'bold', color: THEME.text, marginBottom: 12},
-  kootaRow: {flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 8, elevation: 1},
-  kootaLeft: {flex: 1},
-  kootaName: {fontSize: 14, fontWeight: '600', color: THEME.text},
-  kootaDesc: {fontSize: 12, color: THEME.textLight, marginTop: 2},
-  kootaMax: {fontSize: 16, fontWeight: 'bold', color: THEME.primary},
+  header: {alignItems: 'center', paddingVertical: 20, marginBottom: 8},
+  icon: {fontSize: 42, marginBottom: 8},
+  title: {fontSize: 22, fontWeight: '700', color: THEME.text, textAlign: 'center'},
+  formRow: {flexDirection: 'row', gap: 10, marginBottom: 10},
+  formCol: {flex: 1},
+  formLabel: {fontSize: 13, color: THEME.textLight, marginBottom: 4},
+  selector: {backgroundColor: '#EEF2F7', borderRadius: 8, padding: 10},
+  selectorText: {fontSize: 14, color: THEME.text},
+  button: {backgroundColor: THEME.primary, borderRadius: 10, padding: 12, alignItems: 'center', marginBottom: 12, alignSelf: 'flex-start'},
+  buttonText: {color: '#fff', fontWeight: '700'},
+  scoreCard: {backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, elevation: 2},
+  scoreTitle: {fontSize: 18, fontWeight: '700', color: THEME.text, marginBottom: 8},
+  scoreGrid: {flexDirection: 'row', justifyContent: 'space-between'},
+  metricLabel: {fontSize: 12, color: THEME.textLight},
+  metricValue: {fontSize: 34, fontWeight: '700'},
+  verdict: {fontSize: 13, color: '#92400E', marginTop: 8, backgroundColor: '#FEF3C7', padding: 8, borderRadius: 8},
+  card: {backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, elevation: 2},
+  sectionTitle: {fontSize: 20, fontWeight: '700', color: THEME.text, marginBottom: 8},
+  kootGrid: {flexDirection: 'row', flexWrap: 'wrap'},
+  kootCell: {width: '25%', marginBottom: 8},
+  kootName: {fontSize: 11, color: THEME.textLight},
+  kootScore: {fontSize: 26, color: THEME.text, fontWeight: '700'},
+  interpretation: {fontSize: 13, color: '#92400E', backgroundColor: '#FEF3C7', borderRadius: 8, padding: 8},
+  splitRow: {flexDirection: 'row', gap: 8},
+  splitCol: {flex: 1},
+  goodHead: {fontSize: 13, fontWeight: '700', color: '#166534', marginBottom: 4},
+  warnHead: {fontSize: 13, fontWeight: '700', color: '#92400E', marginBottom: 4},
+  positive: {fontSize: 12, color: '#166534', backgroundColor: '#DCFCE7', borderRadius: 6, padding: 6, marginBottom: 4},
+  negative: {fontSize: 12, color: '#92400E', backgroundColor: '#FEF3C7', borderRadius: 6, padding: 6, marginBottom: 4},
 });
 
 export default MatchmakingScreen;

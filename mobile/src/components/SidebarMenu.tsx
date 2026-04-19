@@ -101,14 +101,10 @@ const SidebarMenu = ({visible, onClose, currentScreen}: Props) => {
 
       <Animated.View
         style={[styles.sidebar, {transform: [{translateX: slideAnim}]}]}>
-        {/* User info */}
         <View style={styles.userSection}>
-          <View style={styles.avatarCircle}>
-            <Text style={styles.avatarText}>👤</Text>
+          <View style={styles.userCard}>
+            <Text style={styles.userName}>{isGuest ? 'Guest' : user?.name || 'User'}</Text>
           </View>
-          <Text style={styles.userName}>
-            {isGuest ? 'Guest' : user?.name || 'User'}
-          </Text>
           {!isGuest && user?.email && (
             <Text style={styles.userEmail}>{user.email}</Text>
           )}
@@ -137,6 +133,14 @@ const SidebarMenu = ({visible, onClose, currentScreen}: Props) => {
             );
           })}
         </ScrollView>
+
+        <View style={styles.footer}>
+          <Text style={styles.footerIcon}>☂️</Text>
+          <Text style={styles.footerBrand}>Krittika Apps</Text>
+          <Text style={styles.footerTagline}>Sharp. Supreme. Protective.</Text>
+          <Text style={styles.footerCopy}>© 2026 Krittika Apps</Text>
+          <Text style={styles.footerLink}>Privacy Policy</Text>
+        </View>
       </Animated.View>
     </Modal>
   );
@@ -165,54 +169,51 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   userSection: {
-    backgroundColor: '#E8F5E9',
-    padding: 20,
-    paddingTop: 50,
+    padding: 16,
+    paddingTop: 46,
     alignItems: 'flex-start',
   },
-  avatarCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#C8E6C9',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
-  },
-  avatarText: {
-    fontSize: 24,
+  userCard: {
+    width: '100%',
+    backgroundColor: '#E5F1D9',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 10,
   },
   userName: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 2,
+    fontWeight: '700',
+    color: '#2E7D32',
   },
   userEmail: {
     fontSize: 12,
     color: THEME.primary,
-    marginBottom: 8,
+    marginBottom: 10,
+    marginLeft: 4,
+    textDecorationLine: 'underline',
   },
   logoutBtn: {
     marginTop: 4,
-    backgroundColor: '#8B4513',
+    borderWidth: 1,
+    borderColor: '#D7C7B2',
+    backgroundColor: '#FFF',
     paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 6,
+    paddingVertical: 10,
+    borderRadius: 8,
   },
   logoutBtnText: {
-    color: 'white',
+    color: '#8B4513',
     fontSize: 13,
+    fontWeight: '600',
   },
   navHeading: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
-    color: '#555',
+    color: '#222',
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
   },
   navList: {
     flex: 1,
@@ -220,24 +221,59 @@ const styles = StyleSheet.create({
   navItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
     paddingHorizontal: 16,
   },
   navItemActive: {
     backgroundColor: `${THEME.primary}15`,
+    borderLeftWidth: 3,
+    borderLeftColor: THEME.primary,
   },
   navIcon: {
-    fontSize: 18,
+    fontSize: 17,
     width: 30,
   },
   navLabel: {
-    fontSize: 15,
+    fontSize: 14,
     color: '#444',
     flex: 1,
   },
   navLabelActive: {
     color: THEME.primary,
     fontWeight: '600',
+  },
+  footer: {
+    borderTopWidth: 1,
+    borderTopColor: '#E5DCCF',
+    paddingTop: 16,
+    paddingBottom: 20,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  footerIcon: {
+    fontSize: 26,
+    marginBottom: 6,
+    color: '#7B3FA0',
+  },
+  footerBrand: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#FF6B2C',
+  },
+  footerTagline: {
+    fontSize: 12,
+    color: '#6A5B4D',
+    marginTop: 2,
+  },
+  footerCopy: {
+    fontSize: 11,
+    color: '#8A7E73',
+    marginTop: 6,
+  },
+  footerLink: {
+    fontSize: 11,
+    color: '#E37B53',
+    marginTop: 4,
   },
 });
 

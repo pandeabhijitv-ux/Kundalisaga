@@ -10,6 +10,11 @@ from datetime import datetime
 import pytz
 import inspect
 
+SIGNS = [
+    'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
+    'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
+]
+
 # Ensure bundled mobile python modules are resolved before workspace-level packages.
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 if MODULE_DIR not in sys.path:
@@ -66,6 +71,79 @@ def _parse_birth_datetime(date_str, time_str):
 
     return datetime(year, month, day, hour, minute)
 
+
+def _get_sign_and_degree(longitude):
+    sign_num = int(longitude / 30) % 12
+    sign_name = SIGNS[sign_num]
+    degree_in_sign = longitude % 30
+    return sign_num, sign_name, degree_in_sign
+
+
+def _calculate_divisional_longitude(planet_longitude, division):
+    """Mirror main engine divisional logic for mobile-safe output."""
+    sign_num = int(planet_longitude / 30)
+    degree_in_sign = planet_longitude % 30
+    portion_size = 30.0 / division
+    portion_num = int(degree_in_sign / portion_size)
+
+    if division == 2:  # D2 Hora
+        if sign_num % 2 == 0:
+            div_sign = 3 if portion_num == 0 else 4
+        else:
+            div_sign = 4 if portion_num == 0 else 3
+    elif division == 9:  # D9 Navamsa
+        if sign_num in [0, 3, 6, 9]:
+            div_sign = (sign_num + portion_num) % 12
+        elif sign_num in [1, 4, 7, 10]:
+            div_sign = (sign_num + 8 + portion_num) % 12
+        else:
+            div_sign = (sign_num + 4 + portion_num) % 12
+    elif division == 10:  # D10 Dasamsa
+        if sign_num % 2 == 0:
+            div_sign = (sign_num + 8 + portion_num) % 12
+        else:
+            div_sign = (sign_num + portion_num) % 12
+    elif division == 7:  # D7 Saptamsa
+        if sign_num % 2 == 0:
+            div_sign = (sign_num + 6 + portion_num) % 12
+        else:
+            div_sign = (sign_num + portion_num) % 12
+    else:
+        div_sign = (sign_num * division + portion_num) % 12
+
+    return (div_sign * 30) + (portion_size / 2)
+
+
+def _build_divisional_charts(planets_map, ascendant_longitude):
+    divisional_charts = {}
+    for division in [2, 3, 7, 9, 10]:
+        div_planets = {}
+        div_asc = _calculate_divisional_longitude(ascendant_longitude, division)
+        div_asc_sign_num, div_asc_sign, _ = _get_sign_and_degree(div_asc)
+
+        for planet_name, p in planets_map.items():
+            base_lon = div_asc if planet_name == 'Ascendant' else float(p.get('longitude', 0))
+            div_lon = _calculate_divisional_longitude(base_lon, division)
+            sign_num, sign_name, degree_in_sign = _get_sign_and_degree(div_lon)
+            house = ((sign_num - div_asc_sign_num) % 12) + 1
+
+            div_planets[planet_name] = {
+                'sign': sign_name,
+                'sign_num': sign_num,
+                'house': house,
+                'degree_in_sign': round(degree_in_sign, 4),
+                'longitude': round(div_lon, 4),
+                'is_retrograde': bool(p.get('is_retrograde', False)),
+            }
+
+        divisional_charts[f'D{division}'] = {
+            'division': division,
+            'ascendant_sign': div_asc_sign,
+            'planets': div_planets,
+        }
+
+    return divisional_charts
+
 def calculate_chart(name, date_str, time_str, location, latitude, longitude, timezone_str):
     """
     Calculate Vedic birth chart
@@ -109,25 +187,46 @@ def calculate_chart(name, date_str, time_str, location, latitude, longitude, tim
             'birth_date': date_str,
             'birth_time': time_str,
             'location': location,
-            'planets': [],
+            'planets': {},
+            'planets_list': [],
             'houses': [],
             'ascendant': {
                 'sign': getattr(chart_asc, 'sign', 'Unknown') if chart_asc else 'Unknown',
-                'degree': getattr(chart_asc, 'degree_in_sign', 0) if chart_asc else 0
+                'degree': getattr(chart_asc, 'degree_in_sign', 0) if chart_asc else 0,
+                'longitude': round(getattr(chart_asc, 'longitude', 0), 4) if chart_asc else 0,
+                'nakshatra': getattr(chart_asc, 'nakshatra', 'Unknown') if chart_asc else 'Unknown',
+                'nakshatra_pada': getattr(chart_asc, 'nakshatra_pada', 1) if chart_asc else 1,
             },
-            'dasha': {}
+            'dasha': {},
+            'divisional_charts': {},
         }
         
         # Add planets
         for planet in chart_planets:
-            result['planets'].append({
+            p_data = {
                 'name': getattr(planet, 'name', 'Unknown'),
                 'sign': getattr(planet, 'sign', 'Unknown'),
                 'degree': round(getattr(planet, 'degree_in_sign', 0), 4),
                 'longitude': round(getattr(planet, 'longitude', 0), 4),
                 'house': getattr(planet, 'house', 1),
+                'nakshatra': getattr(planet, 'nakshatra', 'Unknown'),
+                'nakshatra_pada': getattr(planet, 'nakshatra_pada', 1),
                 'is_retrograde': getattr(planet, 'is_retrograde', False),
-            })
+            }
+            result['planets'][p_data['name']] = p_data
+            result['planets_list'].append(p_data)
+
+        # Keep Ascendant inside planets map for analyzers that rely on it.
+        result['planets']['Ascendant'] = {
+            'name': 'Ascendant',
+            'sign': result['ascendant']['sign'],
+            'degree': round(result['ascendant']['degree'], 4),
+            'longitude': round(result['ascendant']['longitude'], 4),
+            'house': 1,
+            'nakshatra': result['ascendant']['nakshatra'],
+            'nakshatra_pada': result['ascendant']['nakshatra_pada'],
+            'is_retrograde': False,
+        }
         
         # Add houses
         if hasattr(chart, 'houses'):
@@ -138,29 +237,50 @@ def calculate_chart(name, date_str, time_str, location, latitude, longitude, tim
                     'degree': house.degree
                 })
 
+        # Add divisional charts from engine if available; else derive in wrapper.
+        asc_lon = float(result['ascendant'].get('longitude', 0) or 0)
+        if isinstance(chart, dict) and chart.get('divisional_charts'):
+            div_data = chart.get('divisional_charts', {})
+            # Normalize output to plain JSON serializable dicts.
+            for key, val in div_data.items():
+                if isinstance(val, dict):
+                    result['divisional_charts'][key] = val
+        else:
+            result['divisional_charts'] = _build_divisional_charts(result['planets'], asc_lon)
+
+        # Ensure requested D3 exists even when engine did not provide it.
+        if 'D3' not in result['divisional_charts']:
+            d3_only = _build_divisional_charts(result['planets'], asc_lon)
+            if 'D3' in d3_only:
+                result['divisional_charts']['D3'] = d3_only['D3']
+
         # Add current dasha summary where possible.
-        moon = next((p for p in result['planets'] if p['name'] == 'Moon'), None)
+        moon = result['planets'].get('Moon')
         if moon:
             try:
                 dasha_fn = engine.calculate_vimshottari_dasha
                 params = list(inspect.signature(dasha_fn).parameters.keys())
                 if len(params) >= 2 and params[0] == 'moon_longitude':
-                    dashas = dasha_fn(moon['longitude'], birth_date)
+                    dashas = dasha_fn(float(moon['longitude']), birth_date)
                 else:
-                    dashas = dasha_fn(birth_date, moon['longitude'])
+                    dashas = dasha_fn(birth_date, float(moon['longitude']))
                 now = datetime.now()
                 active = None
                 for d in dashas:
-                    d_start = datetime.strptime(d['start_date'], '%Y-%m-%d')
-                    d_end = datetime.strptime(d['end_date'], '%Y-%m-%d')
+                    d_start_str = d.get('start_date') or d.get('maha_dasha_start')
+                    d_end_str = d.get('end_date') or d.get('maha_dasha_end')
+                    if not d_start_str or not d_end_str:
+                        continue
+                    d_start = datetime.strptime(d_start_str, '%Y-%m-%d')
+                    d_end = datetime.strptime(d_end_str, '%Y-%m-%d')
                     if d_start <= now <= d_end:
                         active = d
                         break
                 if active:
                     result['dasha'] = {
                         'mahadasha': active['lord'],
-                        'start_date': active['start_date'],
-                        'end_date': active['end_date']
+                        'start_date': active.get('start_date') or active.get('maha_dasha_start'),
+                        'end_date': active.get('end_date') or active.get('maha_dasha_end')
                     }
             except Exception:
                 result['dasha'] = {}

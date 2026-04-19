@@ -1,57 +1,113 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert} from 'react-native';
 import {THEME} from '../constants/theme';
+import {getActiveProfileWithChart} from '../services/profileData';
+import {analyzeFinancial} from '../services/PythonBridge';
 
-const PLANETS = [
-  {planet: 'Jupiter', role: 'Wealth & Expansion', effect: '📈 Bull phase for investments', color: '#F59E0B'},
-  {planet: 'Saturn', role: 'Discipline & Delays', effect: '⚠️ Caution in real estate', color: '#6B7280'},
-  {planet: 'Venus', role: 'Luxury & Markets', effect: '✨ Favorable for commodities', color: '#EC4899'},
-  {planet: 'Mercury', role: 'Trade & Commerce', effect: '💹 Good for short-term trades', color: '#10B981'},
-  {planet: 'Mars', role: 'Energy & Risk', effect: '🔥 High volatility period', color: '#EF4444'},
-];
+const RATING_STARS: Record<string, string> = {
+  Excellent: '⭐⭐⭐⭐⭐',
+  Good: '⭐⭐⭐⭐',
+  Moderate: '⭐⭐⭐',
+  Weak: '⭐⭐',
+  Poor: '⭐',
+};
 
 const FinancialScreen = () => {
   const [loading, setLoading] = useState(false);
-  const [expanded, setExpanded] = useState<number | null>(null);
+  const [result, setResult] = useState<any>(null);
+  const [tab, setTab] = useState<'market' | 'sector' | 'personalized'>('personalized');
+  const [profileName, setProfileName] = useState('');
 
-  const analyze = () => {
+  const analyze = async () => {
     setLoading(true);
-    setTimeout(() => setLoading(false), 1200);
+    try {
+      const {profile, chart} = await getActiveProfileWithChart();
+      setProfileName(profile.name || 'Profile');
+      const data = await analyzeFinancial(JSON.stringify(chart));
+      setResult(data);
+    } catch (error: any) {
+      Alert.alert('Financial Analysis', error?.message || 'Unable to analyze. Please ensure an active profile exists.');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const personalRecs: any[] = result?.personalized?.recommendations || [];
+  const market: any = result?.market || {};
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.icon}>📈</Text>
-        <Text style={styles.title}>Financial Astrology</Text>
-        <Text style={styles.subtitle}>Market outlook based on planetary transits</Text>
+        <Text style={styles.title}>Financial Outlook</Text>
+        <Text style={styles.subtitle}>Stock market predictions based on planetary analysis</Text>
       </View>
 
-      <View style={styles.overviewCard}>
-        <Text style={styles.overviewTitle}>🌟 Current Outlook</Text>
-        <Text style={styles.overviewText}>Jupiter in Taurus creates favorable conditions for long-term investments. Saturn retrograde suggests caution in speculative markets until August.</Text>
+      <View style={styles.premiumBanner}><Text style={styles.premiumText}>⭐ Premium Feature - Advanced financial astrology analysis</Text></View>
+
+      <View style={styles.tabRow}>
+        <TouchableOpacity style={[styles.tab, tab === 'market' && styles.tabActive]} onPress={() => setTab('market')}><Text style={[styles.tabText, tab === 'market' && styles.tabTextActive]}>Market Overview</Text></TouchableOpacity>
+        <TouchableOpacity style={[styles.tab, tab === 'sector' && styles.tabActive]} onPress={() => setTab('sector')}><Text style={[styles.tabText, tab === 'sector' && styles.tabTextActive]}>Sector Analysis</Text></TouchableOpacity>
+        <TouchableOpacity style={[styles.tab, tab === 'personalized' && styles.tabActive]} onPress={() => setTab('personalized')}><Text style={[styles.tabText, tab === 'personalized' && styles.tabTextActive]}>Personalized</Text></TouchableOpacity>
       </View>
 
-      <Text style={styles.sectionTitle}>Planetary Financial Influences</Text>
-      {PLANETS.map((p, i) => (
-        <TouchableOpacity key={i} style={styles.planetCard} onPress={() => setExpanded(expanded === i ? null : i)}>
-          <View style={[styles.colorBar, {backgroundColor: p.color}]} />
-          <View style={styles.planetInfo}>
-            <Text style={styles.planetName}>{p.planet}</Text>
-            <Text style={styles.planetRole}>{p.role}</Text>
-            <Text style={styles.planetEffect}>{p.effect}</Text>
-          </View>
-          <Text style={styles.chevron}>{expanded === i ? '▲' : '▼'}</Text>
+      {!result && (
+        <TouchableOpacity style={styles.button} onPress={analyze} disabled={loading}>
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Get Personalized Report</Text>}
         </TouchableOpacity>
-      ))}
+      )}
 
-      <TouchableOpacity style={styles.button} onPress={analyze} disabled={loading}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>📊 Get Personal Financial Forecast</Text>}
-      </TouchableOpacity>
+      {result && (
+        <>
+          <View style={styles.generatedBanner}><Text style={styles.generatedText}>✅ Report Generated - {new Date().toISOString().slice(0, 10)}</Text></View>
 
-      <View style={styles.disclaimer}>
-        <Text style={styles.disclaimerText}>⚠️ Astrological analysis is for guidance only. Consult a financial advisor for investment decisions.</Text>
-      </View>
+          {tab === 'personalized' && (
+            <>
+              <Text style={styles.sectionHeading}>Your Top Investment Sectors</Text>
+              {personalRecs.map((rec: any, i: number) => (
+                <View key={i} style={styles.card}>
+                  <View style={styles.cardHeader}><Text style={styles.sectorName}>{RATING_STARS[rec.rating] || '⭐⭐⭐'} {rec.rating} - {rec.sector}</Text></View>
+                  <View style={styles.metricRow}>
+                    <View style={styles.metricCol}><Text style={styles.metricLabel}>Natal Strength</Text><Text style={styles.metricValue}>{rec.natal_strength ?? '-'}</Text></View>
+                    <View style={styles.metricCol}><Text style={styles.metricLabel}>Transit Strength</Text><Text style={styles.metricValue}>{rec.transit_strength ?? '-'}</Text></View>
+                    <View style={styles.metricCol}><Text style={styles.metricLabel}>Total Score</Text><Text style={styles.metricValue}>{rec.total_strength ?? '-'}</Text></View>
+                  </View>
+                  <View style={styles.adviceBox}><Text style={styles.advice}>💡 Investment Advice: {rec.advice}</Text></View>
+                </View>
+              ))}
+            </>
+          )}
+
+          {tab === 'sector' && (
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>Sector Ranking</Text>
+              {personalRecs.map((rec: any, i: number) => (
+                <Text key={i} style={styles.listItem}>{i + 1}. {rec.sector}  •  {rec.total_strength}/200</Text>
+              ))}
+            </View>
+          )}
+
+          {tab === 'market' && (
+            <>
+              <View style={styles.card}>
+                <Text style={styles.sectionTitle}>Overall Market Sentiment</Text>
+                <Text style={styles.sentimentBig}>{market.market_sentiment || 'Neutral'}</Text>
+                <Text style={styles.strengthLabel}>Overall Strength: {market.overall_strength || 'N/A'}</Text>
+              </View>
+              {market.top_sectors?.length > 0 && (
+                <View style={styles.card}>
+                  <Text style={styles.sectionTitle}>Top Sectors</Text>
+                  {market.top_sectors.map((s: string, i: number) => <Text key={i} style={styles.listItem}>• {s}</Text>)}
+                </View>
+              )}
+            </>
+          )}
+
+          <TouchableOpacity style={[styles.button, {backgroundColor: THEME.textLight, marginTop: 8}]} onPress={() => setResult(null)}>
+            <Text style={styles.buttonText}>Re-analyze</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </ScrollView>
   );
 };
@@ -59,25 +115,35 @@ const FinancialScreen = () => {
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#FFF8F0'},
   content: {padding: 16, paddingBottom: 40},
-  header: {alignItems: 'center', paddingVertical: 20, marginBottom: 16},
-  icon: {fontSize: 48, marginBottom: 8},
+  header: {alignItems: 'center', paddingVertical: 20, marginBottom: 8},
+  icon: {fontSize: 42, marginBottom: 8},
   title: {fontSize: 22, fontWeight: 'bold', color: THEME.primary, textAlign: 'center'},
-  subtitle: {fontSize: 14, color: THEME.textLight, textAlign: 'center', marginTop: 4},
-  overviewCard: {backgroundColor: '#E8F5E9', borderRadius: 12, padding: 16, marginBottom: 20, borderLeftWidth: 4, borderLeftColor: '#4CAF50'},
-  overviewTitle: {fontSize: 16, fontWeight: 'bold', color: '#2E7D32', marginBottom: 6},
-  overviewText: {fontSize: 14, color: '#388E3C', lineHeight: 20},
-  sectionTitle: {fontSize: 16, fontWeight: 'bold', color: THEME.text, marginBottom: 12},
-  planetCard: {flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, elevation: 2},
-  colorBar: {width: 4, height: 50, borderRadius: 2, marginRight: 12},
-  planetInfo: {flex: 1},
-  planetName: {fontSize: 16, fontWeight: 'bold', color: THEME.text},
-  planetRole: {fontSize: 12, color: THEME.textLight, marginTop: 2},
-  planetEffect: {fontSize: 13, color: THEME.primary, marginTop: 4},
-  chevron: {fontSize: 14, color: THEME.textLight},
-  button: {backgroundColor: THEME.primary, borderRadius: 12, padding: 14, alignItems: 'center', marginVertical: 16},
-  buttonText: {color: '#fff', fontWeight: 'bold', fontSize: 15},
-  disclaimer: {backgroundColor: '#FFF3CD', borderRadius: 8, padding: 12},
-  disclaimerText: {fontSize: 12, color: '#856404', lineHeight: 18},
+  subtitle: {fontSize: 13, color: THEME.textLight, textAlign: 'center', marginTop: 4},
+  premiumBanner: {backgroundColor: '#FDEBCF', borderRadius: 8, padding: 10, marginBottom: 10},
+  premiumText: {fontSize: 12, color: '#8A4B00', fontWeight: '600'},
+  generatedBanner: {backgroundColor: '#DCFCE7', borderRadius: 8, padding: 10, marginBottom: 12},
+  generatedText: {fontSize: 12, color: '#166534', fontWeight: '600'},
+  tabRow: {flexDirection: 'row', marginBottom: 14, backgroundColor: '#F3F4F6', borderRadius: 10, padding: 4},
+  tab: {flex: 1, padding: 8, alignItems: 'center', borderRadius: 8},
+  tabActive: {backgroundColor: THEME.primary},
+  tabText: {fontSize: 12, color: THEME.textLight, fontWeight: '600'},
+  tabTextActive: {color: '#fff'},
+  button: {backgroundColor: THEME.primary, borderRadius: 12, padding: 14, alignItems: 'center', marginVertical: 10},
+  buttonText: {color: '#fff', fontWeight: 'bold', fontSize: 14},
+  sectionHeading: {fontSize: 30, fontWeight: '700', color: THEME.text, marginBottom: 10},
+  card: {backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, elevation: 2},
+  cardHeader: {marginBottom: 8},
+  sectorName: {fontSize: 14, fontWeight: '700', color: THEME.text},
+  metricRow: {flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8},
+  metricCol: {flex: 1},
+  metricLabel: {fontSize: 12, color: THEME.textLight},
+  metricValue: {fontSize: 34, color: THEME.text, fontWeight: '700'},
+  adviceBox: {backgroundColor: '#EEF2F7', borderRadius: 8, padding: 10},
+  advice: {fontSize: 12, color: '#1F4E79', fontWeight: '600'},
+  sectionTitle: {fontSize: 16, fontWeight: 'bold', color: THEME.text, marginBottom: 8},
+  sentimentBig: {fontSize: 24, fontWeight: 'bold', color: THEME.primary, textAlign: 'center', paddingVertical: 8},
+  strengthLabel: {fontSize: 13, color: THEME.textLight, textAlign: 'center'},
+  listItem: {fontSize: 13, color: THEME.text, lineHeight: 22},
 });
 
 export default FinancialScreen;

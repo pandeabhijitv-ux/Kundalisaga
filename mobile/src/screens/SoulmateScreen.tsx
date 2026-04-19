@@ -1,73 +1,76 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert} from 'react-native';
 import {THEME} from '../constants/theme';
-
-const SOULMATE_TRAITS = [
-  {trait: 'Physical Appearance', icon: '👁️'},
-  {trait: 'Nature & Personality', icon: '💭'},
-  {trait: 'Profession', icon: '💼'},
-  {trait: 'Meeting Direction', icon: '🧭'},
-  {trait: 'Marriage Timing', icon: '💍'},
-  {trait: 'Compatibility Factors', icon: '💕'},
-];
+import {getActiveProfileWithChart} from '../services/profileData';
+import {analyzeSoulmate} from '../services/PythonBridge';
 
 const SoulmateScreen = () => {
   const [loading, setLoading] = useState(false);
-  const [revealed, setRevealed] = useState(false);
+  const [result, setResult] = useState<any>(null);
+  const [profileName, setProfileName] = useState('');
 
-  const analyze = () => {
+  const analyze = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setRevealed(true);
+    try {
+      const {profile, chart} = await getActiveProfileWithChart();
+      const gender = (profile as any).gender || 'male';
+      setProfileName(profile.name || 'Profile');
+      const data = await analyzeSoulmate(JSON.stringify(chart), gender);
+      setResult(data);
+    } catch (error: any) {
+      Alert.alert('Soulmate Analysis', error?.message || 'Unable to analyze. Please ensure an active profile exists.');
+    } finally {
       setLoading(false);
-    }, 2000);
-  };
-
-  const RESULTS: Record<string, string> = {
-    'Physical Appearance': 'Attractive, medium height, expressive eyes, warm complexion',
-    'Nature & Personality': 'Intelligent, caring, spiritual-minded, good communicator',
-    'Profession': 'Likely in education, medicine, law or arts',
-    'Meeting Direction': 'Most likely to meet in the East or through educational/professional circles',
-    'Marriage Timing': 'Favorable periods: 2025-2027 (Jupiter transit favorable)',
-    'Compatibility Factors': 'Fire or Earth signs most compatible with your chart',
+    }
   };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.icon}>💕</Text>
-        <Text style={styles.title}>Soulmate Analysis</Text>
-        <Text style={styles.subtitle}>Discover your destined partner's traits from your Navamsa chart</Text>
+        <Text style={styles.title}>Your Soulmate Analysis</Text>
+        <Text style={styles.subtitle}>Discover your ideal life partner based on 7th house and Venus/Mars</Text>
       </View>
 
-      <View style={styles.infoCard}>
-        <Text style={styles.infoText}>🌟 Your 7th house, Navamsa chart, and Venus placement reveal the characteristics of your life partner.</Text>
-      </View>
+      <TouchableOpacity style={styles.button} onPress={analyze} disabled={loading}>
+        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Reveal Your Soulmate</Text>}
+      </TouchableOpacity>
 
-      {!revealed ? (
-        <TouchableOpacity style={styles.button} onPress={analyze} disabled={loading}>
-          {loading ? (
-            <View style={styles.loadingRow}>
-              <ActivityIndicator color="#fff" />
-              <Text style={[styles.buttonText, {marginLeft: 8}]}>Reading your stars...</Text>
-            </View>
-          ) : (
-            <Text style={styles.buttonText}>💫 Reveal My Soulmate Profile</Text>
-          )}
-        </TouchableOpacity>
-      ) : (
+      {result && (
         <>
-          {SOULMATE_TRAITS.map((t, i) => (
-            <View key={i} style={styles.traitCard}>
-              <Text style={styles.traitIcon}>{t.icon}</Text>
-              <View style={styles.traitInfo}>
-                <Text style={styles.traitTitle}>{t.trait}</Text>
-                <Text style={styles.traitValue}>{RESULTS[t.trait]}</Text>
-              </View>
+          <View style={styles.readyBanner}><Text style={styles.readyText}>✨ Your Soulmate Analysis is Ready!</Text></View>
+
+          {result.physical && (
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>Physical Characteristics</Text>
+              <Text style={styles.infoRow}><Text style={styles.label}>Height:</Text> {result.physical.description}</Text>
+              <Text style={styles.infoRow}><Text style={styles.label}>Build:</Text> {result.physical.build}</Text>
+              <Text style={styles.infoRow}><Text style={styles.label}>Complexion:</Text> {result.physical.complexion}</Text>
+              <Text style={styles.infoRow}><Text style={styles.label}>Special Features:</Text> {result.physical.eyes}</Text>
+              <Text style={styles.infoRow}><Text style={styles.label}>Overall Look:</Text> {result.physical.style}</Text>
             </View>
-          ))}
-          <TouchableOpacity style={[styles.button, {marginTop: 12}]} onPress={() => setRevealed(false)}>
-            <Text style={styles.buttonText}>🔄 Re-analyze</Text>
+          )}
+
+          {result.personality && (
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>Personality Traits</Text>
+              {result.personality.positive_traits?.map((t: string, i: number) => <Text key={i} style={styles.listItem}>• {t}</Text>)}
+              <Text style={styles.infoRow}><Text style={styles.label}>7th House Influence:</Text> {result.personality['7th_house_influence']}</Text>
+              <Text style={styles.infoRow}><Text style={styles.label}>Emotional Nature:</Text> {result.personality.emotional_nature}</Text>
+            </View>
+          )}
+
+          {result.timing && (
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>Meeting & Timing</Text>
+              <Text style={styles.infoRow}><Text style={styles.label}>Period:</Text> {result.timing.period}</Text>
+              <Text style={styles.infoRow}><Text style={styles.label}>Place:</Text> {result.timing.place}</Text>
+              <Text style={styles.infoRow}><Text style={styles.label}>How:</Text> {result.timing.how}</Text>
+            </View>
+          )}
+
+          <TouchableOpacity style={[styles.button, {backgroundColor: THEME.textLight, marginTop: 8}]} onPress={() => setResult(null)}>
+            <Text style={styles.buttonText}>Re-analyze</Text>
           </TouchableOpacity>
         </>
       )}
@@ -78,20 +81,19 @@ const SoulmateScreen = () => {
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#FFF8F0'},
   content: {padding: 16, paddingBottom: 40},
-  header: {alignItems: 'center', paddingVertical: 20, marginBottom: 16},
-  icon: {fontSize: 48, marginBottom: 8},
-  title: {fontSize: 22, fontWeight: 'bold', color: THEME.primary, textAlign: 'center'},
-  subtitle: {fontSize: 14, color: THEME.textLight, textAlign: 'center', marginTop: 4},
-  infoCard: {backgroundColor: '#FCE4EC', borderRadius: 10, padding: 14, marginBottom: 20},
-  infoText: {fontSize: 13, color: '#880E4F', lineHeight: 20},
-  button: {backgroundColor: THEME.primary, borderRadius: 12, padding: 16, alignItems: 'center', marginBottom: 16},
-  buttonText: {color: '#fff', fontWeight: 'bold', fontSize: 15},
-  loadingRow: {flexDirection: 'row', alignItems: 'center'},
-  traitCard: {flexDirection: 'row', backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, elevation: 2, alignItems: 'flex-start'},
-  traitIcon: {fontSize: 28, marginRight: 12},
-  traitInfo: {flex: 1},
-  traitTitle: {fontSize: 14, fontWeight: 'bold', color: THEME.primary, marginBottom: 4},
-  traitValue: {fontSize: 13, color: THEME.text, lineHeight: 20},
+  header: {alignItems: 'center', paddingVertical: 20, marginBottom: 8},
+  icon: {fontSize: 42, marginBottom: 8},
+  title: {fontSize: 28, fontWeight: '700', color: THEME.text, textAlign: 'center'},
+  subtitle: {fontSize: 12, color: THEME.textLight, textAlign: 'center', marginTop: 4},
+  button: {backgroundColor: THEME.primary, borderRadius: 12, padding: 14, alignItems: 'center', marginVertical: 10, alignSelf: 'flex-start'},
+  buttonText: {color: '#fff', fontWeight: 'bold', fontSize: 14},
+  readyBanner: {backgroundColor: '#DCFCE7', borderRadius: 8, padding: 10, marginBottom: 10},
+  readyText: {fontSize: 12, color: '#166534', fontWeight: '600'},
+  card: {backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, elevation: 2},
+  sectionTitle: {fontSize: 34, fontWeight: '700', color: THEME.text, marginBottom: 10},
+  infoRow: {fontSize: 13, color: THEME.text, lineHeight: 22, backgroundColor: '#EEF2F7', borderRadius: 8, padding: 8, marginBottom: 6},
+  label: {fontWeight: '700', color: '#1F4E79'},
+  listItem: {fontSize: 13, color: THEME.text, lineHeight: 22},
 });
 
 export default SoulmateScreen;

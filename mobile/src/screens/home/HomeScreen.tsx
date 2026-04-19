@@ -11,14 +11,17 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Modal,
 } from 'react-native';
 import {THEME} from '../../constants/theme';
 import {useAuth} from '../../contexts/AuthContext';
 import {getCurrentDasha} from '../../services/PythonBridge';
+import {getProfiles} from '../../services/profileData';
 
 const EMOJI_ICONS: {[key: string]: string} = {
   'Get Remedies': '🕉️',
   'Ask Question': '❓',
+  'Career': '💼',
   'Financial': '📊',
   'Gemstones': '💎',
   'Numerology': '🔢',
@@ -27,11 +30,13 @@ const EMOJI_ICONS: {[key: string]: string} = {
   'Varshaphal': '📅',
   'Dasha Analysis': '🪐',
   'Name Guide': '✨',
+  'Soulmate': '💑',
 };
 
 const ACTION_LABELS: {[key: string]: string} = {
   'Get Remedies': 'View',
   'Ask Question': 'Ask',
+  'Career': 'Analyze',
   'Financial': 'View',
   'Gemstones': 'View',
   'Numerology': 'View',
@@ -40,15 +45,36 @@ const ACTION_LABELS: {[key: string]: string} = {
   'Varshaphal': 'View',
   'Dasha Analysis': 'Analyze',
   'Name Guide': 'Suggest',
+  'Soulmate': 'Find',
 };
 
 const HomeScreen = ({navigation}: any) => {
   const {user, isGuest, logout} = useAuth();
   const [currentDasha, setCurrentDasha] = useState<any>(null);
+  const [hasProfiles, setHasProfiles] = useState<boolean | null>(null); // null = loading
+  const [showNoProfileModal, setShowNoProfileModal] = useState(false);
 
   useEffect(() => {
+    checkProfiles();
     loadDashaInfo();
   }, []);
+
+  // Re-check profiles when screen is focused
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      checkProfiles();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  const checkProfiles = async () => {
+    try {
+      const profiles = await getProfiles();
+      setHasProfiles(profiles.length > 0);
+    } catch {
+      setHasProfiles(false);
+    }
+  };
 
   const loadDashaInfo = async () => {
     try {
@@ -63,29 +89,27 @@ const HomeScreen = ({navigation}: any) => {
 
   const features = [
     {
-      title: 'Get Remedies',
-      color: '#FF8FA3',
-      screen: 'Remedies',
-      description: 'Lal Kitab remedies & lifestyle changes',
-    },
-    {
       title: 'Ask Question',
       color: '#87CEEB',
       screen: 'Ask',
       description: 'Instant answers about career, wealth, relationships',
     },
     {
+      title: 'Career',
+      color: '#6A5ACD',
+      screen: 'Career',
+      description: 'Best career & profession from your chart',
+    },
+    {
       title: 'Financial',
       color: '#7B68EE',
-      screen: 'Ask',
-      params: {preset: 'finance'},
-      description: 'Market trends using planetary transits',
+      screen: 'Financial',
+      description: 'Wealth timing & financial planetary transits',
     },
     {
       title: 'Gemstones',
       color: '#FF69B4',
-      screen: 'Ask',
-      params: {preset: 'gemstones'},
+      screen: 'Gemstone',
       description: 'Personalized recommendations from chart analysis',
     },
     {
@@ -97,22 +121,19 @@ const HomeScreen = ({navigation}: any) => {
     {
       title: 'Matchmaking',
       color: '#FF6B35',
-      screen: 'Ask',
-      params: {preset: 'matchmaking'},
+      screen: 'Matchmaking',
       description: 'Kundali Milan & compatibility analysis',
     },
     {
       title: 'Muhurat',
       color: '#F9C74F',
-      screen: 'Ask',
-      params: {preset: 'muhurat'},
+      screen: 'Muhurat',
       description: 'Auspicious timing for important events',
     },
     {
       title: 'Varshaphal',
       color: '#00CED1',
-      screen: 'Ask',
-      params: {preset: 'varshaphal'},
+      screen: 'Varshaphal',
       description: 'Annual predictions & yearly forecast',
     },
     {
@@ -122,13 +143,32 @@ const HomeScreen = ({navigation}: any) => {
       description: 'Detailed planetary period predictions',
     },
     {
+      title: 'Get Remedies',
+      color: '#FF8FA3',
+      screen: 'Remedies',
+      description: 'Lal Kitab remedies & lifestyle changes',
+    },
+    {
       title: 'Name Guide',
       color: '#20B2AA',
-      screen: 'Ask',
-      params: {preset: 'name'},
-      description: 'Lucky names based on numerology',
+      screen: 'NameRecommendation',
+      description: 'Lucky names based on nakshatra',
+    },
+    {
+      title: 'Soulmate',
+      color: '#E75480',
+      screen: 'Soulmate',
+      description: 'Soulmate traits & relationship insights',
     },
   ];
+
+  const handleFeaturePress = (feature: (typeof features)[0]) => {
+    if (!hasProfiles) {
+      setShowNoProfileModal(true);
+      return;
+    }
+    navigation.navigate(feature.screen);
+  };
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -139,6 +179,37 @@ const HomeScreen = ({navigation}: any) => {
 
   return (
     <ScrollView style={styles.container}>
+      {/* No-profile gate modal */}
+      <Modal
+        visible={showNoProfileModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowNoProfileModal(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalEmoji}>👤</Text>
+            <Text style={styles.modalTitle}>Profile Required</Text>
+            <Text style={styles.modalMessage}>
+              To use astrology services, please create your birth profile first.{'\n\n'}
+              Add your name, date of birth, time and place so we can calculate your personalised chart.
+            </Text>
+            <TouchableOpacity
+              style={styles.modalPrimaryBtn}
+              onPress={() => {
+                setShowNoProfileModal(false);
+                navigation.navigate('Profiles');
+              }}>
+              <Text style={styles.modalPrimaryBtnText}>Create Profile →</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalSecondaryBtn}
+              onPress={() => setShowNoProfileModal(false)}>
+              <Text style={styles.modalSecondaryBtnText}>Maybe Later</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <View style={styles.header}>
         <Text style={styles.mantra}>🕉️ ॐ गं गणपतये नमः 🕉️</Text>
         <Text style={styles.title}>KundaliSaga</Text>
@@ -158,13 +229,36 @@ const HomeScreen = ({navigation}: any) => {
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.sectionTitle}>Welcome to KundaliSaga</Text>
+        {/* Profile warning banner */}
+        {hasProfiles === false && (
+          <TouchableOpacity
+            style={styles.profileBanner}
+            onPress={() => navigation.navigate('Profiles')}>
+            <Text style={styles.profileBannerIcon}>⚠️</Text>
+            <View style={{flex: 1}}>
+              <Text style={styles.profileBannerTitle}>No birth profile found</Text>
+              <Text style={styles.profileBannerSub}>Tap here to create your profile and unlock all features</Text>
+            </View>
+            <Text style={styles.profileBannerArrow}>›</Text>
+          </TouchableOpacity>
+        )}
+
+        <Text style={styles.sectionTitle}>Astrology Services</Text>
         <View style={styles.featuresGrid}>
           {features.map((feature, index) => (
             <TouchableOpacity
               key={index}
-              style={[styles.featureCard, {backgroundColor: feature.color}]}
-              onPress={() => navigation.navigate(feature.screen, feature.params)}>
+              style={[
+                styles.featureCard,
+                {backgroundColor: feature.color},
+                !hasProfiles && styles.featureCardLocked,
+              ]}
+              onPress={() => handleFeaturePress(feature)}>
+              {!hasProfiles && (
+                <View style={styles.lockOverlay}>
+                  <Text style={styles.lockIcon}>🔒</Text>
+                </View>
+              )}
               <Text style={styles.featureIconText}>{EMOJI_ICONS[feature.title] || '✨'}</Text>
               <Text style={styles.featureTitle}>{feature.title}</Text>
               <Text style={styles.featureDescriptionLight}>
@@ -215,25 +309,10 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  mantra: {
-    fontSize: 20,
-    color: THEME.primary,
-    marginTop: 10,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: THEME.primary,
-    marginTop: 10,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: THEME.textLight,
-    marginTop: 5,
-  },
-  inlineEmoji: {
-    fontSize: 18,
-  },
+  mantra: {fontSize: 20, color: THEME.primary, marginTop: 10},
+  title: {fontSize: 28, fontWeight: 'bold', color: THEME.primary, marginTop: 10},
+  subtitle: {fontSize: 14, color: THEME.textLight, marginTop: 5},
+  inlineEmoji: {fontSize: 18},
   guestBanner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -242,36 +321,28 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 15,
   },
-  guestText: {
-    marginLeft: 10,
-    color: THEME.warning,
-    fontWeight: '600',
-  },
-  userInfo: {
+  guestText: {marginLeft: 10, color: THEME.warning, fontWeight: '600'},
+  userInfo: {flexDirection: 'row', alignItems: 'center', marginTop: 15},
+  userName: {marginLeft: 10, fontSize: 16, color: THEME.text, fontWeight: '600'},
+  content: {padding: 20},
+  sectionTitle: {fontSize: 20, fontWeight: 'bold', color: THEME.text, marginBottom: 15},
+  // Profile banner
+  profileBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 15,
+    backgroundColor: '#FFF3CD',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#F59E0B',
   },
-  userName: {
-    marginLeft: 10,
-    fontSize: 16,
-    color: THEME.text,
-    fontWeight: '600',
-  },
-  content: {
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: THEME.text,
-    marginBottom: 15,
-  },
-  featuresGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
+  profileBannerIcon: {fontSize: 22, marginRight: 10},
+  profileBannerTitle: {fontSize: 14, fontWeight: '700', color: '#92400E'},
+  profileBannerSub: {fontSize: 12, color: '#92400E', marginTop: 2},
+  profileBannerArrow: {fontSize: 24, color: '#92400E', marginLeft: 8},
+  // Features grid
+  featuresGrid: {flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between'},
   featureCard: {
     width: '48%',
     padding: 15,
@@ -283,16 +354,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 3,
+    overflow: 'hidden',
   },
-  featureTitle: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: 'white',
-    marginTop: 8,
+  featureCardLocked: {opacity: 0.55},
+  lockOverlay: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    zIndex: 10,
   },
-  featureIconText: {
-    fontSize: 24,
-  },
+  lockIcon: {fontSize: 16},
+  featureIconText: {fontSize: 24},
+  featureTitle: {fontSize: 15, fontWeight: 'bold', color: 'white', marginTop: 8},
   featureDescriptionLight: {
     fontSize: 11,
     color: 'rgba(255,255,255,0.85)',
@@ -307,11 +380,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     alignSelf: 'flex-start',
   },
-  actionBtnText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '600',
-  },
+  actionBtnText: {color: 'white', fontSize: 12, fontWeight: '600'},
   dashaCard: {
     backgroundColor: THEME.card,
     padding: 20,
@@ -320,17 +389,8 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: THEME.primary,
   },
-  dashaTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: THEME.text,
-    marginBottom: 10,
-  },
-  dashaText: {
-    fontSize: 14,
-    color: THEME.textLight,
-    marginTop: 5,
-  },
+  dashaTitle: {fontSize: 18, fontWeight: 'bold', color: THEME.text, marginBottom: 10},
+  dashaText: {fontSize: 14, color: THEME.textLight, marginTop: 5},
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -341,12 +401,51 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: THEME.error,
   },
-  logoutText: {
-    marginLeft: 10,
-    color: THEME.error,
-    fontSize: 16,
-    fontWeight: '600',
+  logoutText: {marginLeft: 10, color: THEME.error, fontSize: 16, fontWeight: '600'},
+  // Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
   },
+  modalBox: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 28,
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 360,
+  },
+  modalEmoji: {fontSize: 48, marginBottom: 12},
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: THEME.text,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalMessage: {
+    fontSize: 14,
+    color: THEME.textLight,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  modalPrimaryBtn: {
+    backgroundColor: THEME.primary,
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  modalPrimaryBtnText: {color: '#fff', fontWeight: '700', fontSize: 16},
+  modalSecondaryBtn: {paddingVertical: 10},
+  modalSecondaryBtnText: {color: THEME.textLight, fontSize: 14},
 });
 
 export default HomeScreen;
+

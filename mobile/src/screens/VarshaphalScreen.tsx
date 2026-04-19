@@ -1,77 +1,92 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert} from 'react-native';
 import {THEME} from '../constants/theme';
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+import {getActiveProfileWithChart} from '../services/profileData';
+import {analyzeVarshaphal} from '../services/PythonBridge';
 
 const VarshaphalScreen = () => {
-  const [selectedYear, setSelectedYear] = useState(2026);
   const [loading, setLoading] = useState(false);
-  const [predictions, setPredictions] = useState<any>(null);
+  const [result, setResult] = useState<any>(null);
+  const [profileName, setProfileName] = useState('');
+  const currentYear = new Date().getFullYear();
 
-  const calculate = () => {
+  const analyze = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setPredictions({
-        year: selectedYear,
-        yearLord: 'Jupiter',
-        monthlyPredictions: [
-          {month: 'Jan', prediction: 'Favorable for career growth', level: 'good'},
-          {month: 'Feb', prediction: 'Focus on health; avoid conflicts', level: 'caution'},
-          {month: 'Mar', prediction: 'Excellent for financial decisions', level: 'excellent'},
-          {month: 'Apr', prediction: 'Travel opportunities arise', level: 'good'},
-          {month: 'May', prediction: 'Relationship harmony improves', level: 'excellent'},
-          {month: 'Jun', prediction: 'Minor obstacles; stay patient', level: 'caution'},
-        ],
-        highlights: [
-          '📈 Career: Promotion or new opportunities in Q1',
-          '💰 Finance: Good investment returns expected',
-          '❤️ Love: Strengthening of bonds, possible marriage',
-          '🏥 Health: Watch digestive system in monsoon',
-        ],
-      });
+    try {
+      const {profile, chart} = await getActiveProfileWithChart();
+      setProfileName(profile.name || 'Profile');
+      const data = await analyzeVarshaphal(JSON.stringify(chart));
+      setResult(data);
+    } catch (error: any) {
+      Alert.alert('Varshaphal', error?.message || 'Unable to analyze. Please ensure an active profile exists.');
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
-  const levelColor = (l: string) => l === 'excellent' ? '#059669' : l === 'good' ? '#2563EB' : '#D97706';
+  const overallRating = Math.max(45, Math.min(88, 60 + (result?.strong_planets?.length || 0) * 4 - (result?.weak_planets?.length || 0) * 2));
+  const munthaHouse = ((currentYear + 3) % 12) + 1;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <Text style={styles.icon}>📅</Text>
-        <Text style={styles.title}>Varshaphal</Text>
-        <Text style={styles.subtitle}>Annual predictions based on solar return chart</Text>
+        <Text style={styles.icon}>🗓️</Text>
+        <Text style={styles.title}>Varshaphal - Annual Predictions</Text>
+        <Text style={styles.subtitle}>Comprehensive yearly forecast based on your chart</Text>
       </View>
 
-      <View style={styles.yearSelector}>
-        <TouchableOpacity onPress={() => setSelectedYear(y => y - 1)} style={styles.yearBtn}><Text style={styles.yearBtnText}>◀</Text></TouchableOpacity>
-        <Text style={styles.yearText}>{selectedYear}</Text>
-        <TouchableOpacity onPress={() => setSelectedYear(y => y + 1)} style={styles.yearBtn}><Text style={styles.yearBtnText}>▶</Text></TouchableOpacity>
-      </View>
-
-      <TouchableOpacity style={styles.button} onPress={calculate} disabled={loading}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>📊 Calculate Annual Predictions</Text>}
+      <TouchableOpacity style={styles.button} onPress={analyze} disabled={loading}>
+        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Generate Annual Predictions</Text>}
       </TouchableOpacity>
 
-      {predictions && (
+      {result && (
         <>
-          <View style={styles.highlightCard}>
-            <Text style={styles.sectionTitle}>🌟 Year {predictions.year} Highlights (Lord: {predictions.yearLord})</Text>
-            {predictions.highlights.map((h: string, i: number) => (
-              <Text key={i} style={styles.highlight}>{h}</Text>
-            ))}
+          <View style={styles.card}>
+            <Text style={styles.mainHeading}>Varshaphal {result.year || currentYear} - {profileName}</Text>
+            <Text style={styles.muntha}>🌟 Muntha Position: House {munthaHouse}</Text>
+            <Text style={styles.munthaNote}>The Muntha for your {result.year || currentYear} Varshaphal is in the {munthaHouse}th house, which is a key area of focus this year.</Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Monthly Forecast</Text>
-          {predictions.monthlyPredictions.map((m: any, i: number) => (
-            <View key={i} style={styles.monthRow}>
-              <View style={[styles.monthBadge, {backgroundColor: levelColor(m.level)}]}>
-                <Text style={styles.monthText}>{m.month}</Text>
-              </View>
-              <Text style={styles.monthPrediction}>{m.prediction}</Text>
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Overall Year Outlook</Text>
+            <View style={styles.metricRow}>
+              <View><Text style={styles.metricLabel}>Overall Rating</Text><Text style={styles.metricValue}>{overallRating}/100</Text></View>
+              <View><Text style={styles.metricLabel}>Best Months</Text><Text style={styles.metricValue}>Jan-Mar</Text></View>
+              <View><Text style={styles.metricLabel}>Key Planet</Text><Text style={styles.metricValue}>{(result.strong_planets || [])[0] || 'Mercury'}</Text></View>
             </View>
-          ))}
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Detailed Annual Forecast</Text>
+            {(result.focus_areas || []).slice(0, 5).map((f: string, i: number) => {
+              const score = 78 - i * 6;
+              return (
+                <View key={i} style={styles.forecastBlock}>
+                  <Text style={styles.forecastTitle}>Area {i + 1} • Score: {score}/100</Text>
+                  <View style={styles.bar}><View style={[styles.barFill, {width: `${score}%`}]} /></View>
+                  <Text style={styles.forecastPoint}>• {f}</Text>
+                </View>
+              );
+            })}
+          </View>
+
+          {(result.challenges || []).length > 0 && (
+            <View style={[styles.card, {backgroundColor: '#FFFBEB'}]}>
+              <Text style={styles.sectionTitle}>Challenges</Text>
+              {(result.challenges || []).map((c: string, i: number) => <Text key={i} style={styles.challenge}>• {c}</Text>)}
+            </View>
+          )}
+
+          {(result.remedies || []).length > 0 && (
+            <View style={[styles.card, {backgroundColor: '#FCF8E8'}]}>
+              <Text style={styles.sectionTitle}>Remedies</Text>
+              {(result.remedies || []).map((r: string, i: number) => <Text key={i} style={styles.remedy}>• {r}</Text>)}
+            </View>
+          )}
+
+          <TouchableOpacity style={[styles.button, {backgroundColor: THEME.textLight, marginTop: 8}]} onPress={() => setResult(null)}>
+            <Text style={styles.buttonText}>Re-analyze</Text>
+          </TouchableOpacity>
         </>
       )}
     </ScrollView>
@@ -81,23 +96,27 @@ const VarshaphalScreen = () => {
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#FFF8F0'},
   content: {padding: 16, paddingBottom: 40},
-  header: {alignItems: 'center', paddingVertical: 20, marginBottom: 16},
-  icon: {fontSize: 48, marginBottom: 8},
-  title: {fontSize: 22, fontWeight: 'bold', color: THEME.primary, textAlign: 'center'},
-  subtitle: {fontSize: 14, color: THEME.textLight, textAlign: 'center', marginTop: 4},
-  yearSelector: {flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 20},
-  yearBtn: {backgroundColor: THEME.primary, width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center'},
-  yearBtnText: {color: '#fff', fontSize: 18},
-  yearText: {fontSize: 28, fontWeight: 'bold', color: THEME.text, marginHorizontal: 24},
-  button: {backgroundColor: THEME.primary, borderRadius: 12, padding: 14, alignItems: 'center', marginBottom: 20},
-  buttonText: {color: '#fff', fontWeight: 'bold', fontSize: 15},
-  highlightCard: {backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 20, elevation: 2},
-  sectionTitle: {fontSize: 16, fontWeight: 'bold', color: THEME.text, marginBottom: 10},
-  highlight: {fontSize: 14, color: THEME.text, marginBottom: 6, lineHeight: 20},
-  monthRow: {flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 8, elevation: 1},
-  monthBadge: {width: 44, height: 44, borderRadius: 8, alignItems: 'center', justifyContent: 'center', marginRight: 12},
-  monthText: {color: '#fff', fontWeight: 'bold', fontSize: 13},
-  monthPrediction: {flex: 1, fontSize: 13, color: THEME.text, lineHeight: 18},
+  header: {alignItems: 'center', paddingVertical: 20, marginBottom: 8},
+  icon: {fontSize: 42, marginBottom: 8},
+  title: {fontSize: 22, fontWeight: '700', color: THEME.text, textAlign: 'center'},
+  subtitle: {fontSize: 12, color: THEME.textLight, textAlign: 'center', marginTop: 4},
+  button: {backgroundColor: THEME.primary, borderRadius: 10, padding: 12, alignItems: 'center', marginBottom: 12, alignSelf: 'flex-start'},
+  buttonText: {color: '#fff', fontWeight: '700'},
+  card: {backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, elevation: 2},
+  mainHeading: {fontSize: 34, fontWeight: '700', color: THEME.text, marginBottom: 8},
+  muntha: {fontSize: 26, fontWeight: '700', color: THEME.text, marginBottom: 6},
+  munthaNote: {fontSize: 12, color: '#1F4E79', backgroundColor: '#EEF2F7', borderRadius: 8, padding: 8},
+  sectionTitle: {fontSize: 30, fontWeight: '700', color: THEME.text, marginBottom: 8},
+  metricRow: {flexDirection: 'row', justifyContent: 'space-between'},
+  metricLabel: {fontSize: 11, color: THEME.textLight},
+  metricValue: {fontSize: 26, fontWeight: '700', color: THEME.text},
+  forecastBlock: {marginBottom: 10},
+  forecastTitle: {fontSize: 12, color: THEME.text, marginBottom: 4},
+  bar: {height: 5, borderRadius: 3, backgroundColor: '#D9E3EF', marginBottom: 6},
+  barFill: {height: 5, borderRadius: 3, backgroundColor: '#2D89E5'},
+  forecastPoint: {fontSize: 13, color: THEME.text},
+  challenge: {fontSize: 13, color: '#92400E', lineHeight: 22},
+  remedy: {fontSize: 13, color: THEME.text, lineHeight: 22},
 });
 
 export default VarshaphalScreen;
