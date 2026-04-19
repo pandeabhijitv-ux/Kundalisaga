@@ -1247,3 +1247,243 @@ class RemedyEngine:
                     })
         
         return remedies
+    
+    def get_ayurvedic_remedies(self, planet: str) -> List[Dict]:
+        """Get Ayurvedic herbs and treatments for planetary imbalances"""
+        ayurvedic_remedies = {
+            'Sun': [
+                {'herb': 'Ashwagandha', 'form': 'Powder or tablet', 'dosage': '3-5g daily with milk', 'time': 'Morning', 'benefits': 'Boosts energy, vitality, immune system'},
+                {'herb': 'Saffron (Kesar)', 'form': 'Threads in milk', 'dosage': '2-3 threads daily', 'time': 'Morning', 'benefits': 'Strengthens heart, improves circulation'},
+                {'herb': 'Ginger', 'form': 'Fresh or dried, tea', 'dosage': '1-2 pieces daily', 'time': 'Morning with honey', 'benefits': 'Digestive fire, energy, warmth'},
+                {'remedy': 'Oil massage with sesame oil', 'frequency': 'Daily morning', 'benefits': 'Nourishes skin, increases radiance'}
+            ],
+            'Moon': [
+                {'herb': 'Brahmi', 'form': 'Powder or decoction', 'dosage': '3-5g twice daily', 'time': 'Morning & evening', 'benefits': 'Calms mind, improves memory, emotional stability'},
+                {'herb': 'Jatamansi', 'form': 'Powder or tea', 'dosage': '1-2g twice daily', 'time': 'Evening', 'benefits': 'Promotes restful sleep, emotional balance'},
+                {'herb': 'Licorice (Mulethi)', 'form': 'Powder or decoction', 'dosage': '1-2g twice daily', 'time': 'With warm milk', 'benefits': 'Soothes digestion, anti-stress'},
+                {'remedy': 'Full body oil massage with coconut oil', 'frequency': 'Twice weekly', 'benefits': 'Cooling, balancing, peace of mind'}
+            ],
+            'Mars': [
+                {'herb': 'Brahmi', 'form': 'Powder or tablet', 'dosage': '3-5g daily', 'time': 'Morning', 'benefits': 'Cools aggression, improves temper control'},
+                {'herb': 'Brahmi Ghee', 'form': 'Ghee', 'dosage': '1 teaspoon daily', 'time': 'With food', 'benefits': 'Reduces inflammation, anger management'},
+                {'herb': 'Cooling herbs: Fennel, Cilantro', 'form': 'Tea or water infusion', 'dosage': 'As desired', 'time': 'Throughout day', 'benefits': 'Cooling, calming'},
+                {'remedy': 'Cool water bath daily', 'frequency': 'Daily', 'benefits': 'Reduces heat, aggression'}
+            ],
+            'Mercury': [
+                {'herb': 'Ginger', 'form': 'Fresh, tea or powder', 'dosage': '2-3g daily', 'time': 'Morning', 'benefits': 'Enhances digestion, mental clarity'},
+                {'herb': 'Turmeric (Haldi)', 'form': 'Powder in milk', 'dosage': '1-2g daily', 'time': 'Morning or evening', 'benefits': 'Anti-inflammatory, improves speech'},
+                {'herb': 'Bacopa (Brahmi)', 'form': 'Powder or juice', 'dosage': '1-3g daily', 'time': 'Morning', 'benefits': 'Enhances intelligence, communication'},
+                {'remedy': 'Tongue scraping daily', 'frequency': 'Daily', 'benefits': 'Improves digestion, removes toxins'}
+            ],
+            'Jupiter': [
+                {'herb': 'Ashwagandha', 'form': 'Powder or tablet', 'dosage': '3-5g daily', 'time': 'Evening with milk', 'benefits': 'Builds strength, wisdom, prosperity'},
+                {'herb': 'Shatavari', 'form': 'Powder or decoction', 'dosage': '3-5g daily', 'time': 'With milk', 'benefits': 'Nourishing, enhances fertility, wisdom'},
+                {'herb': 'Turmeric', 'form': 'Golden milk (Haldi Doodh)', 'dosage': '1 cup daily', 'time': 'Evening', 'benefits': 'Healing, purifying, prosperity'},
+                {'remedy': 'Warm oil massage', 'frequency': 'Twice weekly', 'benefits': 'Nourishing, grounding'}
+            ],
+            'Venus': [
+                {'herb': 'Shatavari', 'form': 'Powder or decoction', 'dosage': '3-5g daily', 'time': 'With milk', 'benefits': 'Enhances beauty, love, fertility'},
+                {'herb': 'Rose petals (Gulab)', 'form': 'Rose water or petal infusion', 'dosage': 'As desired', 'time': 'Throughout day', 'benefits': 'Cooling, enhances beauty, love'},
+                {'herb': 'Jasmine flowers', 'form': 'Tea or oil', 'dosage': 'As desired', 'time': 'Evening', 'benefits': 'Aphrodisiac, beauty, charm'},
+                {'remedy': 'Ghee in diet', 'frequency': 'Daily 1 teaspoon', 'benefits': 'Lubricating, enhances ojas (vitality)'}
+            ],
+            'Saturn': [
+                {'herb': 'Ashwagandha', 'form': 'Powder with sesame oil', 'dosage': '3-5g daily', 'time': 'Morning & evening', 'benefits': 'Strengthens bones, removes lethargy'},
+                {'herb': 'Sesame seeds (Til)', 'form': 'Seeds or oil', 'dosage': '1-2 tablespoons daily', 'time': 'Morning', 'benefits': 'Warming, energizing, removes delays'},
+                {'herb': 'Ginger & Turmeric tea', 'form': 'Decoction', 'dosage': 'Daily', 'time': 'Morning', 'benefits': 'Circulation, removes stagnation'},
+                {'remedy': 'Warm oil massage (especially 7 oils)', 'frequency': 'Twice weekly', 'benefits': 'Warming, rejuvenating'}
+            ],
+            'Rahu': [
+                {'herb': 'Brahmi', 'form': 'Powder or ghee', 'dosage': '3-5g daily', 'time': 'Morning & evening', 'benefits': 'Calms obsessive thoughts, clarity'},
+                {'herb': 'Ashwagandha', 'form': 'Powder', 'dosage': '3-5g daily', 'time': 'Evening', 'benefits': 'Grounding, reduces anxiety'},
+                {'herb': 'Neem', 'form': 'Powder or decoction', 'dosage': '1-2g daily', 'time': 'Morning', 'benefits': 'Purifying, removes confusion'},
+                {'remedy': 'Avoid stimulants (coffee, excess spices)', 'frequency': 'Ongoing', 'benefits': 'Reduces restlessness, confusion'}
+            ],
+            'Ketu': [
+                {'herb': 'Brahmi Ghee', 'form': 'Ghee-based paste', 'dosage': '1 teaspoon daily', 'time': 'With warm milk', 'benefits': 'Spiritual clarity, removes fear'},
+                {'herb': 'Turmeric', 'form': 'Milk or ghee', 'dosage': '1-2g daily', 'time': 'Evening', 'benefits': 'Purifying, protective, spiritual'},
+                {'herb': 'Tulsi (Holy Basil)', 'form': 'Tea or powder', 'dosage': '3-5 leaves or 1g powder daily', 'time': 'Morning', 'benefits': 'Spiritual elevation, protection'},
+                {'remedy': 'Meditation with herbal tea', 'frequency': 'Daily', 'benefits': 'Spiritual growth, clarity'}
+            ]
+        }
+        return ayurvedic_remedies.get(planet, [])
+    
+    def get_yoga_remedies(self, planet: str) -> List[Dict]:
+        """Get Yoga asanas and Pranayama for each planet"""
+        yoga_remedies = {
+            'Sun': [
+                {'type': 'Asana', 'name': 'Surya Namaskar (Sun Salutation)', 'reps': '12 rounds', 'time': 'Early morning sunrise', 'benefits': 'Energizes whole body, builds strength, improves digestion'},
+                {'type': 'Asana', 'name': 'Bhujangasana (Cobra Pose)', 'duration': '30 seconds, 3 rounds', 'time': 'Morning', 'benefits': 'Strengthens spine, improves digestion, confidence'},
+                {'type': 'Asana', 'name': 'Dhanurasana (Bow Pose)', 'duration': '30 seconds, 3 rounds', 'time': 'Morning', 'benefits': 'Energizing, improves metabolism'},
+                {'type': 'Pranayama', 'name': 'Bhastrika (Bellows Breath)', 'reps': '20 rounds, 3 sets', 'time': 'Morning', 'benefits': 'Energizes, builds inner heat, removes sluggishness'}
+            ],
+            'Moon': [
+                {'type': 'Asana', 'name': 'Chandra Namaskar (Moon Salutation)', 'reps': '9-12 rounds', 'time': 'Evening', 'benefits': 'Calming, cooling, balances emotions'},
+                {'type': 'Asana', 'name': 'Balasana (Child Pose)', 'duration': '1-3 minutes', 'time': 'Evening', 'benefits': 'Relaxing, calming, promotes peace'},
+                {'type': 'Asana', 'name': 'Uttanasana (Forward Fold)', 'duration': '1-2 minutes', 'time': 'Evening', 'benefits': 'Calming nervous system, relieves stress'},
+                {'type': 'Pranayama', 'name': 'Nadi Shodhana (Alternate Nostril)', 'reps': '20 rounds', 'time': 'Evening', 'benefits': 'Balances emotions, promotes peace, mental clarity'}
+            ],
+            'Mars': [
+                {'type': 'Asana', 'name': 'Warrior Poses (Virabhadrasana I, II, III)', 'reps': '5-10 rounds each', 'time': 'Morning', 'benefits': 'Builds courage, confidence, channelizes Mars energy'},
+                {'type': 'Asana', 'name': 'Utkatasana (Chair Pose)', 'duration': '30 seconds, 3 rounds', 'time': 'Morning', 'benefits': 'Builds strength, determination'},
+                {'type': 'Asana', 'name': 'Vrschikasana (Scorpion Pose)', 'duration': '20-30 seconds', 'time': 'Morning', 'benefits': 'Advanced power posture, builds confidence'},
+                {'type': 'Pranayama', 'name': 'Bhastrika with shorter holds', 'reps': '15 rounds, 2 sets', 'time': 'Morning', 'benefits': 'Channelizes aggression constructively'}
+            ],
+            'Mercury': [
+                {'type': 'Asana', 'name': 'Padmasana (Lotus Pose)', 'duration': '5-10 minutes', 'time': 'Morning', 'benefits': 'Improves focus, memory, communication'},
+                {'type': 'Asana', 'name': 'Sarvangasana (Shoulder Stand)', 'duration': '30-60 seconds', 'time': 'Morning', 'benefits': 'Stimulates thyroid, improves speech'},
+                {'type': 'Asana', 'name': 'Simhasana (Lion Pose)', 'reps': '3-5 rounds', 'time': 'Morning', 'benefits': 'Improves speech, removes shyness'},
+                {'type': 'Pranayama', 'name': 'Ujjayi (Victorious Breath)', 'reps': '20 rounds', 'time': 'Morning', 'benefits': 'Improves concentration, speech clarity'}
+            ],
+            'Jupiter': [
+                {'type': 'Asana', 'name': 'Vrksasana (Tree Pose)', 'duration': '30-60 seconds each leg', 'time': 'Morning', 'benefits': 'Grounding, stability, wisdom'},
+                {'type': 'Asana', 'name': 'Bhairavasana (Bhairav Pose)', 'duration': '1-2 minutes each side', 'time': 'Morning', 'benefits': 'Brings prosperity, stability'},
+                {'type': 'Asana', 'name': 'Sirsasana (Headstand)', 'duration': '30-60 seconds', 'time': 'Morning', 'benefits': 'Enhances wisdom, confidence, prosperity'},
+                {'type': 'Pranayama', 'name': 'Kapalabhati (Skull Shining)', 'reps': '100-120 strokes', 'time': 'Morning', 'benefits': 'Purifies mind, enhances wisdom'}
+            ],
+            'Venus': [
+                {'type': 'Asana', 'name': 'Baddha Konasana (Butterfly Pose)', 'duration': '1-3 minutes', 'time': 'Evening', 'benefits': 'Opens heart, enhances love, beauty'},
+                {'type': 'Asana', 'name': 'Ustrasana (Camel Pose)', 'duration': '30-60 seconds, 3 rounds', 'time': 'Morning', 'benefits': 'Opens heart chakra, enhances beauty'},
+                {'type': 'Asana', 'name': 'Anjaneyasana (Low Lunge)', 'duration': '1 minute each side', 'time': 'Morning', 'benefits': 'Heart-opening, graceful, sensual'},
+                {'type': 'Pranayama', 'name': 'Anulom Vilom (Alternate Nostril)', 'reps': '20 rounds', 'time': 'Evening', 'benefits': 'Balances energy channels, enhances love frequency'}
+            ],
+            'Saturn': [
+                {'type': 'Asana', 'name': 'Halasana (Plow Pose)', 'duration': '30-60 seconds', 'time': 'Morning', 'benefits': 'Removes blockages, improves longevity'},
+                {'type': 'Asana', 'name': 'Paschimottanasana (Forward Fold)', 'duration': '1-2 minutes', 'time': 'Morning', 'benefits': 'Stretches, removes stagnation'},
+                {'type': 'Asana', 'name': 'Ardha Matsyendrasana (Half Spinal Twist)', 'duration': '30 seconds each side', 'time': 'Morning', 'benefits': 'Improves digestion, removes delays'},
+                {'type': 'Pranayama', 'name': 'Ujjayi (Extended exhalation)', 'reps': '20 rounds (double exhale)', 'time': 'Evening', 'benefits': 'Grounding, removes anxiety'}
+            ],
+            'Rahu': [
+                {'type': 'Asana', 'name': 'Vajrasana (Diamond Pose)', 'duration': '5-10 minutes', 'time': 'Morning & evening', 'benefits': 'Grounding, stabilizes mind'},
+                {'type': 'Asana', 'name': 'Goraksasana (Cowherd Pose)', 'duration': '1-3 minutes each leg', 'time': 'Morning', 'benefits': 'Grounds excessive Rahu energy'},
+                {'type': 'Asana', 'name': 'Marjaryasana (Cat-Cow)', 'reps': '10-12 rounds', 'time': 'Morning', 'benefits': 'Flexibility, removes confusion'},
+                {'type': 'Pranayama', 'name': 'Nadi Shodhana', 'reps': '20 rounds', 'time': 'Twice daily', 'benefits': 'Stabilizes mind, removes obsessive thoughts'}
+            ],
+            'Ketu': [
+                {'type': 'Asana', 'name': 'Meditation pose (Sukhasana)', 'duration': '10-20 minutes', 'time': 'Early morning', 'benefits': 'Spiritual elevation, inner peace'},
+                {'type': 'Asana', 'name': 'Padmasana (Lotus)', 'duration': '5-15 minutes', 'time': 'Morning', 'benefits': 'Spiritual opening, clarity'},
+                {'type': 'Asana', 'name': 'Sirsasana (Headstand)', 'duration': '30-60 seconds', 'time': 'Morning', 'benefits': 'Spiritual awakening'},
+                {'type': 'Pranayama', 'name': 'So-Hum meditation breath', 'reps': '20-30 minutes', 'time': 'Early morning', 'benefits': 'Spiritual connection, inner knowledge'}
+            ]
+        }
+        return yoga_remedies.get(planet, [])
+    
+    def get_color_therapy_remedies(self, planet: str) -> List[Dict]:
+        """Get color therapy and objects recommendations for each planet"""
+        color_remedies = {
+            'Sun': [
+                {'color': 'Red/Orange', 'wear': 'Red cloth, especially on Sundays', 'time': 'Sunday morning', 'benefit': 'Absorbs solar energy, increases vitality'},
+                {'color': 'Gold', 'wear': 'Gold jewelry or gold-colored items', 'time': 'Always', 'benefit': 'Attracts Sun\'s positive energy'},
+                {'item': 'Copper', 'use': 'Copper vessel, copper ring', 'time': 'Daily', 'benefit': 'Conducts solar energy, improves circulation'},
+                {'object': 'Fire', 'practice': 'Light ghee lamp at home, especially on Sundays', 'time': 'sunrise/sunset', 'benefit': 'Worship of fire element, spiritual connection'}
+            ],
+            'Moon': [
+                {'color': 'White/Silver', 'wear': 'White cloth, especially on Mondays', 'time': 'Monday morning', 'benefit': 'Calming, enhances Moon energy'},
+                {'color': 'Pearl/Pale blue', 'wear': 'Pearl jewelry or pale blue items', 'time': 'Always', 'benefit': 'Reflects Moon\'s cooling energy'},
+                {'item': 'Silver', 'use': 'Silver jewelry, silver vessel for water', 'time': 'Daily', 'benefit': 'Conducts Moon energy, cooling effect'},
+                {'object': 'Water', 'practice': 'Keep water in silver vessel near bed, bathe under moonlight', 'time': 'Nights', 'benefit': 'Connection with Moon element'}
+            ],
+            'Mars': [
+                {'color': 'Red', 'wear': 'Red cloth on Tuesdays, red gemstone', 'time': 'Tuesday morning', 'benefit': 'Energizes, builds courage'},
+                {'color': 'Blood red/Maroon', 'wear': 'Deep red items, red flag', 'time': 'Tuesday', 'benefit': 'Channelizes Mars energy'},
+                {'item': 'Iron/Copper', 'use': 'Iron items, copper for strength', 'time': 'Daily', 'benefit': 'Strengthens Mars, increases energy'},
+                {'object': 'Fire', 'practice': 'Light red candles on Tuesday', 'time': 'Tuesday evening', 'benefit': 'Honors Mars, channelizes aggression'}
+            ],
+            'Mercury': [
+                {'color': 'Green', 'wear': 'Green cloth, green items on Wednesday', 'time': 'Wednesday morning', 'benefit': 'Enhances communication, freshness'},
+                {'color': 'Yellow-green', 'wear': 'Green and yellow combination', 'time': 'Always', 'benefit': 'Balances Mercury, improves intellect'},
+                {'item': 'Bronze', 'use': 'Bronze articles, bronze ring', 'time': 'Daily', 'benefit': 'Conducts Mercury energy, improves speech'},
+                {'object': 'Plants', 'practice': 'Keep green plants in house/workspace', 'time': 'Always', 'benefit': 'Mercury thrives near green, improves focus'}
+            ],
+            'Jupiter': [
+                {'color': 'Yellow/Gold', 'wear': 'Yellow cloth on Thursdays', 'time': 'Thursday morning', 'benefit': 'Attracts prosperity, wisdom'},
+                {'color': 'Saffron', 'wear': 'Saffron colored items', 'time': 'Always', 'benefit': 'Auspicious, enhances Jupiter blessings'},
+                {'item': 'Gold', 'use': 'Gold jewelry, gold ring', 'time': 'Daily wearing', 'benefit': 'Direct Jupiter representation'},
+                {'object': 'Tulsi plant/Peepal', 'practice': 'Keep Tulsi plant at home, water peepal tree', 'time': 'Daily', 'benefit': 'Honors Jupiter, brings blessings'}
+            ],
+            'Venus': [
+                {'color': 'White', 'wear': 'White cloth on Fridays', 'time': 'Friday morning', 'benefit': 'Enhances beauty, purity'},
+                {'color': 'Pink/Light pink', 'wear': 'Pink items, rose-colored items', 'time': 'Always', 'benefit': 'Attracts love, charm'},
+                {'item': 'Silver/Diamond', 'use': 'Silver jewelry, diamond ring', 'time': 'Daily wearing', 'benefit': 'Attracts Venus energy, enhances beauty'},
+                {'object': 'Flowers', 'practice': 'Keep white flowers in house (jasmine, lotus)', 'time': 'Always', 'benefit': 'Venus loves flowers, enhances love energy'}
+            ],
+            'Saturn': [
+                {'color': 'Black/Dark blue', 'wear': 'Black cloth on Saturdays', 'time': 'Saturday morning', 'benefit': 'Honors Saturn, reduces negativity'},
+                {'color': 'Dark blue', 'wear': 'Dark blue items (alternative to black)', 'time': 'Saturday', 'benefit': 'Appeasing, safer than black'},
+                {'item': 'Iron/Steel', 'use': 'Iron items, steel articles', 'time': 'Daily', 'benefit': 'Conducts Saturn energy, brings discipline'},
+                {'object': 'Black sesame', 'practice': 'Keep black sesame in pocket or wallet', 'time': 'Daily', 'benefit': 'Saturn remedy, removes negativity'}
+            ],
+            'Rahu': [
+                {'color': 'Blue', 'wear': 'Blue items, especially on Saturdays', 'time': 'Saturday', 'benefit': 'Calms Rahu, reduces confusion'},
+                {'color': 'Black', 'wear': 'Black cloth combination', 'time': 'Saturday morning', 'benefit': 'Controls Rahu energy'},
+                {'item': 'Silver', 'use': 'Silver snake pendant or silver items', 'time': 'Daily', 'benefit': 'Sacred to Rahu, protective'},
+                {'object': 'Symbols', 'practice': 'Keep silver square (sikka) at home', 'time': 'Always', 'benefit': 'Rahu remedy, stability'}
+            ],
+            'Ketu': [
+                {'color': 'Multicolor/Rainbow', 'wear': 'Multicolored items, especially blanket', 'time': 'Always', 'benefit': 'Balances Ketu\'s disconnecting energy'},
+                {'color': 'White and black together', 'wear': 'Combination of white and black', 'time': 'Thursday & Saturday', 'benefit': 'Ketu remedy'},
+                {'item': 'Silver', 'use': 'Silver items under pillow', 'time': 'Night', 'benefit': 'Spiritual protection'},
+                {'object': 'Dogs', 'practice': 'Feed and help dogs, keep dog as pet', 'time': 'Daily', 'benefit': 'Sacred to Ketu, spiritual growth'}
+            ]
+        }
+        return color_remedies.get(planet, [])
+    
+    def get_muhurat_recommendations(self, planet: str) -> List[Dict]:
+        """Get best Muhurat (auspicious timings) for starting remedies"""
+        muhurat_data = {
+            'Sun': [
+                {'day': 'Sunday', 'best_time': 'Sunrise to 2 hours after sunrise', 'additional': 'Pratipada (1st tithi), Sukla Paksha (waxing moon)'},
+                {'activity': 'Start Sun remedy/mantra', 'tithi': 'Pratipada, Tritiya, Panchami, Saptami, Navami', 'nakshatra': 'Ashwini, Krittika, Uttara Phalguni, Uttara Ashadha'},
+                {'golden_hour': 'Early morning 5:30 AM - 7:00 AM' , 'day': 'Every Sunday'},
+                {'special_date': 'Ratha Saptami (7th tithi of Dhanus/Magh)', 'benefit': 'Best day for Sun worship in year'}
+            ],
+            'Moon': [
+                {'day': 'Monday', 'best_time': 'Evening/night time (after sunset)', 'additional': 'Purnima (full moon) is most auspicious'},
+                {'activity': 'Start Moon remedy/mantra', 'tithi': 'Pratipada, Tritiya, Panchami', 'nakshatra': 'Rohini, Hasta, Shravan'},
+                {'special_days': 'Purnima (full moon night)', 'maximum_benefit': 'Meditate on full moon for instant results'},
+                {'lunar_phase': 'Shukla Paksha (waxing moon) for growth', 'time': 'Early morning or full moon night'}
+            ],
+            'Mars': [
+                {'day': 'Tuesday (Mangalvar)', 'best_time': 'Early morning before sunrise', 'additional': 'Sukla Paksha preferred'},
+                {'activity': 'Start Mars remedy', 'tithi': 'Tritiya, Saptami, Navami, Ekadashi', 'nakshatra': 'Krittika, Mrigashirsha, Chitra, Dhanishta'},
+                {'golden_hour': 'Sunrise Tuesday', 'during_dasha': 'Mars Mahadasha especially favorable'},
+                {'war_day': 'Navratri days', 'special_benefit': 'Mars is strongest during Navratri (9 days goddess worship)'}
+            ],
+            'Mercury': [
+                {'day': 'Wednesday', 'best_time': 'Early morning before 10 AM', 'additional': 'Sukla Paksha, bright moon'},
+                {'activity': 'Start Mercury remedy/learning', 'tithi': 'Tritiya, Panchami, Saptami, Navami', 'nakshatra': 'Ashwini, Mrigashirsha, Hasta, Dhanishta'},
+                {'planetary_hour': 'Mercury hour (varies by location and time)', 'preferable': 'Wednesday early morning'},
+                {'student_benefit': 'Start studies on Wednesday', 'business_benefit': 'Start new business ventures on Wednesday'}
+            ],
+            'Jupiter': [
+                {'day': 'Thursday (Guruvar)', 'best_time': 'Early morning, preferably sunrise', 'additional': 'Sukla Paksha most auspicious'},
+                {'activity': 'Start Jupiter remedy, worship guru', 'tithi': 'Tritiya, Panchami, Saptami, Navami', 'nakshatra': 'Krittika, Punarvasu, Visakha, Purva Ashadha'},
+                {'golden_hours': 'Thursday 6 AM - 10 AM', 'during_dasha': 'Jupiter Mahadasha especially beneficial'},
+                {'special_yoga': 'Guru Pushya Yoga (Jupiter + Moon in Pushya nakshatra)', 'benefit': 'Most auspicious for Jupiter remedies'}
+            ],
+            'Venus': [
+                {'day': 'Friday (Shukravar)', 'best_time': 'Early morning or evening', 'additional': 'Sukla Paksha, with Lakshmi Yoga'},
+                {'activity': 'Start Venus remedy, worship Lakshmi', 'tithi': 'Tritiya, Panchami, Saptami', 'nakshatra': 'Bharani, Purva Phalguni, Purva Ashadha'},
+                {'evening_time': 'Evening on Friday for love/marriage remedies', 'morning': 'Morning for wealth remedies'},
+                {'special_date': 'Lakshmi Puja day (Diwali)', 'benefit': 'Most powerful day for Venus/wealth remedies in year'}
+            ],
+            'Saturn': [
+                {'day': 'Saturday (Shanivar)', 'best_time': 'Early morning before sunrise', 'additional': 'After Rahu Kaal (1.5 hours after sunset)'},
+                {'activity': 'Start Saturn remedy', 'tithi': 'Ashtami, Navami, Chaturdashi', 'nakshatra': 'Pushya, Anuradha, Uttara Bhadrapada'},
+                {'best_muhurat': 'Saturday evening after 6 PM but not during Rahu Kaal', 'rahu_kaal': 'Avoid during Saturn\'s Rahu Kaal'},
+                {'special_period': 'Sade Sati period (2.5 year Saturn affliction)', 'remedy_timing': 'Start remedies immediately when Sade Sati begins'}
+            ],
+            'Rahu': [
+                {'day': 'Saturday', 'best_time': 'Evening specifically, during Rahu Kaal if possible', 'additional': 'Krishna Paksha (waning moon)'},
+                {'activity': 'Start Rahu remedy', 'tithi': 'Ashtami, Chaturdashi, Amavasya', 'nakshatra': 'Ardra, Swati, Shatabhisha'},
+                {'rahu_kaal': 'Rahu Kaal is most auspicious (normally 1.5 hrs after sunset)', 'note': 'Unlike others, Rahu Kaal is good for Rahu remedies'},
+                {'eclipse_times': 'During lunar/solar eclipses (Rahu nodes)', 'boost': 'Rahu remedies are 100x stronger during eclipses'}
+            ],
+            'Ketu': [
+                {'day': 'Thursday (secondary Thursday evening)', 'best_time': 'Evening/twilight time', 'additional': 'Krishna Paksha'},
+                {'activity': 'Start Ketu remedy practices', 'tithi': 'Navami, Chaturdashi, Amavasya', 'nakshatra': 'Magha, Mula, Revati'},
+                {'special_timing': 'Just before sunset on Thursday', 'spiritual_hour': 'Twilight between day/night'},
+                {'eclipse_connection': 'Also during lunar/solar eclipses', 'boost': 'Ketu remedies magnified during eclipses like Rahu'}
+            ]
+        }
+        return muhurat_data.get(planet, [])

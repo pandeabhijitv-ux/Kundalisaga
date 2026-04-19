@@ -8,6 +8,7 @@ import {
   View,
   Text,
   StyleSheet,
+  Image,
   TouchableOpacity,
   ScrollView,
   Modal,
@@ -18,36 +19,36 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {THEME} from '../constants/theme';
 import {useAuth} from '../contexts/AuthContext';
+import {useAppSettings} from '../contexts/AppSettingsContext';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
 const SIDEBAR_WIDTH = SCREEN_WIDTH * 0.78;
 
 interface NavItem {
-  label: string;
+  labelKey: string;
   icon: string;
   screen: string;
   params?: object;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  {label: 'Home', icon: '🏠', screen: 'Home'},
-  {label: 'User Profiles', icon: '👤', screen: 'Profiles'},
-  {label: 'Horoscope', icon: '🪐', screen: 'Horoscope'},
-  {label: 'Ask Question', icon: '💬', screen: 'Ask'},
-  {label: 'Remedies', icon: '🕉️', screen: 'Remedies'},
-  {label: 'Career Guidance', icon: '💼', screen: 'Career'},
-  {label: 'Financial Outlook', icon: '📊', screen: 'Financial'},
-  {label: 'Gemstone Guide', icon: '💎', screen: 'Gemstone'},
-  {label: 'Numerology', icon: '🔢', screen: 'Numerology'},
-  {label: 'Matchmaking', icon: '💑', screen: 'Matchmaking'},
-  {label: 'Soulmate Analysis', icon: '💕', screen: 'Soulmate'},
-  {label: 'Muhurat Finder', icon: '⏰', screen: 'Muhurat'},
-  {label: 'Varshaphal', icon: '📅', screen: 'Varshaphal'},
-  {label: 'Dasha Analysis', icon: '🪐', screen: 'Dasha'},
-  {label: 'Name Recommendation', icon: '✨', screen: 'NameRecommendation'},
-  {label: 'Buy Credits', icon: '💳', screen: 'BuyCredits'},
-  {label: 'Settings', icon: '⚙️', screen: 'Settings'},
-  {label: 'Stotras & Prayers', icon: '🙏', screen: 'Stotras'},
+  {labelKey: 'home', icon: '🏠', screen: 'Home'},
+  {labelKey: 'settings', icon: '⚙️', screen: 'Settings'},
+  {labelKey: 'profiles', icon: '👤', screen: 'Profiles'},
+  {labelKey: 'horoscope', icon: '🪐', screen: 'Horoscope'},
+  {labelKey: 'ask_question', icon: '💬', screen: 'Ask'},
+  {labelKey: 'remedies', icon: '🕉️', screen: 'Remedies'},
+  {labelKey: 'career_guidance', icon: '💼', screen: 'Career'},
+  {labelKey: 'financial_outlook', icon: '📊', screen: 'Financial'},
+  {labelKey: 'gemstone_guide', icon: '💎', screen: 'Gemstone'},
+  {labelKey: 'numerology', icon: '🔢', screen: 'Numerology'},
+  {labelKey: 'matchmaking', icon: '💑', screen: 'Matchmaking'},
+  {labelKey: 'soulmate_analysis', icon: '💕', screen: 'Soulmate'},
+  {labelKey: 'muhurat_finder', icon: '⏰', screen: 'Muhurat'},
+  {labelKey: 'varshaphal', icon: '📅', screen: 'Varshaphal'},
+  {labelKey: 'dasha_analysis', icon: '🪐', screen: 'Dasha'},
+  {labelKey: 'name_recommendation', icon: '✨', screen: 'NameRecommendation'},
+  {labelKey: 'stotras_prayers', icon: '🙏', screen: 'Stotras'},
 ];
 
 interface Props {
@@ -58,6 +59,7 @@ interface Props {
 
 const SidebarMenu = ({visible, onClose, currentScreen}: Props) => {
   const {user, isGuest, logout} = useAuth();
+  const {t} = useAppSettings();
   const navigation = useNavigation<any>();
   const slideAnim = useRef(new Animated.Value(-SIDEBAR_WIDTH)).current;
 
@@ -101,6 +103,10 @@ const SidebarMenu = ({visible, onClose, currentScreen}: Props) => {
 
       <Animated.View
         style={[styles.sidebar, {transform: [{translateX: slideAnim}]}]}>
+        <View style={styles.ganeshWrap}>
+          <Image source={require('../assets/ganesh.jpg')} style={styles.ganeshImage} resizeMode="cover" />
+        </View>
+
         <View style={styles.userSection}>
           <View style={styles.userCard}>
             <Text style={styles.userName}>{isGuest ? 'Guest' : user?.name || 'User'}</Text>
@@ -115,7 +121,7 @@ const SidebarMenu = ({visible, onClose, currentScreen}: Props) => {
           )}
         </View>
 
-        <Text style={styles.navHeading}>Navigation</Text>
+        <Text style={styles.navHeading}>{t('navigation')}</Text>
 
         <ScrollView style={styles.navList} showsVerticalScrollIndicator={false}>
           {NAV_ITEMS.map((item, index) => {
@@ -127,7 +133,7 @@ const SidebarMenu = ({visible, onClose, currentScreen}: Props) => {
                 onPress={() => handleNavigate(item)}>
                 <Text style={styles.navIcon}>{item.icon}</Text>
                 <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>
-                  {item.label}
+                  {t(item.labelKey)}
                 </Text>
               </TouchableOpacity>
             );
@@ -168,9 +174,20 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 10,
   },
+  ganeshWrap: {
+    paddingTop: 20,
+    paddingHorizontal: 16,
+  },
+  ganeshImage: {
+    width: '100%',
+    height: 170,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E5DCCF',
+  },
   userSection: {
     padding: 16,
-    paddingTop: 46,
+    paddingTop: 14,
     alignItems: 'flex-start',
   },
   userCard: {

@@ -22,7 +22,6 @@ import AskQuestionScreen from '../screens/ask/AskQuestionScreen';
 import NumerologyScreen from '../screens/NumerologyScreen';
 import DashaScreen from '../screens/DashaScreen';
 import GemstoneScreen from '../screens/GemstoneScreen';
-import BuyCreditsScreen from '../screens/BuyCreditsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import StotrasScreen from '../screens/StotrasScreen';
 
@@ -179,7 +178,6 @@ const AppNavigator = () => {
             <Stack.Screen name="Muhurat" component={MuhuratScreen} options={stackScreenOptions('Muhurat Finder', 'Muhurat')} />
             <Stack.Screen name="Varshaphal" component={VarshaphalScreen} options={stackScreenOptions('Varshaphal', 'Varshaphal')} />
             <Stack.Screen name="NameRecommendation" component={NameRecommendationScreen} options={stackScreenOptions('Name Recommendation', 'NameRecommendation')} />
-            <Stack.Screen name="BuyCredits" component={BuyCreditsScreen} options={stackScreenOptions('Buy Credits', 'BuyCredits')} />
             <Stack.Screen name="Settings" component={SettingsScreen} options={stackScreenOptions('Settings', 'Settings')} />
             <Stack.Screen name="Stotras" component={StotrasScreen} options={stackScreenOptions('Stotras & Prayers', 'Stotras')} />
           </>

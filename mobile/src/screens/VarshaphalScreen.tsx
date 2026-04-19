@@ -1,10 +1,12 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert} from 'react-native';
 import {THEME} from '../constants/theme';
+import {useAppSettings} from '../contexts/AppSettingsContext';
 import {getActiveProfileWithChart} from '../services/profileData';
 import {analyzeVarshaphal} from '../services/PythonBridge';
 
 const VarshaphalScreen = () => {
+  const {t} = useAppSettings();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [profileName, setProfileName] = useState('');
@@ -14,11 +16,11 @@ const VarshaphalScreen = () => {
     setLoading(true);
     try {
       const {profile, chart} = await getActiveProfileWithChart();
-      setProfileName(profile.name || 'Profile');
+      setProfileName(profile.name || t('profile_default'));
       const data = await analyzeVarshaphal(JSON.stringify(chart));
       setResult(data);
     } catch (error: any) {
-      Alert.alert('Varshaphal', error?.message || 'Unable to analyze. Please ensure an active profile exists.');
+      Alert.alert(t('varshaphal_alert_title'), error?.message || t('varshaphal_alert_message'));
     } finally {
       setLoading(false);
     }
@@ -26,45 +28,57 @@ const VarshaphalScreen = () => {
 
   const overallRating = Math.max(45, Math.min(88, 60 + (result?.strong_planets?.length || 0) * 4 - (result?.weak_planets?.length || 0) * 2));
   const munthaHouse = ((currentYear + 3) % 12) + 1;
+  const focusAreas = Array.isArray(result?.focus_areas)
+    ? result.focus_areas
+    : [];
+
+  const formatFocusArea = (item: any) => {
+    if (typeof item === 'string') return item;
+    if (item && typeof item === 'object') {
+      return item.prediction || item.theme || `Planet ${item.planet || '-'} in house ${item.house || '-'}`;
+    }
+    return String(item || '');
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.icon}>🗓️</Text>
-        <Text style={styles.title}>Varshaphal - Annual Predictions</Text>
-        <Text style={styles.subtitle}>Comprehensive yearly forecast based on your chart</Text>
+        <Text style={styles.title}>{t('varshaphal_title')}</Text>
+        <Text style={styles.subtitle}>{t('varshaphal_subtitle')}</Text>
       </View>
 
       <TouchableOpacity style={styles.button} onPress={analyze} disabled={loading}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Generate Annual Predictions</Text>}
+        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>{t('generate_annual_predictions')}</Text>}
       </TouchableOpacity>
 
       {result && (
         <>
           <View style={styles.card}>
             <Text style={styles.mainHeading}>Varshaphal {result.year || currentYear} - {profileName}</Text>
-            <Text style={styles.muntha}>🌟 Muntha Position: House {munthaHouse}</Text>
-            <Text style={styles.munthaNote}>The Muntha for your {result.year || currentYear} Varshaphal is in the {munthaHouse}th house, which is a key area of focus this year.</Text>
+            <Text style={styles.muntha}>🌟 {t('muntha_position')}: {t('house')} {munthaHouse}</Text>
+            <Text style={styles.munthaNote}>{t('muntha_note_prefix')} {result.year || currentYear} {t('muntha_note_suffix')} {munthaHouse}{t('muntha_note_suffix_2')}</Text>
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Overall Year Outlook</Text>
+            <Text style={styles.sectionTitle}>{t('overall_year_outlook')}</Text>
             <View style={styles.metricRow}>
-              <View><Text style={styles.metricLabel}>Overall Rating</Text><Text style={styles.metricValue}>{overallRating}/100</Text></View>
-              <View><Text style={styles.metricLabel}>Best Months</Text><Text style={styles.metricValue}>Jan-Mar</Text></View>
-              <View><Text style={styles.metricLabel}>Key Planet</Text><Text style={styles.metricValue}>{(result.strong_planets || [])[0] || 'Mercury'}</Text></View>
+              <View><Text style={styles.metricLabel}>{t('overall_rating')}</Text><Text style={styles.metricValue}>{overallRating}/100</Text></View>
+              <View><Text style={styles.metricLabel}>{t('best_months')}</Text><Text style={styles.metricValue}>Jan-Mar</Text></View>
+              <View><Text style={styles.metricLabel}>{t('key_planet')}</Text><Text style={styles.metricValue}>{(result.strong_planets || [])[0] || 'Mercury'}</Text></View>
             </View>
           </View>
 
           <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Detailed Annual Forecast</Text>
-            {(result.focus_areas || []).slice(0, 5).map((f: string, i: number) => {
+            <Text style={styles.sectionTitle}>{t('detailed_annual_forecast')}</Text>
+            {focusAreas.slice(0, 5).map((f: any, i: number) => {
               const score = 78 - i * 6;
+              const text = formatFocusArea(f);
               return (
                 <View key={i} style={styles.forecastBlock}>
-                  <Text style={styles.forecastTitle}>Area {i + 1} • Score: {score}/100</Text>
+                  <Text style={styles.forecastTitle}>{t('area')} {i + 1} • {t('score')}: {score}/100</Text>
                   <View style={styles.bar}><View style={[styles.barFill, {width: `${score}%`}]} /></View>
-                  <Text style={styles.forecastPoint}>• {f}</Text>
+                  <Text style={styles.forecastPoint}>• {text}</Text>
                 </View>
               );
             })}
@@ -72,7 +86,7 @@ const VarshaphalScreen = () => {
 
           {(result.challenges || []).length > 0 && (
             <View style={[styles.card, {backgroundColor: '#FFFBEB'}]}>
-              <Text style={styles.sectionTitle}>Challenges</Text>
+              <Text style={styles.sectionTitle}>{t('challenges')}</Text>
               {(result.challenges || []).map((c: string, i: number) => <Text key={i} style={styles.challenge}>• {c}</Text>)}
             </View>
           )}
@@ -85,7 +99,7 @@ const VarshaphalScreen = () => {
           )}
 
           <TouchableOpacity style={[styles.button, {backgroundColor: THEME.textLight, marginTop: 8}]} onPress={() => setResult(null)}>
-            <Text style={styles.buttonText}>Re-analyze</Text>
+            <Text style={styles.buttonText}>{t('reanalyze')}</Text>
           </TouchableOpacity>
         </>
       )}

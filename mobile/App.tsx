@@ -15,6 +15,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 import {AuthProvider, useAuth} from './src/contexts/AuthContext';
+import {AppSettingsProvider} from './src/contexts/AppSettingsContext';
 import SplashScreen from './src/screens/SplashScreen';
 import {THEME} from './src/constants/theme';
 
@@ -35,13 +36,15 @@ const AppContent = () => {
 const App = () => {
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <StatusBar
-          barStyle="dark-content"
-          backgroundColor={THEME.background}
-        />
-        <AppContent />
-      </AuthProvider>
+      <AppSettingsProvider>
+        <AuthProvider>
+          <StatusBar
+            barStyle="dark-content"
+            backgroundColor={THEME.background}
+          />
+          <AppContent />
+        </AuthProvider>
+      </AppSettingsProvider>
     </SafeAreaProvider>
   );
 };

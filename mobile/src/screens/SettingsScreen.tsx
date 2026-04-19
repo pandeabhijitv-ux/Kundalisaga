@@ -1,29 +1,44 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch} from 'react-native';
+import React from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, ScrollView, Switch, Alert} from 'react-native';
 import {THEME} from '../constants/theme';
+import {useAppSettings} from '../contexts/AppSettingsContext';
 
 const SettingsScreen = () => {
-  const [language, setLanguage] = useState<'English' | 'Hindi' | 'Marathi'>('English');
-  const [chartStyle, setChartStyle] = useState<'North' | 'South'>('North');
-  const [ayanamsa, setAyanamsa] = useState('Lahiri');
-  const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
+  const {
+    language,
+    chartStyle,
+    ayanamsa,
+    notifications,
+    darkMode,
+    setLanguage,
+    setChartStyle,
+    setAyanamsa,
+    setNotifications,
+    setDarkMode,
+    saveSettings,
+    t,
+  } = useAppSettings();
 
   const LANGUAGES = ['English', 'Hindi', 'Marathi'] as const;
   const CHART_STYLES = ['North', 'South'] as const;
   const AYANAMSAS = ['Lahiri', 'Raman', 'Krishnamurti (KP)', 'Fagan-Bradley', 'True Chitra'];
 
+  const onSave = async () => {
+    await saveSettings();
+    Alert.alert(t('settings'), t('saved'));
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.icon}>⚙️</Text>
-        <Text style={styles.title}>Settings</Text>
+        <Text style={styles.title}>{t('settings')}</Text>
         <Text style={styles.subtitle}>Customize your astrology experience</Text>
       </View>
 
       {/* Language */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>🌐 Language</Text>
+        <Text style={styles.sectionTitle}>🌐 {t('language')}</Text>
         <View style={styles.chipRow}>
           {LANGUAGES.map(lang => (
             <TouchableOpacity key={lang} style={[styles.chip, language === lang && styles.chipActive]} onPress={() => setLanguage(lang)}>
@@ -73,8 +88,8 @@ const SettingsScreen = () => {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>💾 Save Preferences</Text>
+      <TouchableOpacity style={styles.button} onPress={onSave}>
+        <Text style={styles.buttonText}>💾 {t('save_preferences')}</Text>
       </TouchableOpacity>
 
       <View style={styles.aboutCard}>

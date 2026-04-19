@@ -4,6 +4,7 @@
  */
 
 import React, {useEffect, useState} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
   Text,
@@ -15,6 +16,7 @@ import {
 } from 'react-native';
 import {THEME} from '../../constants/theme';
 import {useAuth} from '../../contexts/AuthContext';
+import {useAppSettings} from '../../contexts/AppSettingsContext';
 import {getCurrentDasha} from '../../services/PythonBridge';
 import {getProfiles} from '../../services/profileData';
 
@@ -29,34 +31,25 @@ const EMOJI_ICONS: {[key: string]: string} = {
   'Muhurat': '⏰',
   'Varshaphal': '📅',
   'Dasha Analysis': '🪐',
+  'Stotras & Prayers': '🙏',
   'Name Guide': '✨',
   'Soulmate': '💑',
 };
 
-const ACTION_LABELS: {[key: string]: string} = {
-  'Get Remedies': 'View',
-  'Ask Question': 'Ask',
-  'Career': 'Analyze',
-  'Financial': 'View',
-  'Gemstones': 'View',
-  'Numerology': 'View',
-  'Matchmaking': 'Check',
-  'Muhurat': 'Find',
-  'Varshaphal': 'View',
-  'Dasha Analysis': 'Analyze',
-  'Name Guide': 'Suggest',
-  'Soulmate': 'Find',
-};
+const MENU_TIP_SEEN_KEY = 'home_menu_tip_seen';
 
 const HomeScreen = ({navigation}: any) => {
   const {user, isGuest, logout} = useAuth();
+  const {t} = useAppSettings();
   const [currentDasha, setCurrentDasha] = useState<any>(null);
   const [hasProfiles, setHasProfiles] = useState<boolean | null>(null); // null = loading
   const [showNoProfileModal, setShowNoProfileModal] = useState(false);
+  const [showMenuTip, setShowMenuTip] = useState(false);
 
   useEffect(() => {
     checkProfiles();
     loadDashaInfo();
+    loadMenuTipPreference();
   }, []);
 
   // Re-check profiles when screen is focused
@@ -87,78 +80,128 @@ const HomeScreen = ({navigation}: any) => {
     }
   };
 
+  const loadMenuTipPreference = async () => {
+    try {
+      const seen = await AsyncStorage.getItem(MENU_TIP_SEEN_KEY);
+      setShowMenuTip(seen !== '1');
+    } catch {
+      setShowMenuTip(true);
+    }
+  };
+
+  const dismissMenuTip = async () => {
+    setShowMenuTip(false);
+    try {
+      await AsyncStorage.setItem(MENU_TIP_SEEN_KEY, '1');
+    } catch {
+      // No-op: tip can reappear if storage is unavailable.
+    }
+  };
+
   const features = [
     {
-      title: 'Ask Question',
+      title: t('ask_question'),
       color: '#87CEEB',
       screen: 'Ask',
-      description: 'Instant answers about career, wealth, relationships',
+      description: t('feature_ask_question_desc'),
+      iconKey: 'Ask Question',
+      actionText: t('action_ask'),
     },
     {
-      title: 'Career',
+      title: t('career_guidance'),
       color: '#6A5ACD',
       screen: 'Career',
-      description: 'Best career & profession from your chart',
+      description: t('feature_career_desc'),
+      iconKey: 'Career',
+      actionText: t('action_analyze'),
     },
     {
-      title: 'Financial',
+      title: t('financial_outlook'),
       color: '#7B68EE',
       screen: 'Financial',
-      description: 'Wealth timing & financial planetary transits',
+      description: t('feature_financial_desc'),
+      iconKey: 'Financial',
+      actionText: t('action_view'),
     },
     {
-      title: 'Gemstones',
+      title: t('gemstone_guide'),
       color: '#FF69B4',
       screen: 'Gemstone',
-      description: 'Personalized recommendations from chart analysis',
+      description: t('feature_gemstone_desc'),
+      iconKey: 'Gemstones',
+      actionText: t('action_view'),
     },
     {
-      title: 'Numerology',
+      title: t('numerology'),
       color: '#90EE90',
       screen: 'Numerology',
-      description: 'Life Path, Expression & Soul numbers',
+      description: t('feature_numerology_desc'),
+      iconKey: 'Numerology',
+      actionText: t('action_view'),
     },
     {
-      title: 'Matchmaking',
+      title: t('matchmaking'),
       color: '#FF6B35',
       screen: 'Matchmaking',
-      description: 'Kundali Milan & compatibility analysis',
+      description: t('feature_matchmaking_desc'),
+      iconKey: 'Matchmaking',
+      actionText: t('action_check'),
     },
     {
-      title: 'Muhurat',
+      title: t('muhurat_finder'),
       color: '#F9C74F',
       screen: 'Muhurat',
-      description: 'Auspicious timing for important events',
+      description: t('feature_muhurat_desc'),
+      iconKey: 'Muhurat',
+      actionText: t('action_find'),
     },
     {
-      title: 'Varshaphal',
+      title: t('varshaphal'),
       color: '#00CED1',
       screen: 'Varshaphal',
-      description: 'Annual predictions & yearly forecast',
+      description: t('feature_varshaphal_desc'),
+      iconKey: 'Varshaphal',
+      actionText: t('action_view'),
     },
     {
-      title: 'Dasha Analysis',
+      title: t('dasha_analysis'),
       color: '#9370DB',
       screen: 'Dasha',
-      description: 'Detailed planetary period predictions',
+      description: t('feature_dasha_desc'),
+      iconKey: 'Dasha Analysis',
+      actionText: t('action_analyze'),
     },
     {
-      title: 'Get Remedies',
+      title: t('stotras_prayers'),
+      color: '#4DB6AC',
+      screen: 'Stotras',
+      description: t('feature_stotras_desc'),
+      iconKey: 'Stotras & Prayers',
+      actionText: t('action_open'),
+    },
+    {
+      title: t('remedies'),
       color: '#FF8FA3',
       screen: 'Remedies',
-      description: 'Lal Kitab remedies & lifestyle changes',
+      description: t('feature_remedies_desc'),
+      iconKey: 'Get Remedies',
+      actionText: t('action_view'),
     },
     {
-      title: 'Name Guide',
+      title: t('name_recommendation'),
       color: '#20B2AA',
       screen: 'NameRecommendation',
-      description: 'Lucky names based on nakshatra',
+      description: t('feature_name_guide_desc'),
+      iconKey: 'Name Guide',
+      actionText: t('action_suggest'),
     },
     {
-      title: 'Soulmate',
+      title: t('soulmate_analysis'),
       color: '#E75480',
       screen: 'Soulmate',
-      description: 'Soulmate traits & relationship insights',
+      description: t('feature_soulmate_desc'),
+      iconKey: 'Soulmate',
+      actionText: t('action_find'),
     },
   ];
 
@@ -171,9 +214,9 @@ const HomeScreen = ({navigation}: any) => {
   };
 
   const handleLogout = () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
-      {text: 'Cancel', style: 'cancel'},
-      {text: 'Logout', onPress: logout},
+    Alert.alert(t('logout'), t('confirm_logout'), [
+      {text: t('cancel'), style: 'cancel'},
+      {text: t('logout'), onPress: logout},
     ]);
   };
 
@@ -188,10 +231,10 @@ const HomeScreen = ({navigation}: any) => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <Text style={styles.modalEmoji}>👤</Text>
-            <Text style={styles.modalTitle}>Profile Required</Text>
+            <Text style={styles.modalTitle}>{t('profile_required')}</Text>
             <Text style={styles.modalMessage}>
-              To use astrology services, please create your birth profile first.{'\n\n'}
-              Add your name, date of birth, time and place so we can calculate your personalised chart.
+              {t('create_profile_first')}{'\n\n'}
+              {t('add_birth_details')}
             </Text>
             <TouchableOpacity
               style={styles.modalPrimaryBtn}
@@ -199,12 +242,12 @@ const HomeScreen = ({navigation}: any) => {
                 setShowNoProfileModal(false);
                 navigation.navigate('Profiles');
               }}>
-              <Text style={styles.modalPrimaryBtnText}>Create Profile →</Text>
+              <Text style={styles.modalPrimaryBtnText}>{t('create_profile')} →</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.modalSecondaryBtn}
               onPress={() => setShowNoProfileModal(false)}>
-              <Text style={styles.modalSecondaryBtnText}>Maybe Later</Text>
+              <Text style={styles.modalSecondaryBtnText}>{t('maybe_later')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -213,22 +256,35 @@ const HomeScreen = ({navigation}: any) => {
       <View style={styles.header}>
         <Text style={styles.mantra}>🕉️ ॐ गं गणपतये नमः 🕉️</Text>
         <Text style={styles.title}>KundaliSaga</Text>
-        <Text style={styles.subtitle}>Vedic Astrology AI</Text>
+        <Text style={styles.subtitle}>{t('vedic_astrology_ai')}</Text>
 
         {isGuest ? (
           <View style={styles.guestBanner}>
             <Text style={styles.inlineEmoji}>ℹ️</Text>
-            <Text style={styles.guestText}>Guest Mode - Limited Features</Text>
+            <Text style={styles.guestText}>{t('guest_mode_limited')}</Text>
           </View>
         ) : (
           <View style={styles.userInfo}>
             <Text style={styles.inlineEmoji}>👤</Text>
-            <Text style={styles.userName}>Welcome, {user?.name}!</Text>
+            <Text style={styles.userName}>{t('welcome_user')}, {user?.name}!</Text>
           </View>
         )}
       </View>
 
       <View style={styles.content}>
+        {showMenuTip && (
+          <View style={styles.menuTipCard}>
+            <Text style={styles.menuTipIcon}>☰</Text>
+            <View style={styles.menuTipTextWrap}>
+              <Text style={styles.menuTipTitle}>{t('menu_tip_title')}</Text>
+              <Text style={styles.menuTipBody}>{t('menu_tip_body')}</Text>
+            </View>
+            <TouchableOpacity onPress={dismissMenuTip} style={styles.menuTipBtn}>
+              <Text style={styles.menuTipBtnText}>{t('menu_tip_dismiss')}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Profile warning banner */}
         {hasProfiles === false && (
           <TouchableOpacity
@@ -236,14 +292,14 @@ const HomeScreen = ({navigation}: any) => {
             onPress={() => navigation.navigate('Profiles')}>
             <Text style={styles.profileBannerIcon}>⚠️</Text>
             <View style={{flex: 1}}>
-              <Text style={styles.profileBannerTitle}>No birth profile found</Text>
-              <Text style={styles.profileBannerSub}>Tap here to create your profile and unlock all features</Text>
+              <Text style={styles.profileBannerTitle}>{t('no_birth_profile_found')}</Text>
+              <Text style={styles.profileBannerSub}>{t('create_profile_unlock_features')}</Text>
             </View>
             <Text style={styles.profileBannerArrow}>›</Text>
           </TouchableOpacity>
         )}
 
-        <Text style={styles.sectionTitle}>Astrology Services</Text>
+        <Text style={styles.sectionTitle}>{t('astrology_services')}</Text>
         <View style={styles.featuresGrid}>
           {features.map((feature, index) => (
             <TouchableOpacity
@@ -259,13 +315,13 @@ const HomeScreen = ({navigation}: any) => {
                   <Text style={styles.lockIcon}>🔒</Text>
                 </View>
               )}
-              <Text style={styles.featureIconText}>{EMOJI_ICONS[feature.title] || '✨'}</Text>
+              <Text style={styles.featureIconText}>{EMOJI_ICONS[feature.iconKey] || '✨'}</Text>
               <Text style={styles.featureTitle}>{feature.title}</Text>
               <Text style={styles.featureDescriptionLight}>
                 {feature.description}
               </Text>
               <View style={styles.actionBtn}>
-                <Text style={styles.actionBtnText}>{ACTION_LABELS[feature.title] || 'View'}</Text>
+                <Text style={styles.actionBtnText}>{feature.actionText || t('action_view')}</Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -273,19 +329,19 @@ const HomeScreen = ({navigation}: any) => {
 
         {currentDasha && (
           <View style={styles.dashaCard}>
-            <Text style={styles.dashaTitle}>Current Dasha</Text>
+            <Text style={styles.dashaTitle}>{t('current_dasha')}</Text>
             <Text style={styles.dashaText}>
-              Mahadasha: {currentDasha.mahadasha_name || currentDasha?.mahadasha?.planet || currentDasha.mahadasha}
+              {t('mahadasha')}: {currentDasha.mahadasha_name || currentDasha?.mahadasha?.planet || currentDasha.mahadasha}
             </Text>
             <Text style={styles.dashaText}>
-              Antardasha: {currentDasha.antardasha_name || currentDasha?.antardasha?.planet || currentDasha.antardasha}
+              {t('antardasha')}: {currentDasha.antardasha_name || currentDasha?.antardasha?.planet || currentDasha.antardasha}
             </Text>
           </View>
         )}
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.inlineEmoji}>🚪</Text>
-          <Text style={styles.logoutText}>Logout</Text>
+          <Text style={styles.logoutText}>{t('logout')}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -326,6 +382,44 @@ const styles = StyleSheet.create({
   userName: {marginLeft: 10, fontSize: 16, color: THEME.text, fontWeight: '600'},
   content: {padding: 20},
   sectionTitle: {fontSize: 20, fontWeight: 'bold', color: THEME.text, marginBottom: 15},
+  menuTipCard: {
+    backgroundColor: '#EEF6FF',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 14,
+    borderLeftWidth: 4,
+    borderLeftColor: '#1D4ED8',
+  },
+  menuTipIcon: {
+    fontSize: 22,
+    marginBottom: 4,
+  },
+  menuTipTextWrap: {
+    marginBottom: 8,
+  },
+  menuTipTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1E3A8A',
+    marginBottom: 4,
+  },
+  menuTipBody: {
+    fontSize: 12,
+    color: '#1E3A8A',
+    lineHeight: 18,
+  },
+  menuTipBtn: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#1D4ED8',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  menuTipBtnText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
   // Profile banner
   profileBanner: {
     flexDirection: 'row',

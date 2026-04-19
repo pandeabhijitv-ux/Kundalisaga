@@ -125,7 +125,10 @@ const ProfilesScreen = () => {
   const selectActiveProfile = async (id: string) => {
     await setActiveProfileId(id);
     setActiveProfile(id);
-    Alert.alert('Active Profile Updated', 'This profile will be used for analytics and predictions.');
+    Alert.alert(
+      'Active Profile Updated',
+      'This profile will be used for all the next services. If you want another profile, please select different.',
+    );
   };
 
   const deleteProfile = (id: string) => {

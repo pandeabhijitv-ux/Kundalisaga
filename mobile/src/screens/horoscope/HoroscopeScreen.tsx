@@ -17,7 +17,14 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {THEME} from '../../constants/theme';
 import {calculateChart} from '../../services/PythonBridge';
-import {getActiveProfile, saveCachedChart} from '../../services/profileData';
+import {
+  UserProfile,
+  getActiveProfile,
+  getOrCreateChartForProfile,
+  getProfiles,
+  saveCachedChart,
+  setActiveProfileId,
+} from '../../services/profileData';
 import {LocationOption, searchLocations} from '../../services/locationSearch';
 import NorthIndianChart from '../../components/NorthIndianChart';
 
@@ -26,6 +33,8 @@ const DIVISIONS: Array<'D1' | 'D2' | 'D3' | 'D7' | 'D9' | 'D10'> = ['D1', 'D2', 
 const HoroscopeScreen = ({route}: any) => {
   const preset = route?.params?.preset;
   const [loading, setLoading] = useState(false);
+  const [profiles, setProfiles] = useState<UserProfile[]>([]);
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
   const [searchingLocation, setSearchingLocation] = useState(false);
   const [name, setName] = useState('User');
   const [birthDate, setBirthDate] = useState(new Date('1990-01-01T00:00:00'));
@@ -52,8 +61,11 @@ const HoroscopeScreen = ({route}: any) => {
 
     const prefillFromActiveProfile = async () => {
       try {
+        const allProfiles = await getProfiles();
+        setProfiles(allProfiles);
         const active = await getActiveProfile();
         if (!active) return;
+        setSelectedProfileId(active.id);
         setName(active.name || 'User');
         setLocation(active.location || 'Mumbai');
         setLocationQuery(active.location || 'Mumbai');
@@ -79,6 +91,41 @@ const HoroscopeScreen = ({route}: any) => {
 
     prefillFromActiveProfile();
   }, [preset]);
+
+  const applyProfileToForm = (profile: UserProfile) => {
+    setName(profile.name || 'User');
+    setLocation(profile.location || 'Mumbai');
+    setLocationQuery(profile.location || 'Mumbai');
+    setLatitude(String(profile.latitude ?? 19.076));
+    setLongitude(String(profile.longitude ?? 72.8777));
+    setTimezone(profile.timezone || 'Asia/Kolkata');
+
+    if (profile.date) {
+      const d = new Date(`${profile.date}T00:00:00`);
+      if (!Number.isNaN(d.getTime())) setBirthDate(d);
+    }
+    if (profile.time) {
+      const [h, m] = profile.time.split(':').map(x => Number(x));
+      const t = new Date('1990-01-01T00:00:00');
+      t.setHours(Number.isFinite(h) ? h : 12);
+      t.setMinutes(Number.isFinite(m) ? m : 0);
+      setBirthTime(t);
+    }
+  };
+
+  const selectProfileForHoroscope = async (profileId: string) => {
+    const profile = profiles.find(p => p.id === profileId);
+    if (!profile) return;
+
+    await setActiveProfileId(profileId);
+    setSelectedProfileId(profileId);
+    applyProfileToForm(profile);
+    setStatusMessage(`Selected profile: ${profile.name}. This profile will be used for next services.`);
+    Alert.alert(
+      'Active Profile Updated',
+      'This profile will be used for all the next services. If you want another profile, please select different.',
+    );
+  };
 
   const formatDate = (value: Date) => {
     const y = value.getFullYear();
@@ -127,6 +174,27 @@ const HoroscopeScreen = ({route}: any) => {
 
   const handleCalculate = async () => {
     Keyboard.dismiss();
+    const selectedProfile = selectedProfileId
+      ? profiles.find(p => p.id === selectedProfileId) || null
+      : null;
+
+    if (selectedProfile) {
+      setLoading(true);
+      setStatusMessage('Calculating chart for selected profile...');
+      try {
+        const result = await getOrCreateChartForProfile(selectedProfile);
+        setStatusMessage('Birth chart calculated from selected profile.');
+        setChart(result);
+        setSelectedDivision('D1');
+      } catch (error: any) {
+        setStatusMessage('Calculation failed.');
+        Alert.alert('Error', error?.message || 'Failed to calculate chart for selected profile');
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     const date = formatDate(birthDate);
     const time = formatTime(birthTime);
     const lat = Number(latitude);
@@ -242,6 +310,28 @@ const HoroscopeScreen = ({route}: any) => {
       <View style={styles.tipBanner}>
         <Text style={styles.tipText}>💡 Tip: After viewing your chart, visit the Remedies page for personalized solutions.</Text>
       </View>
+
+      {profiles.length > 0 ? (
+        <View style={styles.card}>
+          <Text style={styles.stepTitle}>Select Saved Profile</Text>
+          <Text style={styles.profileHint}>Selected profile will be used for all next services.</Text>
+          <View style={styles.profileList}>
+            {profiles.map(profile => {
+              const isSelected = profile.id === selectedProfileId;
+              return (
+                <TouchableOpacity
+                  key={profile.id}
+                  style={[styles.profileChip, isSelected && styles.profileChipActive]}
+                  onPress={() => selectProfileForHoroscope(profile.id)}>
+                  <Text style={[styles.profileChipText, isSelected && styles.profileChipTextActive]}>
+                    {profile.name}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+      ) : null}
 
       <View style={styles.card}>
         <Text style={styles.stepTitle}>Select Birth Location</Text>
@@ -383,6 +473,12 @@ const styles = StyleSheet.create({
   okText: {fontSize: 12, color: '#166534', fontWeight: '600'},
   card: {backgroundColor: THEME.card, borderRadius: 12, padding: 12, marginBottom: 12},
   stepTitle: {fontSize: 14, fontWeight: '700', color: THEME.text, marginBottom: 8, marginTop: 4},
+  profileHint: {fontSize: 12, color: THEME.textLight, marginBottom: 8},
+  profileList: {flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 4},
+  profileChip: {borderWidth: 1, borderColor: THEME.primary, borderRadius: 14, paddingHorizontal: 10, paddingVertical: 6},
+  profileChipActive: {backgroundColor: THEME.primary},
+  profileChipText: {fontSize: 12, color: THEME.primary, fontWeight: '600'},
+  profileChipTextActive: {color: '#fff'},
   input: {backgroundColor: '#fff', borderColor: '#E0E0E0', borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 8, color: THEME.text},
   inputButton: {backgroundColor: '#fff', borderColor: '#E0E0E0', borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 12, marginBottom: 8},
   inputButtonText: {color: THEME.text},

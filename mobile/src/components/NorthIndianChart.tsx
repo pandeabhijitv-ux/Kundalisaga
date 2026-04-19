@@ -35,10 +35,31 @@ const PLANET_SHORT: Record<string, string> = {
 };
 
 const HOUSE_POS: Record<number, {x: number; y: number}> = {
-  1: {x: 58, y: 255}, 2: {x: 110, y: 300}, 3: {x: 178, y: 320}, 4: {x: 245, y: 300},
-  5: {x: 300, y: 255}, 6: {x: 320, y: 190}, 7: {x: 300, y: 115}, 8: {x: 245, y: 62},
-  9: {x: 178, y: 40}, 10: {x: 110, y: 62}, 11: {x: 58, y: 115}, 12: {x: 40, y: 190},
+  1: {x: 180, y: 72},
+  2: {x: 132, y: 88},
+  3: {x: 104, y: 116},
+  4: {x: 92, y: 170},
+  5: {x: 104, y: 224},
+  6: {x: 132, y: 252},
+  7: {x: 180, y: 268},
+  8: {x: 228, y: 252},
+  9: {x: 256, y: 224},
+  10: {x: 268, y: 170},
+  11: {x: 256, y: 116},
+  12: {x: 228, y: 88},
 };
+
+const CHART_LEFT = 20;
+const CHART_TOP = 34;
+const CHART_SIZE = 320;
+
+function signToHouseMap(houseSigns: Record<number, string>): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (let h = 1; h <= 12; h += 1) {
+    out[houseSigns[h]] = h;
+  }
+  return out;
+}
 
 function toPlanetMap(chart: ChartDataLike): Record<string, any> {
   if (chart?.planets && !Array.isArray(chart.planets)) {
@@ -79,22 +100,33 @@ const NorthIndianChart: React.FC<Props> = ({chart, division = 'D1', size = 360})
     }
 
     const signs = buildHouseSigns(ascSign);
+    const signHouse = signToHouseMap(signs);
     const grouped: Record<number, string[]> = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [], 10: [], 11: [], 12: []};
 
     Object.entries(pMap || {}).forEach(([name, p]) => {
-      const house = Number(p?.house || 0);
-      if (house >= 1 && house <= 12 && name !== 'Ascendant') {
+      if (name === 'Ascendant') return;
+      const sign = p?.sign;
+      const house = sign ? signHouse[sign] : undefined;
+      if (house && house >= 1 && house <= 12) {
         grouped[house].push(PLANET_SHORT[name] || name.slice(0, 2));
       }
     });
 
+    grouped[1] = ['AL', ...grouped[1]];
+
     return {houseSigns: signs, housePlanets: grouped};
   }, [chart, division]);
 
+  const scale = size / 360;
+
   return (
     <View style={[styles.wrap, {width: size, height: size}]}> 
-      <Text style={styles.title}>|| North Indian Chart ({division}) ||</Text>
-      <View style={styles.board}>
+      <View style={[styles.headerRow, {paddingHorizontal: 10 * scale}]}> 
+        <Text style={[styles.title, {fontSize: Math.max(11, 12 * scale)}]}>Natal Chart</Text>
+        <Text style={[styles.divisionText, {fontSize: Math.max(11, 12 * scale)}]}>{division.replace('D', 'D-')}</Text>
+      </View>
+
+      <View style={[styles.board, {left: CHART_LEFT * scale, top: CHART_TOP * scale, width: CHART_SIZE * scale, height: CHART_SIZE * scale}]}> 
         <View style={styles.diagMainA} />
         <View style={styles.diagMainB} />
         <View style={styles.diagTopRight} />
@@ -105,12 +137,29 @@ const NorthIndianChart: React.FC<Props> = ({chart, division = 'D1', size = 360})
 
       {Object.entries(HOUSE_POS).map(([h, pos]) => {
         const house = Number(h);
-        const s = SIGN_SHORT[houseSigns[house]] || '--';
-        const planets = housePlanets[house]?.join(', ');
+        const signName = houseSigns[house] || '';
+        const signShort = SIGN_SHORT[signName] || '--';
+        const signNum = Math.max(1, SIGNS.indexOf(signName) + 1);
+        const planets = housePlanets[house] || [];
         return (
-          <View key={h} style={[styles.houseLabel, {left: (pos.x / 360) * size - 18, top: (pos.y / 360) * size - 14}]}> 
-            <Text style={styles.signText}>{s}{house}</Text>
-            {!!planets && <Text style={styles.planetText}>{planets}</Text>}
+          <View
+            key={h}
+            style={[
+              styles.houseLabel,
+              {
+                left: pos.x * scale - 24 * scale,
+                top: pos.y * scale - 16 * scale,
+                minWidth: 48 * scale,
+              },
+            ]}
+          > 
+            <View style={styles.signRow}>
+              <Text style={[styles.signText, {fontSize: Math.max(12, 18 * scale)}]}>{signShort}</Text>
+              <Text style={[styles.signNumText, {fontSize: Math.max(8, 10 * scale)}]}>{signNum}</Text>
+            </View>
+            {planets.length > 0 && (
+              <Text style={[styles.planetText, {fontSize: Math.max(8, 11 * scale)}]}>{planets.join(' ')}</Text>
+            )}
           </View>
         );
       })}
@@ -123,33 +172,39 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     position: 'relative',
   },
+  headerRow: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 2,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    zIndex: 5,
+  },
   board: {
     position: 'absolute',
-    left: 20,
-    top: 36,
-    width: 320,
-    height: 320,
-    backgroundColor: '#F9E9C6',
-    borderWidth: 2,
-    borderColor: '#C18739',
+    backgroundColor: '#ECECEC',
+    borderWidth: 1.5,
+    borderColor: '#111111',
     overflow: 'hidden',
   },
   diagMainA: {
     position: 'absolute',
-    left: -65,
-    top: 158,
-    width: 450,
-    height: 1.5,
-    backgroundColor: '#B88E50',
+    left: -64,
+    top: 159,
+    width: 448,
+    height: 1,
+    backgroundColor: '#111111',
     transform: [{rotate: '45deg'}],
   },
   diagMainB: {
     position: 'absolute',
-    left: -65,
-    top: 158,
-    width: 450,
-    height: 1.5,
-    backgroundColor: '#B88E50',
+    left: -64,
+    top: 159,
+    width: 448,
+    height: 1,
+    backgroundColor: '#111111',
     transform: [{rotate: '-45deg'}],
   },
   diagTopRight: {
@@ -157,8 +212,8 @@ const styles = StyleSheet.create({
     left: 175,
     top: 26,
     width: 220,
-    height: 1.5,
-    backgroundColor: '#B88E50',
+    height: 1,
+    backgroundColor: '#111111',
     transform: [{rotate: '45deg'}],
   },
   diagBottomRight: {
@@ -166,8 +221,8 @@ const styles = StyleSheet.create({
     left: 175,
     top: 292,
     width: 220,
-    height: 1.5,
-    backgroundColor: '#B88E50',
+    height: 1,
+    backgroundColor: '#111111',
     transform: [{rotate: '-45deg'}],
   },
   diagTopLeft: {
@@ -175,8 +230,8 @@ const styles = StyleSheet.create({
     left: -74,
     top: 26,
     width: 220,
-    height: 1.5,
-    backgroundColor: '#B88E50',
+    height: 1,
+    backgroundColor: '#111111',
     transform: [{rotate: '-45deg'}],
   },
   diagBottomLeft: {
@@ -184,31 +239,43 @@ const styles = StyleSheet.create({
     left: -74,
     top: 292,
     width: 220,
-    height: 1.5,
-    backgroundColor: '#B88E50',
+    height: 1,
+    backgroundColor: '#111111',
     transform: [{rotate: '45deg'}],
   },
   title: {
-    textAlign: 'center',
-    color: '#5B4331',
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 8,
+    color: '#111111',
+    fontWeight: '600',
+  },
+  divisionText: {
+    color: '#111111',
+    fontWeight: '600',
   },
   houseLabel: {
     position: 'absolute',
-    minWidth: 36,
     alignItems: 'center',
   },
+  signRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
   signText: {
-    color: '#9E2A1F',
-    fontWeight: '700',
-    fontSize: 14,
+    color: '#CC2A2A',
+    fontWeight: '600',
+    lineHeight: 20,
+  },
+  signNumText: {
+    color: '#177F3E',
+    marginLeft: 2,
+    marginTop: 2,
+    fontWeight: '600',
   },
   planetText: {
-    color: '#1E40AF',
+    color: '#2E5FBF',
     fontWeight: '600',
-    fontSize: 11,
+    textAlign: 'center',
+    marginTop: 1,
   },
 });
 
