@@ -23,6 +23,10 @@ const RegisterScreen = ({navigation}: any) => {
   const {register} = useAuth();
 
   const handleRegister = async () => {
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      Alert.alert('Error', 'Please fill name, email and password');
+      return;
+    }
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
       return;
@@ -30,8 +34,8 @@ const RegisterScreen = ({navigation}: any) => {
 
     try {
       await register(name, email, password);
-    } catch (error) {
-      Alert.alert('Error', 'Registration failed');
+    } catch (error: any) {
+      Alert.alert('Error', error?.message || 'Registration failed');
     }
   };
 

@@ -18,14 +18,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import {THEME} from '../../constants/theme';
 import {calculateChart} from '../../services/PythonBridge';
 import {getActiveProfile, saveCachedChart} from '../../services/profileData';
+import {LocationOption, searchLocations} from '../../services/locationSearch';
 import NorthIndianChart from '../../components/NorthIndianChart';
-
-type LocationOption = {
-  label: string;
-  latitude: string;
-  longitude: string;
-  timezone: string;
-};
 
 const DIVISIONS: Array<'D1' | 'D2' | 'D3' | 'D7' | 'D9' | 'D10'> = ['D1', 'D2', 'D3', 'D7', 'D9', 'D10'];
 
@@ -99,18 +93,6 @@ const HoroscopeScreen = ({route}: any) => {
     return `${h}:${m}`;
   };
 
-  const buildPlaceLabel = (item: any) => {
-    const address = item?.address || {};
-    const locality = address.city || address.town || address.village || address.hamlet || address.suburb || address.municipality;
-    const subdistrict = address.subdistrict || address.county;
-    const district = address.state_district || address.district;
-    const state = address.state;
-    const country = address.country;
-    const parts = [locality, subdistrict, district, state, country].filter(Boolean);
-    const deduped = Array.from(new Set(parts.map((p: string) => p.trim())));
-    return deduped.length > 0 ? deduped.join(', ') : item.display_name || 'Unknown';
-  };
-
   const handleSearchLocation = async () => {
     const query = locationQuery.trim();
     if (query.length < 3) {
@@ -121,27 +103,13 @@ const HoroscopeScreen = ({route}: any) => {
     setSearchingLocation(true);
     setLocationOptions([]);
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&countrycodes=in&q=${encodeURIComponent(query)}`;
-      const res = await fetch(url, {headers: {Accept: 'application/json'}});
-      if (!res.ok) throw new Error('Location service not reachable');
-      const data = await res.json();
-      if (!Array.isArray(data) || data.length === 0) {
-        setStatusMessage('No matching location found. Try city + district.');
-        return;
-      }
-
-      const options: LocationOption[] = data.map((item: any) => ({
-        label: buildPlaceLabel(item),
-        latitude: String(item.lat),
-        longitude: String(item.lon),
-        timezone: 'Asia/Kolkata',
-      }));
+      const options = await searchLocations(query);
 
       setLocationOptions(options);
       setStatusMessage(`Found ${options.length} location options.`);
     } catch (error: any) {
-      setStatusMessage('Location search failed.');
-      Alert.alert('Search Error', error?.message || 'Unable to search location');
+      setStatusMessage('Location search failed. You can still enter coordinates manually.');
+      Alert.alert('Search Error', error?.message || 'Unable to search location right now');
     } finally {
       setSearchingLocation(false);
     }

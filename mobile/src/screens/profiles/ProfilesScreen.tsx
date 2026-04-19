@@ -13,6 +13,7 @@ import {
   Alert,
 } from 'react-native';
 import {THEME} from '../../constants/theme';
+import {LocationOption, searchLocations} from '../../services/locationSearch';
 import {
   UserProfile,
   getActiveProfileId,
@@ -29,6 +30,12 @@ const ProfilesScreen = () => {
   const [date, setDate] = useState('1990-01-01');
   const [time, setTime] = useState('12:00');
   const [location, setLocation] = useState('Mumbai');
+  const [locationQuery, setLocationQuery] = useState('Mumbai');
+  const [locationOptions, setLocationOptions] = useState<LocationOption[]>([]);
+  const [searchingLocation, setSearchingLocation] = useState(false);
+  const [latitude, setLatitude] = useState<number>(19.076);
+  const [longitude, setLongitude] = useState<number>(72.8777);
+  const [timezone, setTimezone] = useState('Asia/Kolkata');
 
   useEffect(() => {
     loadProfiles();
@@ -60,6 +67,10 @@ const ProfilesScreen = () => {
       Alert.alert('Validation', 'Please enter profile name');
       return;
     }
+    if (!location.trim()) {
+      Alert.alert('Validation', 'Please select a location before creating profile');
+      return;
+    }
 
     const newProfile: UserProfile = {
       id: `${Date.now()}`,
@@ -68,6 +79,9 @@ const ProfilesScreen = () => {
       date,
       time,
       location,
+      latitude,
+      longitude,
+      timezone,
     };
 
     const next = [newProfile, ...profiles];
@@ -78,6 +92,34 @@ const ProfilesScreen = () => {
     }
     setName('');
     setEmail('');
+  };
+
+  const handleSearchLocation = async () => {
+    const query = locationQuery.trim();
+    if (query.length < 3) {
+      Alert.alert('Location Search', 'Please enter at least 3 characters.');
+      return;
+    }
+
+    setSearchingLocation(true);
+    setLocationOptions([]);
+    try {
+      const results = await searchLocations(query);
+      setLocationOptions(results);
+    } catch (error: any) {
+      Alert.alert('Search Error', error?.message || 'Unable to search location right now');
+    } finally {
+      setSearchingLocation(false);
+    }
+  };
+
+  const selectLocation = (option: LocationOption) => {
+    setLocation(option.label);
+    setLocationQuery(option.label);
+    setLatitude(Number(option.latitude));
+    setLongitude(Number(option.longitude));
+    setTimezone(option.timezone || 'Asia/Kolkata');
+    setLocationOptions([]);
   };
 
   const selectActiveProfile = async (id: string) => {
@@ -140,7 +182,29 @@ const ProfilesScreen = () => {
         />
         <TextInput
           style={styles.input}
-          placeholder="Location"
+          placeholder="Search city / town / village"
+          value={locationQuery}
+          onChangeText={setLocationQuery}
+        />
+
+        <TouchableOpacity style={[styles.searchButton, searchingLocation && styles.searchButtonDisabled]} onPress={handleSearchLocation} disabled={searchingLocation}>
+          <Text style={styles.searchButtonText}>{searchingLocation ? 'Searching...' : 'Search Location'}</Text>
+        </TouchableOpacity>
+
+        {locationOptions.length > 0 ? (
+          <View style={styles.locationList}>
+            {locationOptions.map((option, index) => (
+              <TouchableOpacity key={`${option.label}-${index}`} style={styles.locationItem} onPress={() => selectLocation(option)}>
+                <Text style={styles.locationTitle}>{option.label}</Text>
+                <Text style={styles.locationMeta}>{Number(option.latitude).toFixed(4)}°, {Number(option.longitude).toFixed(4)}°</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : null}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Selected Location"
           value={location}
           onChangeText={setLocation}
         />
@@ -216,6 +280,40 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: 'center',
+  },
+  searchButton: {
+    backgroundColor: '#CC5B2A',
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  searchButtonDisabled: {
+    opacity: 0.7,
+  },
+  searchButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+  locationList: {
+    marginBottom: 8,
+  },
+  locationItem: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 6,
+  },
+  locationTitle: {
+    color: THEME.text,
+    fontWeight: '600',
+  },
+  locationMeta: {
+    color: THEME.textLight,
+    marginTop: 2,
+    fontSize: 12,
   },
   addButtonText: {
     color: '#fff',

@@ -1,6 +1,5 @@
 import React, {useMemo} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import Svg, {Line, Rect} from 'react-native-svg';
 
 type PlanetData = {
   name: string;
@@ -95,16 +94,14 @@ const NorthIndianChart: React.FC<Props> = ({chart, division = 'D1', size = 360})
   return (
     <View style={[styles.wrap, {width: size, height: size}]}> 
       <Text style={styles.title}>|| North Indian Chart ({division}) ||</Text>
-      <Svg width={size} height={size} viewBox="0 0 360 360">
-        <Rect x="20" y="20" width="320" height="320" fill="#F9E9C6" stroke="#C18739" strokeWidth="2" />
-
-        <Line x1="20" y1="20" x2="340" y2="340" stroke="#B88E50" strokeWidth="1.5" />
-        <Line x1="340" y1="20" x2="20" y2="340" stroke="#B88E50" strokeWidth="1.5" />
-        <Line x1="180" y1="20" x2="340" y2="180" stroke="#B88E50" strokeWidth="1.5" />
-        <Line x1="340" y1="180" x2="180" y2="340" stroke="#B88E50" strokeWidth="1.5" />
-        <Line x1="180" y1="20" x2="20" y2="180" stroke="#B88E50" strokeWidth="1.5" />
-        <Line x1="20" y1="180" x2="180" y2="340" stroke="#B88E50" strokeWidth="1.5" />
-      </Svg>
+      <View style={styles.board}>
+        <View style={styles.diagMainA} />
+        <View style={styles.diagMainB} />
+        <View style={styles.diagTopRight} />
+        <View style={styles.diagBottomRight} />
+        <View style={styles.diagTopLeft} />
+        <View style={styles.diagBottomLeft} />
+      </View>
 
       {Object.entries(HOUSE_POS).map(([h, pos]) => {
         const house = Number(h);
@@ -125,6 +122,71 @@ const styles = StyleSheet.create({
   wrap: {
     alignSelf: 'center',
     position: 'relative',
+  },
+  board: {
+    position: 'absolute',
+    left: 20,
+    top: 36,
+    width: 320,
+    height: 320,
+    backgroundColor: '#F9E9C6',
+    borderWidth: 2,
+    borderColor: '#C18739',
+    overflow: 'hidden',
+  },
+  diagMainA: {
+    position: 'absolute',
+    left: -65,
+    top: 158,
+    width: 450,
+    height: 1.5,
+    backgroundColor: '#B88E50',
+    transform: [{rotate: '45deg'}],
+  },
+  diagMainB: {
+    position: 'absolute',
+    left: -65,
+    top: 158,
+    width: 450,
+    height: 1.5,
+    backgroundColor: '#B88E50',
+    transform: [{rotate: '-45deg'}],
+  },
+  diagTopRight: {
+    position: 'absolute',
+    left: 175,
+    top: 26,
+    width: 220,
+    height: 1.5,
+    backgroundColor: '#B88E50',
+    transform: [{rotate: '45deg'}],
+  },
+  diagBottomRight: {
+    position: 'absolute',
+    left: 175,
+    top: 292,
+    width: 220,
+    height: 1.5,
+    backgroundColor: '#B88E50',
+    transform: [{rotate: '-45deg'}],
+  },
+  diagTopLeft: {
+    position: 'absolute',
+    left: -74,
+    top: 26,
+    width: 220,
+    height: 1.5,
+    backgroundColor: '#B88E50',
+    transform: [{rotate: '-45deg'}],
+  },
+  diagBottomLeft: {
+    position: 'absolute',
+    left: -74,
+    top: 292,
+    width: 220,
+    height: 1.5,
+    backgroundColor: '#B88E50',
+    transform: [{rotate: '45deg'}],
   },
   title: {
     textAlign: 'center',

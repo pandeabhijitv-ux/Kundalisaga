@@ -23,7 +23,8 @@ const LoginScreen = ({navigation}: any) => {
   const [otpEmail, setOtpEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
-  const {login, continueAsGuest} = useAuth();
+  const [generatedOtp, setGeneratedOtp] = useState('');
+  const {login, loginWithOtp, continueAsGuest} = useAuth();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -32,8 +33,8 @@ const LoginScreen = ({navigation}: any) => {
     }
     try {
       await login(email, password);
-    } catch (error) {
-      Alert.alert('Login Failed', 'Invalid email or password');
+    } catch (error: any) {
+      Alert.alert('Login Failed', error?.message || 'Invalid email or password');
     }
   };
 
@@ -42,9 +43,10 @@ const LoginScreen = ({navigation}: any) => {
       Alert.alert('Error', 'Please enter your email address');
       return;
     }
-    // OTP send via backend
+    const nextOtp = `${Math.floor(100000 + Math.random() * 900000)}`;
+    setGeneratedOtp(nextOtp);
     setOtpSent(true);
-    Alert.alert('OTP Sent', `A one-time password has been sent to ${otpEmail}`);
+    Alert.alert('OTP Sent', `Use OTP ${nextOtp} to continue (demo mode).`);
   };
 
   const handleVerifyOtp = async () => {
@@ -52,10 +54,14 @@ const LoginScreen = ({navigation}: any) => {
       Alert.alert('Error', 'Please enter the OTP');
       return;
     }
-    try {
-      await login(otpEmail, otp);
-    } catch (error) {
+    if (otp !== generatedOtp) {
       Alert.alert('Error', 'Invalid OTP. Please try again.');
+      return;
+    }
+    try {
+      await loginWithOtp(otpEmail);
+    } catch (error: any) {
+      Alert.alert('Error', error?.message || 'Login failed');
     }
   };
 
