@@ -5,6 +5,7 @@ plugins {
 
 import java.util.Properties
 import java.io.FileInputStream
+import java.util.TimeZone
 
 /**
  * Set this to true to create four separate APKs instead of one,
@@ -21,6 +22,14 @@ def enableProguardInReleaseBuilds = false
 
 def isEasBuild = System.getenv("EAS_BUILD") == "true"
 def pythonExecutable = System.getenv("PYTHON_EXECUTABLE")
+def versionCodeOverride = (project.findProperty("APP_VERSION_CODE") ?: System.getenv("APP_VERSION_CODE"))?.toString()?.trim()
+def versionNameOverride = (project.findProperty("APP_VERSION_NAME") ?: System.getenv("APP_VERSION_NAME"))?.toString()?.trim()
+def buildTimestamp = new Date()
+def autoVersionCode = Integer.parseInt(buildTimestamp.format("yyDDDHHmm", TimeZone.getTimeZone("UTC")))
+def resolvedVersionCode = versionCodeOverride ? Integer.parseInt(versionCodeOverride) : autoVersionCode
+def resolvedVersionName = versionNameOverride ?: "1.0.${buildTimestamp.format("yyyyMMdd")}" 
+
+println("KundaliSaga Android versionCode=${resolvedVersionCode}, versionName=${resolvedVersionName}")
 
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -37,8 +46,8 @@ android {
         applicationId "com.kundalii.saga"
         minSdkVersion 24
         targetSdkVersion 35
-        versionCode 14
-        versionName "1.0.14"
+        versionCode resolvedVersionCode
+        versionName resolvedVersionName
         
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false"
         buildConfigField "boolean", "IS_HERMES_ENABLED", "true"
