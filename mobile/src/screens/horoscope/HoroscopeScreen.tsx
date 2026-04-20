@@ -13,6 +13,7 @@ import {
   Alert,
   Keyboard,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {THEME} from '../../constants/theme';
@@ -50,6 +51,49 @@ const HoroscopeScreen = ({route}: any) => {
   const [chart, setChart] = useState<any>(null);
   const [statusMessage, setStatusMessage] = useState('');
   const [selectedDivision, setSelectedDivision] = useState<'D1' | 'D2' | 'D3' | 'D7' | 'D9' | 'D10'>('D1');
+
+  const isValidDate = (value: Date) => Number.isFinite(value?.getTime?.());
+  const toDateOnly = (value: Date) => new Date(value.getFullYear(), value.getMonth(), value.getDate());
+  const safeDate = isValidDate(birthDate) ? birthDate : new Date(1990, 0, 1);
+  const safeTime = isValidDate(birthTime) ? birthTime : new Date(1990, 0, 1, 12, 0);
+
+  const openBirthDatePicker = () => {
+    if (!isValidDate(birthDate)) {
+      setBirthDate(new Date(1990, 0, 1));
+    }
+    setShowDatePicker(true);
+  };
+
+  const openBirthTimePicker = () => {
+    if (!isValidDate(birthTime)) {
+      setBirthTime(new Date(1990, 0, 1, 12, 0));
+    }
+    setShowTimePicker(true);
+  };
+
+  const handleBirthDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (event?.type === 'dismissed' || !selectedDate) {
+      return;
+    }
+    const nextDate = toDateOnly(selectedDate);
+    if (!isValidDate(nextDate)) {
+      return;
+    }
+    setBirthDate(nextDate);
+  };
+
+  const handleBirthTimeChange = (event: any, selectedTime?: Date) => {
+    setShowTimePicker(false);
+    if (event?.type === 'dismissed' || !selectedTime) {
+      return;
+    }
+    if (!isValidDate(selectedTime)) {
+      return;
+    }
+    const next = new Date(1990, 0, 1, selectedTime.getHours(), selectedTime.getMinutes(), 0, 0);
+    setBirthTime(next);
+  };
 
   useEffect(() => {
     if (preset === 'compatibility') {
@@ -354,35 +398,31 @@ const HoroscopeScreen = ({route}: any) => {
         <Text style={styles.stepTitle}>Birth Details</Text>
         <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Name" />
 
-        <TouchableOpacity style={styles.inputButton} onPress={() => setShowDatePicker(true)}>
-          <Text style={styles.inputButtonText}>{formatDate(birthDate)}</Text>
+        <TouchableOpacity style={styles.inputButton} onPress={openBirthDatePicker}>
+          <Text style={styles.inputButtonText}>{formatDate(safeDate)}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.inputButton} onPress={() => setShowTimePicker(true)}>
-          <Text style={styles.inputButtonText}>{formatTime(birthTime)}</Text>
+        <TouchableOpacity style={styles.inputButton} onPress={openBirthTimePicker}>
+          <Text style={styles.inputButtonText}>{formatTime(safeTime)}</Text>
         </TouchableOpacity>
 
         {showDatePicker ? (
           <DateTimePicker
-            value={birthDate}
+            value={safeDate}
             mode="date"
             maximumDate={new Date()}
             minimumDate={new Date('1800-01-01T00:00:00')}
-            onChange={(_, selectedDate) => {
-              setShowDatePicker(false);
-              if (selectedDate) setBirthDate(selectedDate);
-            }}
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={handleBirthDateChange}
           />
         ) : null}
 
         {showTimePicker ? (
           <DateTimePicker
-            value={birthTime}
+            value={safeTime}
             mode="time"
             is24Hour
-            onChange={(_, selectedTime) => {
-              setShowTimePicker(false);
-              if (selectedTime) setBirthTime(selectedTime);
-            }}
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={handleBirthTimeChange}
           />
         ) : null}
 

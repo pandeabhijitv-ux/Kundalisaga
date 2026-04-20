@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Platform} from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import {THEME} from '../constants/theme';
 import {useAppSettings} from '../contexts/AppSettingsContext';
 import {getActiveProfileWithChart} from '../services/profileData';
@@ -11,13 +12,36 @@ const VarshaphalScreen = () => {
   const [result, setResult] = useState<any>(null);
   const [profileName, setProfileName] = useState('');
   const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [pickerDate, setPickerDate] = useState(new Date(currentYear, 0, 1));
+  const [showYearPicker, setShowYearPicker] = useState(false);
+
+  const openYearPicker = () => {
+    setPickerDate(new Date(selectedYear, 0, 1));
+    setShowYearPicker(true);
+  };
+
+  const handleYearChange = (event: any, picked?: Date) => {
+    setShowYearPicker(false);
+    if (event?.type === 'dismissed' || !picked) {
+      return;
+    }
+    const year = picked.getFullYear();
+    if (!Number.isFinite(year)) {
+      return;
+    }
+    setPickerDate(new Date(year, 0, 1));
+    setSelectedYear(year);
+    setResult(null);
+  };
 
   const analyze = async () => {
     setLoading(true);
     try {
       const {profile, chart} = await getActiveProfileWithChart();
       setProfileName(profile.name || t('profile_default'));
-      const data = await analyzeVarshaphal(JSON.stringify(chart));
+      const payload = JSON.stringify({...chart, _target_year: selectedYear});
+      const data = await analyzeVarshaphal(payload);
       setResult(data);
     } catch (error: any) {
       Alert.alert(t('varshaphal_alert_title'), error?.message || t('varshaphal_alert_message'));
@@ -47,6 +71,22 @@ const VarshaphalScreen = () => {
         <Text style={styles.title}>{t('varshaphal_title')}</Text>
         <Text style={styles.subtitle}>{t('varshaphal_subtitle')}</Text>
       </View>
+
+      <View style={styles.yearRow}>
+        <Text style={styles.yearLabel}>Select Year</Text>
+        <TouchableOpacity style={styles.yearButton} onPress={openYearPicker}>
+          <Text style={styles.yearButtonText}>{selectedYear}</Text>
+        </TouchableOpacity>
+      </View>
+
+      {showYearPicker ? (
+        <DateTimePicker
+          value={pickerDate}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={handleYearChange}
+        />
+      ) : null}
 
       <TouchableOpacity style={styles.button} onPress={analyze} disabled={loading}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>{t('generate_annual_predictions')}</Text>}
@@ -114,6 +154,10 @@ const styles = StyleSheet.create({
   icon: {fontSize: 42, marginBottom: 8},
   title: {fontSize: 22, fontWeight: '700', color: THEME.text, textAlign: 'center'},
   subtitle: {fontSize: 12, color: THEME.textLight, textAlign: 'center', marginTop: 4},
+  yearRow: {flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10},
+  yearLabel: {fontSize: 13, color: THEME.textLight},
+  yearButton: {borderWidth: 1, borderColor: THEME.primary, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#fff'},
+  yearButtonText: {fontSize: 14, color: THEME.text, fontWeight: '700'},
   button: {backgroundColor: THEME.primary, borderRadius: 10, padding: 12, alignItems: 'center', marginBottom: 12, alignSelf: 'flex-start'},
   buttonText: {color: '#fff', fontWeight: '700'},
   card: {backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, elevation: 2},
