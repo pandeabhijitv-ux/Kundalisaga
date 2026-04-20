@@ -14,7 +14,7 @@ type DivisionalData = {
 
 type ChartDataLike = {
   ascendant?: {sign?: string};
-  planets?: Record<string, any>;
+  planets?: Record<string, any> | Array<any>;
   planets_list?: Array<any>;
   divisional_charts?: Record<string, DivisionalData>;
 };
@@ -34,24 +34,34 @@ const PLANET_SHORT: Record<string, string> = {
   Sun: 'Su', Moon: 'Mo', Mars: 'Ma', Mercury: 'Me', Jupiter: 'Ju', Venus: 'Ve', Saturn: 'Sa', Rahu: 'Ra', Ketu: 'Ke', Ascendant: 'As',
 };
 
+// Coordinates are normalized to match the PWA North Indian chart layout.
 const HOUSE_POS: Record<number, {x: number; y: number}> = {
-  1: {x: 180, y: 72},
-  2: {x: 132, y: 88},
-  3: {x: 104, y: 116},
-  4: {x: 92, y: 170},
-  5: {x: 104, y: 224},
-  6: {x: 132, y: 252},
-  7: {x: 180, y: 268},
-  8: {x: 228, y: 252},
-  9: {x: 256, y: 224},
-  10: {x: 268, y: 170},
-  11: {x: 256, y: 116},
-  12: {x: 228, y: 88},
+  1: {x: 0.50, y: 0.12},
+  2: {x: 0.19, y: 0.16},
+  3: {x: 0.10, y: 0.26},
+  4: {x: 0.10, y: 0.50},
+  5: {x: 0.10, y: 0.74},
+  6: {x: 0.19, y: 0.84},
+  7: {x: 0.50, y: 0.90},
+  8: {x: 0.81, y: 0.84},
+  9: {x: 0.90, y: 0.74},
+  10: {x: 0.90, y: 0.50},
+  11: {x: 0.90, y: 0.26},
+  12: {x: 0.81, y: 0.16},
 };
 
-const CHART_LEFT = 20;
+const CHART_LEFT = 18;
 const CHART_TOP = 34;
-const CHART_SIZE = 320;
+const CHART_SIZE = 324;
+
+function chunkPlanets(planets: string[], perLine = 3): string[] {
+  if (!Array.isArray(planets) || planets.length === 0) return [];
+  const lines: string[] = [];
+  for (let i = 0; i < planets.length; i += perLine) {
+    lines.push(planets.slice(i, i + perLine).join(' '));
+  }
+  return lines;
+}
 
 function signToHouseMap(houseSigns: Record<number, string>): Record<string, number> {
   const out: Record<string, number> = {};
@@ -73,6 +83,14 @@ function toPlanetMap(chart: ChartDataLike): Record<string, any> {
     }
   }
   return out;
+}
+
+function parseHouse(value: unknown): number | undefined {
+  const asNumber = Number(value);
+  if (Number.isInteger(asNumber) && asNumber >= 1 && asNumber <= 12) {
+    return asNumber;
+  }
+  return undefined;
 }
 
 function buildHouseSigns(ascSign: string): Record<number, string> {
@@ -105,14 +123,13 @@ const NorthIndianChart: React.FC<Props> = ({chart, division = 'D1', size = 360})
 
     Object.entries(pMap || {}).forEach(([name, p]) => {
       if (name === 'Ascendant') return;
+      const houseFromData = parseHouse(p?.house);
       const sign = p?.sign;
-      const house = sign ? signHouse[sign] : undefined;
+      const house = houseFromData || (sign ? signHouse[sign] : undefined);
       if (house && house >= 1 && house <= 12) {
         grouped[house].push(PLANET_SHORT[name] || name.slice(0, 2));
       }
     });
-
-    grouped[1] = ['AL', ...grouped[1]];
 
     return {houseSigns: signs, housePlanets: grouped};
   }, [chart, division]);
@@ -122,7 +139,7 @@ const NorthIndianChart: React.FC<Props> = ({chart, division = 'D1', size = 360})
   return (
     <View style={[styles.wrap, {width: size, height: size}]}> 
       <View style={[styles.headerRow, {paddingHorizontal: 10 * scale}]}> 
-        <Text style={[styles.title, {fontSize: Math.max(11, 12 * scale)}]}>Natal Chart</Text>
+        <Text style={[styles.title, {fontSize: Math.max(11, 12 * scale)}]}>North Indian Chart</Text>
         <Text style={[styles.divisionText, {fontSize: Math.max(11, 12 * scale)}]}>{division.replace('D', 'D-')}</Text>
       </View>
 
@@ -133,6 +150,7 @@ const NorthIndianChart: React.FC<Props> = ({chart, division = 'D1', size = 360})
         <View style={styles.diagBottomRight} />
         <View style={styles.diagTopLeft} />
         <View style={styles.diagBottomLeft} />
+        <Text style={[styles.lagnaMark, {fontSize: Math.max(9, 10 * scale)}]}>+ लग्न +</Text>
       </View>
 
       {Object.entries(HOUSE_POS).map(([h, pos]) => {
@@ -141,15 +159,18 @@ const NorthIndianChart: React.FC<Props> = ({chart, division = 'D1', size = 360})
         const signShort = SIGN_SHORT[signName] || '--';
         const signNum = Math.max(1, SIGNS.indexOf(signName) + 1);
         const planets = housePlanets[house] || [];
+        const planetLines = chunkPlanets(planets, 3);
+        const isAscHouse = house === 1;
         return (
           <View
             key={h}
             style={[
               styles.houseLabel,
+              isAscHouse && styles.ascHouseLabel,
               {
-                left: pos.x * scale - 24 * scale,
-                top: pos.y * scale - 16 * scale,
-                minWidth: 48 * scale,
+                left: (CHART_LEFT + CHART_SIZE * pos.x) * scale - 34 * scale,
+                top: (CHART_TOP + CHART_SIZE * pos.y) * scale - 18 * scale,
+                minWidth: 68 * scale,
               },
             ]}
           > 
@@ -157,12 +178,18 @@ const NorthIndianChart: React.FC<Props> = ({chart, division = 'D1', size = 360})
               <Text style={[styles.signText, {fontSize: Math.max(12, 18 * scale)}]}>{signShort}</Text>
               <Text style={[styles.signNumText, {fontSize: Math.max(8, 10 * scale)}]}>{signNum}</Text>
             </View>
-            {planets.length > 0 && (
-              <Text style={[styles.planetText, {fontSize: Math.max(8, 11 * scale)}]}>{planets.join(' ')}</Text>
-            )}
+            {isAscHouse ? <Text style={[styles.ascTag, {fontSize: Math.max(8, 9 * scale)}]}>Asc</Text> : null}
+            {planetLines.map((line, index) => (
+              <Text key={`${house}-p-${index}`} style={[styles.planetText, {fontSize: Math.max(8, 11 * scale)}]}>{line}</Text>
+            ))}
           </View>
         );
       })}
+
+      <View style={[styles.legendRow, {left: 8 * scale, right: 8 * scale, bottom: 2 * scale}]}> 
+        <Text style={[styles.legendText, {fontSize: Math.max(8, 9 * scale)}]}>Signs</Text>
+        <Text style={[styles.legendText, styles.legendPlanets, {fontSize: Math.max(8, 9 * scale)}]}>Planets</Text>
+      </View>
     </View>
   );
 };
@@ -184,9 +211,9 @@ const styles = StyleSheet.create({
   },
   board: {
     position: 'absolute',
-    backgroundColor: '#ECECEC',
+    backgroundColor: '#F3E4C2',
     borderWidth: 1.5,
-    borderColor: '#111111',
+    borderColor: '#C98E44',
     overflow: 'hidden',
   },
   diagMainA: {
@@ -243,6 +270,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#111111',
     transform: [{rotate: '45deg'}],
   },
+  lagnaMark: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: '47%',
+    textAlign: 'center',
+    color: '#BF360C',
+    fontWeight: '700',
+  },
   title: {
     color: '#111111',
     fontWeight: '600',
@@ -254,6 +290,14 @@ const styles = StyleSheet.create({
   houseLabel: {
     position: 'absolute',
     alignItems: 'center',
+  },
+  ascHouseLabel: {
+    backgroundColor: '#FFF3D9',
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderWidth: 1,
+    borderColor: '#E8C58E',
   },
   signRow: {
     flexDirection: 'row',
@@ -268,14 +312,32 @@ const styles = StyleSheet.create({
   signNumText: {
     color: '#177F3E',
     marginLeft: 2,
-    marginTop: 2,
+    marginTop: 1,
     fontWeight: '600',
+  },
+  ascTag: {
+    color: '#8A4B00',
+    fontWeight: '700',
+    marginTop: 1,
   },
   planetText: {
     color: '#2E5FBF',
     fontWeight: '600',
     textAlign: 'center',
     marginTop: 1,
+    lineHeight: 12,
+  },
+  legendRow: {
+    position: 'absolute',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  legendText: {
+    color: '#B03A2E',
+    fontWeight: '600',
+  },
+  legendPlanets: {
+    color: '#2E5FBF',
   },
 });
 

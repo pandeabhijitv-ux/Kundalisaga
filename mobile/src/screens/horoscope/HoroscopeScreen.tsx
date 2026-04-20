@@ -27,6 +27,7 @@ import {
 } from '../../services/profileData';
 import {LocationOption, searchLocations} from '../../services/locationSearch';
 import NorthIndianChart from '../../components/NorthIndianChart';
+import SouthIndianChart from '../../components/SouthIndianChart';
 
 const DIVISIONS: Array<'D1' | 'D2' | 'D3' | 'D7' | 'D9' | 'D10'> = ['D1', 'D2', 'D3', 'D7', 'D9', 'D10'];
 
@@ -49,6 +50,7 @@ const HoroscopeScreen = ({route}: any) => {
   const [chart, setChart] = useState<any>(null);
   const [statusMessage, setStatusMessage] = useState('');
   const [selectedDivision, setSelectedDivision] = useState<'D1' | 'D2' | 'D3' | 'D7' | 'D9' | 'D10'>('D1');
+  const [chartStyle, setChartStyle] = useState<'north' | 'south'>('north');
 
   const syncProfilesAndPrefill = useCallback(async () => {
     try {
@@ -384,7 +386,21 @@ const HoroscopeScreen = ({route}: any) => {
 
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>📊 Birth Chart (Rashi Chakra)</Text>
-            <NorthIndianChart chart={chart} division="D1" />
+            <View style={styles.chartStyleRow}>
+              <TouchableOpacity
+                style={[styles.chartStyleChip, chartStyle === 'north' && styles.chartStyleChipActive]}
+                onPress={() => setChartStyle('north')}>
+                <Text style={[styles.chartStyleText, chartStyle === 'north' && styles.chartStyleTextActive]}>North Indian</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.chartStyleChip, chartStyle === 'south' && styles.chartStyleChipActive]}
+                onPress={() => setChartStyle('south')}>
+                <Text style={[styles.chartStyleText, chartStyle === 'south' && styles.chartStyleTextActive]}>South Indian</Text>
+              </TouchableOpacity>
+            </View>
+            {chartStyle === 'north'
+              ? <NorthIndianChart chart={chart} division="D1" />
+              : <SouthIndianChart chart={chart} division="D1" />}
           </View>
 
           <View style={styles.card}>
@@ -422,7 +438,9 @@ const HoroscopeScreen = ({route}: any) => {
                 </TouchableOpacity>
               ))}
             </View>
-            <NorthIndianChart chart={chart} division={selectedDivision} />
+            {chartStyle === 'north'
+              ? <NorthIndianChart chart={chart} division={selectedDivision} />
+              : <SouthIndianChart chart={chart} division={selectedDivision} />}
           </View>
         </>
       ) : null}
@@ -468,6 +486,11 @@ const styles = StyleSheet.create({
   tr: {flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#EFEFEF', paddingVertical: 6},
   td: {flex: 1, fontSize: 12, color: THEME.text},
   divisionTabs: {flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 10},
+  chartStyleRow: {flexDirection: 'row', gap: 8, marginBottom: 10},
+  chartStyleChip: {borderWidth: 1, borderColor: THEME.primary, borderRadius: 14, paddingHorizontal: 10, paddingVertical: 6},
+  chartStyleChipActive: {backgroundColor: THEME.primary},
+  chartStyleText: {fontSize: 12, color: THEME.primary, fontWeight: '600'},
+  chartStyleTextActive: {color: '#fff'},
   divChip: {borderWidth: 1, borderColor: THEME.primary, borderRadius: 14, paddingHorizontal: 10, paddingVertical: 6},
   divChipActive: {backgroundColor: THEME.primary},
   divChipText: {fontSize: 12, color: THEME.primary, fontWeight: '600'},
