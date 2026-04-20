@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Platform} from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import {View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert} from 'react-native';
 import {THEME} from '../constants/theme';
 import {getActiveProfileWithChart} from '../services/profileData';
 import {getMuhuratAnalysis} from '../services/PythonBridge';
@@ -21,42 +20,10 @@ const MuhuratScreen = () => {
   const [ascendantSign, setAscendantSign] = useState('');
   const [moonSign, setMoonSign] = useState('');
   const [currentDasha, setCurrentDasha] = useState('Not available');
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(new Date(Date.now() + 1000 * 60 * 60 * 24 * 60));
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
-
-  const toDateOnly = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const isValidDate = (d: Date) => Number.isFinite(d.getTime());
-  const toIsoDate = (d: Date) => d.toISOString().slice(0, 10);
-  const formatUiDate = (d: Date) => d.toISOString().slice(0, 10);
-
-  const handleStartDateChange = (event: any, selectedDate?: Date) => {
-    setShowStartPicker(false);
-    if (event?.type === 'dismissed' || !selectedDate) {
-      return;
-    }
-    const nextStart = toDateOnly(selectedDate);
-    if (!isValidDate(nextStart)) {
-      return;
-    }
-    setStartDate(nextStart);
-    if (nextStart > endDate) {
-      setEndDate(nextStart);
-    }
-  };
-
-  const handleEndDateChange = (event: any, selectedDate?: Date) => {
-    setShowEndPicker(false);
-    if (event?.type === 'dismissed' || !selectedDate) {
-      return;
-    }
-    const nextEnd = toDateOnly(selectedDate);
-    if (!isValidDate(nextEnd)) {
-      return;
-    }
-    setEndDate(nextEnd < startDate ? startDate : nextEnd);
-  };
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const sixtyDaysStr = new Date(Date.now() + 1000 * 60 * 60 * 24 * 60).toISOString().slice(0, 10);
+  const [startDate, setStartDate] = useState(todayStr);
+  const [endDate, setEndDate] = useState(sixtyDaysStr);
 
   const analyze = async () => {
     setLoading(true);
@@ -74,8 +41,8 @@ const MuhuratScreen = () => {
       }
       const eventConfig = JSON.stringify({
         eventType,
-        startDate: toIsoDate(startDate),
-        endDate: toIsoDate(endDate),
+        startDate,
+        endDate,
       });
       const data = await getMuhuratAnalysis(JSON.stringify(chart), eventConfig);
       setResult(data);
@@ -108,32 +75,21 @@ const MuhuratScreen = () => {
 
       <Text style={styles.fieldLabel}>Select Date Range</Text>
       <View style={styles.dateRangeRow}>
-        <TouchableOpacity style={styles.dateButton} onPress={() => setShowStartPicker(true)}>
-          <Text style={styles.dateButtonLabel}>From: {formatUiDate(startDate)}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.dateButton} onPress={() => setShowEndPicker(true)}>
-          <Text style={styles.dateButtonLabel}>To: {formatUiDate(endDate)}</Text>
-        </TouchableOpacity>
-      </View>
-
-      {showStartPicker ? (
-        <DateTimePicker
+        <TextInput
+          style={styles.dateButton}
           value={startDate}
-          mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          onChange={handleStartDateChange}
+          onChangeText={setStartDate}
+          placeholder="From: YYYY-MM-DD"
+          keyboardType="numbers-and-punctuation"
         />
-      ) : null}
-
-      {showEndPicker ? (
-        <DateTimePicker
+        <TextInput
+          style={styles.dateButton}
           value={endDate}
-          mode="date"
-          minimumDate={startDate}
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          onChange={handleEndDateChange}
+          onChangeText={setEndDate}
+          placeholder="To: YYYY-MM-DD"
+          keyboardType="numbers-and-punctuation"
         />
-      ) : null}
+      </View>
 
       <TouchableOpacity style={styles.button} onPress={analyze} disabled={loading}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Find Personalized Auspicious Times</Text>}
@@ -144,7 +100,7 @@ const MuhuratScreen = () => {
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>Personalized Muhurat for {profileName}</Text>
             <Text style={styles.detailText}>Event: {EVENT_TYPES.find(e => e.key === eventType)?.label}</Text>
-            <Text style={styles.detailText}>Range: {result?.selected_range?.start_date || toIsoDate(startDate)} to {result?.selected_range?.end_date || toIsoDate(endDate)}</Text>
+            <Text style={styles.detailText}>Range: {result?.selected_range?.start_date || startDate} to {result?.selected_range?.end_date || endDate}</Text>
             <View style={styles.metaRow}>
               <Text style={styles.metaChip}>Lagna (Ascendant): {ascendantSign}</Text>
               <Text style={styles.metaChip}>Moon Sign: {moonSign}</Text>

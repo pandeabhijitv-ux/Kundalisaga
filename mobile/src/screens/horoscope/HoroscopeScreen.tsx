@@ -13,9 +13,7 @@ import {
   Alert,
   Keyboard,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import {THEME} from '../../constants/theme';
 import {calculateChart} from '../../services/PythonBridge';
 import {
@@ -38,10 +36,9 @@ const HoroscopeScreen = ({route}: any) => {
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
   const [searchingLocation, setSearchingLocation] = useState(false);
   const [name, setName] = useState('User');
-  const [birthDate, setBirthDate] = useState(new Date('1990-01-01T00:00:00'));
-  const [birthTime, setBirthTime] = useState(new Date('1990-01-01T12:00:00'));
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [birthDateText, setBirthDateText] = useState('1990-01-01');
+  const [birthTimeText, setBirthTimeText] = useState('12:00');
+
   const [location, setLocation] = useState('Mumbai');
   const [locationQuery, setLocationQuery] = useState('Mumbai');
   const [locationOptions, setLocationOptions] = useState<LocationOption[]>([]);
@@ -51,49 +48,6 @@ const HoroscopeScreen = ({route}: any) => {
   const [chart, setChart] = useState<any>(null);
   const [statusMessage, setStatusMessage] = useState('');
   const [selectedDivision, setSelectedDivision] = useState<'D1' | 'D2' | 'D3' | 'D7' | 'D9' | 'D10'>('D1');
-
-  const isValidDate = (value: Date) => Number.isFinite(value?.getTime?.());
-  const toDateOnly = (value: Date) => new Date(value.getFullYear(), value.getMonth(), value.getDate());
-  const safeDate = isValidDate(birthDate) ? birthDate : new Date(1990, 0, 1);
-  const safeTime = isValidDate(birthTime) ? birthTime : new Date(1990, 0, 1, 12, 0);
-
-  const openBirthDatePicker = () => {
-    if (!isValidDate(birthDate)) {
-      setBirthDate(new Date(1990, 0, 1));
-    }
-    setShowDatePicker(true);
-  };
-
-  const openBirthTimePicker = () => {
-    if (!isValidDate(birthTime)) {
-      setBirthTime(new Date(1990, 0, 1, 12, 0));
-    }
-    setShowTimePicker(true);
-  };
-
-  const handleBirthDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(false);
-    if (event?.type === 'dismissed' || !selectedDate) {
-      return;
-    }
-    const nextDate = toDateOnly(selectedDate);
-    if (!isValidDate(nextDate)) {
-      return;
-    }
-    setBirthDate(nextDate);
-  };
-
-  const handleBirthTimeChange = (event: any, selectedTime?: Date) => {
-    setShowTimePicker(false);
-    if (event?.type === 'dismissed' || !selectedTime) {
-      return;
-    }
-    if (!isValidDate(selectedTime)) {
-      return;
-    }
-    const next = new Date(1990, 0, 1, selectedTime.getHours(), selectedTime.getMinutes(), 0, 0);
-    setBirthTime(next);
-  };
 
   useEffect(() => {
     if (preset === 'compatibility') {
@@ -117,17 +71,8 @@ const HoroscopeScreen = ({route}: any) => {
         setLongitude(String(active.longitude ?? 72.8777));
         setTimezone(active.timezone || 'Asia/Kolkata');
 
-        if (active.date) {
-          const d = new Date(`${active.date}T00:00:00`);
-          if (!Number.isNaN(d.getTime())) setBirthDate(d);
-        }
-        if (active.time) {
-          const [h, m] = active.time.split(':').map(x => Number(x));
-          const t = new Date('1990-01-01T00:00:00');
-          t.setHours(Number.isFinite(h) ? h : 12);
-          t.setMinutes(Number.isFinite(m) ? m : 0);
-          setBirthTime(t);
-        }
+        setBirthDateText(active.date || '1990-01-01');
+        setBirthTimeText(active.time || '12:00');
       } catch (error) {
         console.warn('Unable to prefill active profile', error);
       }
@@ -144,17 +89,8 @@ const HoroscopeScreen = ({route}: any) => {
     setLongitude(String(profile.longitude ?? 72.8777));
     setTimezone(profile.timezone || 'Asia/Kolkata');
 
-    if (profile.date) {
-      const d = new Date(`${profile.date}T00:00:00`);
-      if (!Number.isNaN(d.getTime())) setBirthDate(d);
-    }
-    if (profile.time) {
-      const [h, m] = profile.time.split(':').map(x => Number(x));
-      const t = new Date('1990-01-01T00:00:00');
-      t.setHours(Number.isFinite(h) ? h : 12);
-      t.setMinutes(Number.isFinite(m) ? m : 0);
-      setBirthTime(t);
-    }
+    setBirthDateText(profile.date || '1990-01-01');
+    setBirthTimeText(profile.time || '12:00');
   };
 
   const selectProfileForHoroscope = async (profileId: string) => {
@@ -169,19 +105,6 @@ const HoroscopeScreen = ({route}: any) => {
       'Active Profile Updated',
       'This profile will be used for all the next services. If you want another profile, please select different.',
     );
-  };
-
-  const formatDate = (value: Date) => {
-    const y = value.getFullYear();
-    const m = `${value.getMonth() + 1}`.padStart(2, '0');
-    const d = `${value.getDate()}`.padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  };
-
-  const formatTime = (value: Date) => {
-    const h = `${value.getHours()}`.padStart(2, '0');
-    const m = `${value.getMinutes()}`.padStart(2, '0');
-    return `${h}:${m}`;
   };
 
   const handleSearchLocation = async () => {
@@ -239,8 +162,8 @@ const HoroscopeScreen = ({route}: any) => {
       return;
     }
 
-    const date = formatDate(birthDate);
-    const time = formatTime(birthTime);
+    const date = birthDateText.trim();
+    const time = birthTimeText.trim();
     const lat = Number(latitude);
     const lon = Number(longitude);
 
@@ -398,33 +321,20 @@ const HoroscopeScreen = ({route}: any) => {
         <Text style={styles.stepTitle}>Birth Details</Text>
         <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Name" />
 
-        <TouchableOpacity style={styles.inputButton} onPress={openBirthDatePicker}>
-          <Text style={styles.inputButtonText}>{formatDate(safeDate)}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.inputButton} onPress={openBirthTimePicker}>
-          <Text style={styles.inputButtonText}>{formatTime(safeTime)}</Text>
-        </TouchableOpacity>
-
-        {showDatePicker ? (
-          <DateTimePicker
-            value={safeDate}
-            mode="date"
-            maximumDate={new Date()}
-            minimumDate={new Date('1800-01-01T00:00:00')}
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            onChange={handleBirthDateChange}
-          />
-        ) : null}
-
-        {showTimePicker ? (
-          <DateTimePicker
-            value={safeTime}
-            mode="time"
-            is24Hour
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            onChange={handleBirthTimeChange}
-          />
-        ) : null}
+        <TextInput
+          style={styles.inputButton}
+          value={birthDateText}
+          onChangeText={setBirthDateText}
+          placeholder="Birth Date (YYYY-MM-DD)"
+          keyboardType="numbers-and-punctuation"
+        />
+        <TextInput
+          style={styles.inputButton}
+          value={birthTimeText}
+          onChangeText={setBirthTimeText}
+          placeholder="Birth Time (HH:MM)"
+          keyboardType="numbers-and-punctuation"
+        />
 
         <TextInput style={styles.input} value={location} onChangeText={setLocation} placeholder="Location" />
         <TextInput style={styles.input} value={latitude} onChangeText={setLatitude} placeholder="Latitude" keyboardType="decimal-pad" />

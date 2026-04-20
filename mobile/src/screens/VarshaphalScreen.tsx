@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Platform} from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import {View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert} from 'react-native';
 import {THEME} from '../constants/theme';
 import {useAppSettings} from '../contexts/AppSettingsContext';
 import {getActiveProfileWithChart} from '../services/profileData';
@@ -13,27 +12,6 @@ const VarshaphalScreen = () => {
   const [profileName, setProfileName] = useState('');
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
-  const [pickerDate, setPickerDate] = useState(new Date(currentYear, 0, 1));
-  const [showYearPicker, setShowYearPicker] = useState(false);
-
-  const openYearPicker = () => {
-    setPickerDate(new Date(selectedYear, 0, 1));
-    setShowYearPicker(true);
-  };
-
-  const handleYearChange = (event: any, picked?: Date) => {
-    setShowYearPicker(false);
-    if (event?.type === 'dismissed' || !picked) {
-      return;
-    }
-    const year = picked.getFullYear();
-    if (!Number.isFinite(year)) {
-      return;
-    }
-    setPickerDate(new Date(year, 0, 1));
-    setSelectedYear(year);
-    setResult(null);
-  };
 
   const analyze = async () => {
     setLoading(true);
@@ -74,19 +52,15 @@ const VarshaphalScreen = () => {
 
       <View style={styles.yearRow}>
         <Text style={styles.yearLabel}>Select Year</Text>
-        <TouchableOpacity style={styles.yearButton} onPress={openYearPicker}>
-          <Text style={styles.yearButtonText}>{selectedYear}</Text>
-        </TouchableOpacity>
-      </View>
-
-      {showYearPicker ? (
-        <DateTimePicker
-          value={pickerDate}
-          mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          onChange={handleYearChange}
+        <TextInput
+          style={styles.yearButton}
+          value={String(selectedYear)}
+          onChangeText={v => { const y = parseInt(v, 10); if (Number.isFinite(y)) { setSelectedYear(y); setResult(null); } }}
+          placeholder="Year"
+          keyboardType="number-pad"
+          maxLength={4}
         />
-      ) : null}
+      </View>
 
       <TouchableOpacity style={styles.button} onPress={analyze} disabled={loading}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>{t('generate_annual_predictions')}</Text>}
