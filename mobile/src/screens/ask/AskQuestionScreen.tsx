@@ -92,12 +92,6 @@ const PRESET_QUESTIONS: {[key: string]: string} = Object.keys(QUESTION_SETS).red
   return acc;
 }, {} as {[key: string]: string});
 
-const ASTRO_DOMAIN_KEYWORDS = [
-  'chart', 'horoscope', 'kundli', 'kundali', 'lagna', 'ascendant', 'rashi', 'nakshatra', 'dasha', 'mahadasha',
-  'planet', 'graha', 'transit', 'career', 'finance', 'investment', 'wealth', 'money', 'muhurat', 'matchmaking',
-  'compatibility', 'gemstone', 'name', 'numerology', 'varshaphal', 'vedic', 'astrology', 'dosha', 'house',
-  'marriage', 'remedy', 'yoga', 'prediction', 'bhava', 'moon sign', 'sun sign',
-];
 
 interface ProfileWithChart {
   profile: UserProfile;
@@ -261,22 +255,6 @@ const deriveMuhuratEventType = (query: string): string => {
   return 'business';
 };
 
-const isAstroDomainQuestion = (query: string): boolean => {
-  const q = query.toLowerCase();
-  return ASTRO_DOMAIN_KEYWORDS.some(keyword => q.includes(keyword));
-};
-
-const buildOutOfDomainReply = (question: string): string => {
-  return [
-    `You can ask anything, but I am specialized for astrology and chart-based guidance.`,
-    '',
-    `For this question: "${question}"`,
-    `I cannot give a reliable personalized answer from astrology engines because it is outside the core domain.`,
-    '',
-    'Best results are for: career timing, finance outlook, gemstones, matchmaking, muhurat, varshaphal, remedies, and name guidance.',
-    'If you want, ask this in astrology form and I will answer with your D1/D2/D3/D7/D9/D10 chart context.',
-  ].join('\n');
-};
 
 const hasExplicitMuhuratEvent = (query: string): boolean => {
   const q = query.toLowerCase();
@@ -804,11 +782,6 @@ const AskQuestionScreen = ({route}: any) => {
     setLoading(true);
     try {
       const trimmedQuery = query.trim();
-      if (!isAstroDomainQuestion(trimmedQuery)) {
-        setAnswer(buildOutOfDomainReply(trimmedQuery));
-        setAnswerConfidence('Selective');
-        return;
-      }
 
       if (!profileWithChart?.chart) {
         Alert.alert('No Profile', 'Please create and select a profile first to get personalized astrology answers');

@@ -21,24 +21,41 @@ if MODULE_DIR not in sys.path:
     sys.path.insert(0, MODULE_DIR)
 
 try:
-    # Import database-based calculator (for mobile)
-    from src.astrology_engine.vedic_calculator_lite import (
+    # Prefer full Swiss Ephemeris engine when available for accurate ascendant/lagna.
+    from src.astrology_engine.vedic_calculator import (
         VedicAstrologyEngine, BirthDetails
     )
-    CALCULATOR_TYPE = "Ephemeris Database (Swiss Ephemeris Quality)"
+    CALCULATOR_TYPE = "Swiss Ephemeris"
 except ImportError as e:
-    print(f"Failed to import lite calculator: {e}")
+    print(f"Failed to import Swiss Ephemeris calculator: {e}")
     try:
-        # Fallback to Swiss Ephemeris (for desktop)
-        from src.astrology_engine.vedic_calculator import (
+        # Fallback to database-based calculator (for mobile compatibility)
+        from src.astrology_engine.vedic_calculator_lite import (
             VedicAstrologyEngine, BirthDetails
         )
-        CALCULATOR_TYPE = "Swiss Ephemeris"
+        CALCULATOR_TYPE = "Ephemeris Database (Swiss Ephemeris Quality)"
     except ImportError:
         # Last resort - basic calculator
         CALCULATOR_TYPE = "Basic"
         VedicAstrologyEngine = None
         BirthDetails = None
+
+
+def _engine_calculate_chart(engine, birth_details):
+    if hasattr(engine, 'calculate_chart'):
+        return engine.calculate_chart(birth_details)
+    if hasattr(engine, 'calculate_birth_chart'):
+        return engine.calculate_birth_chart(birth_details)
+    raise RuntimeError('No compatible chart calculation method found on engine')
+
+
+def _to_plain_planets(chart):
+    raw = chart.get('planets', []) if isinstance(chart, dict) else getattr(chart, 'planets', [])
+    if isinstance(raw, dict):
+        return list(raw.values())
+    if isinstance(raw, list):
+        return raw
+    return []
 
 
 def _parse_birth_datetime(date_str, time_str):
@@ -176,9 +193,9 @@ def calculate_chart(name, date_str, time_str, location, latitude, longitude, tim
         
         # Calculate chart
         engine = VedicAstrologyEngine()
-        chart = engine.calculate_chart(birth_details)
+        chart = _engine_calculate_chart(engine, birth_details)
 
-        chart_planets = chart.get('planets', []) if isinstance(chart, dict) else getattr(chart, 'planets', [])
+        chart_planets = _to_plain_planets(chart)
         chart_asc = chart.get('ascendant') if isinstance(chart, dict) else getattr(chart, 'ascendant', None)
         
         # Convert to JSON-serializable format
@@ -237,16 +254,10 @@ def calculate_chart(name, date_str, time_str, location, latitude, longitude, tim
                     'degree': house.degree
                 })
 
-        # Add divisional charts from engine if available; else derive in wrapper.
+        # Build divisional charts from normalized D1 output to keep JSON serialization stable
+        # across both lite and full engines.
         asc_lon = float(result['ascendant'].get('longitude', 0) or 0)
-        if isinstance(chart, dict) and chart.get('divisional_charts'):
-            div_data = chart.get('divisional_charts', {})
-            # Normalize output to plain JSON serializable dicts.
-            for key, val in div_data.items():
-                if isinstance(val, dict):
-                    result['divisional_charts'][key] = val
-        else:
-            result['divisional_charts'] = _build_divisional_charts(result['planets'], asc_lon)
+        result['divisional_charts'] = _build_divisional_charts(result['planets'], asc_lon)
 
         # Ensure requested D3 exists even when engine did not provide it.
         if 'D3' not in result['divisional_charts']:

@@ -3,6 +3,7 @@ import {View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator,
 import {THEME} from '../constants/theme';
 import {getActiveProfileWithChart} from '../services/profileData';
 import {analyzeFinancial} from '../services/PythonBridge';
+import {getFinancialInsight} from '../services/astrologyInsights';
 
 const RATING_STARS: Record<string, string> = {
   Excellent: '⭐⭐⭐⭐⭐',
@@ -17,6 +18,7 @@ const FinancialScreen = () => {
   const [result, setResult] = useState<any>(null);
   const [tab, setTab] = useState<'market' | 'sector' | 'personalized'>('personalized');
   const [profileName, setProfileName] = useState('');
+  const [chartData, setChartData] = useState<any>(null);
 
   const topSectors = useMemo(() => {
     const raw = result?.market?.top_sectors;
@@ -35,6 +37,7 @@ const FinancialScreen = () => {
     try {
       const {profile, chart} = await getActiveProfileWithChart();
       setProfileName(profile.name || 'Profile');
+      setChartData(chart);
       const data = await analyzeFinancial(JSON.stringify(chart));
       setResult(data);
     } catch (error: any) {
@@ -52,12 +55,34 @@ const FinancialScreen = () => {
         ? result.recommendations
         : [];
   const market: any = result?.market && typeof result.market === 'object' ? result.market : {};
+  const localInsight = useMemo(() => {
+    if (!chartData) return null;
+    try {
+      return getFinancialInsight(chartData);
+    } catch {
+      return null;
+    }
+  }, [chartData]);
+
+  const fallbackPersonalRecs = useMemo(() => {
+    const rows = Array.isArray(localInsight?.planetRows) ? localInsight!.planetRows : [];
+    return rows.slice(0, 5).map((row: any, idx: number) => ({
+      sector: row?.role || `Financial Theme ${idx + 1}`,
+      rating: idx <= 1 ? 'Good' : 'Moderate',
+      natal_strength: Math.max(40, 70 - idx * 6),
+      transit_strength: Math.max(35, 60 - idx * 5),
+      total_strength: Math.max(75, 130 - idx * 11),
+      advice: row?.effect || 'Follow disciplined allocation and risk-managed timing.',
+    }));
+  }, [localInsight]);
+
+  const effectivePersonalRecs = personalRecs.length > 0 ? personalRecs : fallbackPersonalRecs;
   const marketSentimentRaw = String(market.market_sentiment || 'Neutral');
-  const isLiveUnavailable = /connect to internet/i.test(marketSentimentRaw);
+  const isLiveUnavailable = /connect to internet|live transit unavailable|ephemeris not available/i.test(marketSentimentRaw);
   const marketSentiment = isLiveUnavailable
-    ? 'Live transit feed unavailable. Showing chart-based guidance.'
+    ? (localInsight?.outlook || 'Live transit feed unavailable. Showing chart-based guidance.')
     : marketSentimentRaw;
-  const fallbackTop = personalRecs
+  const fallbackTop = effectivePersonalRecs
     .slice()
     .sort((a: any, b: any) => (Number(b?.total_strength || 0) - Number(a?.total_strength || 0)))
     .slice(0, 3)
@@ -92,7 +117,7 @@ const FinancialScreen = () => {
           {tab === 'personalized' && (
             <>
               <Text style={styles.sectionHeading}>Your Top Sector Opportunities</Text>
-              {personalRecs.map((rec: any, i: number) => (
+              {effectivePersonalRecs.map((rec: any, i: number) => (
                 <View key={i} style={styles.card}>
                   <View style={styles.cardHeader}><Text style={styles.sectorName}>{RATING_STARS[rec.rating] || '⭐⭐⭐'} {rec.rating} - {rec.sector}</Text></View>
                   <View style={styles.metricRow}>
@@ -104,7 +129,7 @@ const FinancialScreen = () => {
                 </View>
               ))}
 
-              {personalRecs.length === 0 && (
+              {effectivePersonalRecs.length === 0 && (
                 <View style={styles.card}>
                   <Text style={styles.sectionTitle}>No personalized sector data available</Text>
                   <Text style={styles.listItem}>Try again after selecting an active profile with a valid birth chart.</Text>
@@ -117,10 +142,10 @@ const FinancialScreen = () => {
             <>
               <View style={styles.card}>
                 <Text style={styles.sectionTitle}>Sector Ranking (Personalized)</Text>
-                {personalRecs.map((rec: any, i: number) => (
+                {effectivePersonalRecs.map((rec: any, i: number) => (
                   <Text key={i} style={styles.listItem}>{i + 1}. {rec.sector}  •  {rec.total_strength}/200</Text>
                 ))}
-                {personalRecs.length === 0 && (
+                {effectivePersonalRecs.length === 0 && (
                   <Text style={styles.listItem}>No personalized ranking yet. Generate your report first.</Text>
                 )}
               </View>
@@ -162,11 +187,11 @@ const FinancialScreen = () => {
                 <Text style={styles.sentimentBig}>{marketSentiment}</Text>
                 <Text style={styles.strengthLabel}>Overall Strength: {market.overall_strength || 'N/A'}</Text>
               </View>
-              {isLiveUnavailable && personalRecs.length > 0 && (
+              {isLiveUnavailable && effectivePersonalRecs.length > 0 && (
                 <View style={styles.card}>
                   <Text style={styles.sectionTitle}>Local Personalized Snapshot</Text>
                   <Text style={styles.listItem}>Profile: {profileName || 'Active profile'}</Text>
-                  {personalRecs.slice(0, 3).map((rec: any, i: number) => (
+                  {effectivePersonalRecs.slice(0, 3).map((rec: any, i: number) => (
                     <Text key={`local-${i}`} style={styles.listItem}>• {rec.sector} - {rec.rating} ({rec.total_strength}/200)</Text>
                   ))}
                 </View>
