@@ -92,6 +92,13 @@ const PRESET_QUESTIONS: {[key: string]: string} = Object.keys(QUESTION_SETS).red
   return acc;
 }, {} as {[key: string]: string});
 
+const ASTRO_DOMAIN_KEYWORDS = [
+  'chart', 'horoscope', 'kundli', 'kundali', 'lagna', 'ascendant', 'rashi', 'nakshatra', 'dasha', 'mahadasha',
+  'planet', 'graha', 'transit', 'career', 'finance', 'investment', 'wealth', 'money', 'muhurat', 'matchmaking',
+  'compatibility', 'gemstone', 'name', 'numerology', 'varshaphal', 'vedic', 'astrology', 'dosha', 'house',
+  'marriage', 'remedy', 'yoga', 'prediction', 'bhava', 'moon sign', 'sun sign',
+];
+
 interface ProfileWithChart {
   profile: UserProfile;
   chart: any;
@@ -252,6 +259,23 @@ const deriveMuhuratEventType = (query: string): string => {
   if (/travel|journey|trip/.test(q)) return 'travel';
   if (/education|study|admission|course/.test(q)) return 'education';
   return 'business';
+};
+
+const isAstroDomainQuestion = (query: string): boolean => {
+  const q = query.toLowerCase();
+  return ASTRO_DOMAIN_KEYWORDS.some(keyword => q.includes(keyword));
+};
+
+const buildOutOfDomainReply = (question: string): string => {
+  return [
+    `You can ask anything, but I am specialized for astrology and chart-based guidance.`,
+    '',
+    `For this question: "${question}"`,
+    `I cannot give a reliable personalized answer from astrology engines because it is outside the core domain.`,
+    '',
+    'Best results are for: career timing, finance outlook, gemstones, matchmaking, muhurat, varshaphal, remedies, and name guidance.',
+    'If you want, ask this in astrology form and I will answer with your D1/D2/D3/D7/D9/D10 chart context.',
+  ].join('\n');
 };
 
 const hasExplicitMuhuratEvent = (query: string): boolean => {
@@ -777,16 +801,23 @@ const AskQuestionScreen = ({route}: any) => {
       return;
     }
 
-    if (!profileWithChart?.chart) {
-      Alert.alert('No Profile', 'Please create and select a profile first to get personalized answers');
-      return;
-    }
-
     setLoading(true);
     try {
+      const trimmedQuery = query.trim();
+      if (!isAstroDomainQuestion(trimmedQuery)) {
+        setAnswer(buildOutOfDomainReply(trimmedQuery));
+        setAnswerConfidence('Selective');
+        return;
+      }
+
+      if (!profileWithChart?.chart) {
+        Alert.alert('No Profile', 'Please create and select a profile first to get personalized astrology answers');
+        return;
+      }
+
       let responseData: any = null;
       const chartJson = JSON.stringify(profileWithChart.chart);
-      const resolved = await resolveIntentWithFallback(selectedCategory, query.trim());
+      const resolved = await resolveIntentWithFallback(selectedCategory, trimmedQuery);
 
       switch (selectedCategory) {
         case 'career':
@@ -798,7 +829,7 @@ const AskQuestionScreen = ({route}: any) => {
           break;
 
         case 'gemstones':
-          responseData = await getGemstoneRecommendations(chartJson, query.trim());
+          responseData = await getGemstoneRecommendations(chartJson, trimmedQuery);
           break;
 
         case 'name':
@@ -834,7 +865,7 @@ const AskQuestionScreen = ({route}: any) => {
           return;
       }
 
-      const formatted = formatCategoryAnswer(selectedCategory, responseData, profileWithChart.chart, query, resolved.intent);
+      const formatted = formatCategoryAnswer(selectedCategory, responseData, profileWithChart.chart, trimmedQuery, resolved.intent);
       const confidence = computeAnswerConfidence(selectedCategory, responseData, resolved);
       setAnswer(formatted.text);
       setAnswerConfidence(confidence);
@@ -862,6 +893,7 @@ const AskQuestionScreen = ({route}: any) => {
 
       <View style={styles.powered}>
         <Text style={styles.poweredText}>💡 Intent-aware ask engine: typed questions are mapped to chart-backed answers with realistic timing where relevant.</Text>
+        <Text style={styles.scopeHint}>You can ask any question. Best answers are astrology-focused and read your D1/D2/D3/D7/D9/D10 chart context.</Text>
       </View>
 
       <Text style={styles.fieldLabel}>Choose a question category:</Text>
@@ -936,6 +968,7 @@ const styles = StyleSheet.create({
   warningText: {fontSize: 12, color: '#991B1B', fontWeight: '500'},
   powered: {backgroundColor: '#FEF3C7', borderRadius: 8, padding: 12, marginBottom: 12},
   poweredText: {fontSize: 12, color: '#92400E', fontWeight: '600'},
+  scopeHint: {fontSize: 11, color: '#7C3A00', marginTop: 6},
   fieldLabel: {fontSize: 13, color: THEME.textLight, marginBottom: 8, fontWeight: '600'},
   categoryRow: {flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14},
   categoryChip: {borderWidth: 1, borderColor: THEME.primary, borderRadius: 14, paddingHorizontal: 11, paddingVertical: 7, backgroundColor: '#fff'},

@@ -183,6 +183,7 @@ const ProfilesScreen = () => {
           value={time}
           onChangeText={setTime}
         />
+        <Text style={styles.formatHint}>Date format: YYYY-MM-DD | Time format: HH:MM (24-hour)</Text>
         <TextInput
           style={styles.input}
           placeholder="Search city / town / village"
@@ -277,6 +278,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginBottom: 8,
     color: THEME.text,
+  },
+  formatHint: {
+    fontSize: 11,
+    color: THEME.textLight,
+    marginBottom: 8,
   },
   addButton: {
     backgroundColor: THEME.primary,

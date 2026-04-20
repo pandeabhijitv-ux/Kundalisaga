@@ -90,6 +90,7 @@ const MuhuratScreen = () => {
           keyboardType="numbers-and-punctuation"
         />
       </View>
+      <Text style={styles.formatHint}>Use date format: YYYY-MM-DD (example: 2026-04-20)</Text>
 
       <TouchableOpacity style={styles.button} onPress={analyze} disabled={loading}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Find Personalized Auspicious Times</Text>}
@@ -161,6 +162,7 @@ const styles = StyleSheet.create({
   dateRangeRow: {flexDirection: 'row', gap: 8, marginBottom: 12},
   dateButton: {flex: 1, borderWidth: 1, borderColor: THEME.primary, borderRadius: 10, paddingVertical: 10, paddingHorizontal: 8, backgroundColor: '#fff'},
   dateButtonLabel: {fontSize: 12, color: THEME.text},
+  formatHint: {fontSize: 11, color: THEME.textLight, marginBottom: 12},
   button: {backgroundColor: THEME.primary, borderRadius: 12, padding: 14, alignItems: 'center', marginBottom: 16},
   buttonText: {color: '#fff', fontWeight: 'bold', fontSize: 14},
   card: {backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, elevation: 2},

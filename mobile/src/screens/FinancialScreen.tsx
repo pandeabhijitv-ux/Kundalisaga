@@ -44,8 +44,24 @@ const FinancialScreen = () => {
     }
   };
 
-  const personalRecs: any[] = result?.personalized?.recommendations || [];
-  const market: any = result?.market || {};
+  const personalRecs: any[] = Array.isArray(result?.personalized?.recommendations)
+    ? result.personalized.recommendations
+    : Array.isArray(result?.personalized?.sector_recommendations)
+      ? result.personalized.sector_recommendations
+      : Array.isArray(result?.recommendations)
+        ? result.recommendations
+        : [];
+  const market: any = result?.market && typeof result.market === 'object' ? result.market : {};
+  const marketSentimentRaw = String(market.market_sentiment || 'Neutral');
+  const isLiveUnavailable = /connect to internet/i.test(marketSentimentRaw);
+  const marketSentiment = isLiveUnavailable
+    ? 'Live transit feed unavailable. Showing chart-based guidance.'
+    : marketSentimentRaw;
+  const fallbackTop = personalRecs
+    .slice()
+    .sort((a: any, b: any) => (Number(b?.total_strength || 0) - Number(a?.total_strength || 0)))
+    .slice(0, 3)
+    .map((r: any) => ({sector: r.sector, rating: r.rating}));
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -143,13 +159,22 @@ const FinancialScreen = () => {
             <>
               <View style={styles.card}>
                 <Text style={styles.sectionTitle}>Overall Market Sentiment</Text>
-                <Text style={styles.sentimentBig}>{market.market_sentiment || 'Neutral'}</Text>
+                <Text style={styles.sentimentBig}>{marketSentiment}</Text>
                 <Text style={styles.strengthLabel}>Overall Strength: {market.overall_strength || 'N/A'}</Text>
               </View>
-              {market.top_sectors?.length > 0 && (
+              {isLiveUnavailable && personalRecs.length > 0 && (
+                <View style={styles.card}>
+                  <Text style={styles.sectionTitle}>Local Personalized Snapshot</Text>
+                  <Text style={styles.listItem}>Profile: {profileName || 'Active profile'}</Text>
+                  {personalRecs.slice(0, 3).map((rec: any, i: number) => (
+                    <Text key={`local-${i}`} style={styles.listItem}>• {rec.sector} - {rec.rating} ({rec.total_strength}/200)</Text>
+                  ))}
+                </View>
+              )}
+              {(market.top_sectors?.length > 0 || fallbackTop.length > 0) && (
                 <View style={styles.card}>
                   <Text style={styles.sectionTitle}>Top Sectors</Text>
-                  {market.top_sectors.map((s: any, i: number) => {
+                  {(market.top_sectors?.length > 0 ? market.top_sectors : fallbackTop).map((s: any, i: number) => {
                     const sector = typeof s === 'string' ? s : s?.sector;
                     const rating = typeof s === 'string' ? '' : s?.rating;
                     return <Text key={i} style={styles.listItem}>• {sector}{rating ? ` - ${rating}` : ''}</Text>;

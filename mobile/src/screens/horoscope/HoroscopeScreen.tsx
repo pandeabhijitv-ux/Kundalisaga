@@ -2,7 +2,7 @@
  * Horoscope Screen
  * Birth chart calculation and North Indian chart rendering (D1 + divisional tabs).
  */
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {THEME} from '../../constants/theme';
+import {useFocusEffect} from '@react-navigation/native';
 import {calculateChart} from '../../services/PythonBridge';
 import {
   UserProfile,
@@ -49,6 +50,37 @@ const HoroscopeScreen = ({route}: any) => {
   const [statusMessage, setStatusMessage] = useState('');
   const [selectedDivision, setSelectedDivision] = useState<'D1' | 'D2' | 'D3' | 'D7' | 'D9' | 'D10'>('D1');
 
+  const syncProfilesAndPrefill = useCallback(async () => {
+    try {
+      const allProfiles = await getProfiles();
+      setProfiles(allProfiles);
+
+      const active = await getActiveProfile();
+      if (!active) {
+        setSelectedProfileId(null);
+        return;
+      }
+
+      const stillExists = allProfiles.some(p => p.id === active.id);
+      if (!stillExists) {
+        setSelectedProfileId(null);
+        return;
+      }
+
+      setSelectedProfileId(active.id);
+      setName(active.name || 'User');
+      setLocation(active.location || 'Mumbai');
+      setLocationQuery(active.location || 'Mumbai');
+      setLatitude(String(active.latitude ?? 19.076));
+      setLongitude(String(active.longitude ?? 72.8777));
+      setTimezone(active.timezone || 'Asia/Kolkata');
+      setBirthDateText(active.date || '1990-01-01');
+      setBirthTimeText(active.time || '12:00');
+    } catch (error) {
+      console.warn('Unable to prefill active profile', error);
+    }
+  }, []);
+
   useEffect(() => {
     if (preset === 'compatibility') {
       Alert.alert(
@@ -56,30 +88,14 @@ const HoroscopeScreen = ({route}: any) => {
         'Start by calculating the first person chart. You can then compare with another profile from Profiles.'
       );
     }
+    syncProfilesAndPrefill();
+  }, [preset, syncProfilesAndPrefill]);
 
-    const prefillFromActiveProfile = async () => {
-      try {
-        const allProfiles = await getProfiles();
-        setProfiles(allProfiles);
-        const active = await getActiveProfile();
-        if (!active) return;
-        setSelectedProfileId(active.id);
-        setName(active.name || 'User');
-        setLocation(active.location || 'Mumbai');
-        setLocationQuery(active.location || 'Mumbai');
-        setLatitude(String(active.latitude ?? 19.076));
-        setLongitude(String(active.longitude ?? 72.8777));
-        setTimezone(active.timezone || 'Asia/Kolkata');
-
-        setBirthDateText(active.date || '1990-01-01');
-        setBirthTimeText(active.time || '12:00');
-      } catch (error) {
-        console.warn('Unable to prefill active profile', error);
-      }
-    };
-
-    prefillFromActiveProfile();
-  }, [preset]);
+  useFocusEffect(
+    useCallback(() => {
+      syncProfilesAndPrefill();
+    }, [syncProfilesAndPrefill])
+  );
 
   const applyProfileToForm = (profile: UserProfile) => {
     setName(profile.name || 'User');
@@ -335,6 +351,7 @@ const HoroscopeScreen = ({route}: any) => {
           placeholder="Birth Time (HH:MM)"
           keyboardType="numbers-and-punctuation"
         />
+        <Text style={styles.formatHint}>Date format: YYYY-MM-DD | Time format: HH:MM (24-hour)</Text>
 
         <TextInput style={styles.input} value={location} onChangeText={setLocation} placeholder="Location" />
         <TextInput style={styles.input} value={latitude} onChangeText={setLatitude} placeholder="Latitude" keyboardType="decimal-pad" />
@@ -432,6 +449,7 @@ const styles = StyleSheet.create({
   input: {backgroundColor: '#fff', borderColor: '#E0E0E0', borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10, marginBottom: 8, color: THEME.text},
   inputButton: {backgroundColor: '#fff', borderColor: '#E0E0E0', borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 12, marginBottom: 8},
   inputButtonText: {color: THEME.text},
+  formatHint: {fontSize: 11, color: THEME.textLight, marginBottom: 10},
   button: {backgroundColor: THEME.primary, borderRadius: 10, paddingVertical: 12, alignItems: 'center', marginTop: 4},
   secondaryButton: {backgroundColor: '#CC5B2A', borderRadius: 10, paddingVertical: 12, alignItems: 'center', marginBottom: 8},
   buttonText: {color: '#fff', fontWeight: '700'},
