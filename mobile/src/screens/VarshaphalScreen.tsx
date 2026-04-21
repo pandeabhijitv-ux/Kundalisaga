@@ -33,6 +33,9 @@ const VarshaphalScreen = () => {
   const focusAreas = Array.isArray(result?.focus_areas)
     ? result.focus_areas
     : [];
+  const challengingPeriods = Array.isArray(result?.challenging_periods)
+    ? result.challenging_periods
+    : [];
 
   const formatFocusArea = (item: any) => {
     if (typeof item === 'string') return item;
@@ -105,6 +108,21 @@ const VarshaphalScreen = () => {
             </View>
           )}
 
+          {challengingPeriods.length > 0 && (
+            <View style={[styles.card, {backgroundColor: '#FFF7ED'}]}>
+              <Text style={styles.sectionTitle}>Challenging / Medium Periods With Remedies</Text>
+              {challengingPeriods.map((item: any, idx: number) => (
+                <View key={`cp-${idx}`} style={styles.periodCard}>
+                  <Text style={styles.periodTitle}>{item.period} • {item.severity}</Text>
+                  <Text style={styles.periodConcern}>• {item.concern}</Text>
+                  {(item.remedies || []).map((line: string, ridx: number) => (
+                    <Text key={`cp-r-${idx}-${ridx}`} style={styles.remedy}>- {line}</Text>
+                  ))}
+                </View>
+              ))}
+            </View>
+          )}
+
           {(result.remedies || []).length > 0 && (
             <View style={[styles.card, {backgroundColor: '#FCF8E8'}]}>
               <Text style={styles.sectionTitle}>Remedies</Text>
@@ -148,6 +166,9 @@ const styles = StyleSheet.create({
   barFill: {height: 5, borderRadius: 3, backgroundColor: '#2D89E5'},
   forecastPoint: {fontSize: 13, color: THEME.text},
   challenge: {fontSize: 13, color: '#92400E', lineHeight: 22},
+  periodCard: {backgroundColor: '#fff', borderRadius: 10, padding: 10, marginBottom: 8},
+  periodTitle: {fontSize: 13, fontWeight: '700', color: THEME.text, marginBottom: 4},
+  periodConcern: {fontSize: 13, color: THEME.text, marginBottom: 4},
   remedy: {fontSize: 13, color: THEME.text, lineHeight: 22},
 });
 

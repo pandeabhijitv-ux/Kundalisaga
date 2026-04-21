@@ -11,6 +11,55 @@ if MODULE_DIR not in sys.path:
 from src.remedy_engine import RemedyEngine
 
 
+FALLBACK_AYURVEDIC = {
+    "Sun": [{"herb": "Ashwagandha", "routine": "Morning", "benefit": "Vitality and confidence"}],
+    "Moon": [{"herb": "Brahmi", "routine": "Evening", "benefit": "Calm mind and emotional balance"}],
+    "Mars": [{"herb": "Aloe Vera", "routine": "Morning", "benefit": "Cooling excess heat and anger"}],
+    "Mercury": [{"herb": "Shankhpushpi", "routine": "Morning", "benefit": "Focus and communication clarity"}],
+    "Jupiter": [{"herb": "Turmeric", "routine": "Daily with food", "benefit": "Wisdom and immunity support"}],
+    "Venus": [{"herb": "Shatavari", "routine": "Evening", "benefit": "Harmony and reproductive health"}],
+    "Saturn": [{"herb": "Sesame", "routine": "Daily", "benefit": "Grounding and joint support"}],
+    "Rahu": [{"herb": "Neem", "routine": "Weekly detox", "benefit": "Purification and clarity"}],
+    "Ketu": [{"herb": "Tulsi", "routine": "Morning", "benefit": "Spiritual steadiness and immunity"}],
+}
+
+FALLBACK_YOGA = {
+    "Sun": [{"asana": "Surya Namaskar", "duration": "12 rounds", "benefit": "Confidence and leadership"}],
+    "Moon": [{"asana": "Chandra Namaskar", "duration": "10 minutes", "benefit": "Emotional stability"}],
+    "Mars": [{"asana": "Virabhadrasana", "duration": "8 minutes", "benefit": "Discipline and courage"}],
+    "Mercury": [{"asana": "Vrikshasana", "duration": "5 minutes", "benefit": "Concentration and balance"}],
+    "Jupiter": [{"asana": "Padmasana", "duration": "10 minutes", "benefit": "Wisdom and calm"}],
+    "Venus": [{"asana": "Baddha Konasana", "duration": "8 minutes", "benefit": "Harmony and comfort"}],
+    "Saturn": [{"asana": "Vajrasana", "duration": "10 minutes", "benefit": "Patience and grounding"}],
+    "Rahu": [{"asana": "Nadi Shodhana", "duration": "9 rounds", "benefit": "Reduce confusion"}],
+    "Ketu": [{"asana": "Meditation", "duration": "15 minutes", "benefit": "Detachment and insight"}],
+}
+
+FALLBACK_COLOR = {
+    "Sun": [{"color": "Deep Orange", "usage": "Wear on Sunday", "benefit": "Authority and confidence"}],
+    "Moon": [{"color": "White", "usage": "Use in bedroom decor", "benefit": "Peace and emotional healing"}],
+    "Mars": [{"color": "Red", "usage": "Use in workout gear", "benefit": "Drive and stamina"}],
+    "Mercury": [{"color": "Green", "usage": "Wear on Wednesday", "benefit": "Communication and intellect"}],
+    "Jupiter": [{"color": "Yellow", "usage": "Wear on Thursday", "benefit": "Expansion and wisdom"}],
+    "Venus": [{"color": "Pastel Pink", "usage": "Use in personal styling", "benefit": "Harmony and attraction"}],
+    "Saturn": [{"color": "Navy Blue", "usage": "Wear on Saturday", "benefit": "Discipline and stability"}],
+    "Rahu": [{"color": "Smoky Grey", "usage": "Use sparingly", "benefit": "Ground unconventional energy"}],
+    "Ketu": [{"color": "Saffron", "usage": "Use during meditation", "benefit": "Spiritual focus"}],
+}
+
+FALLBACK_MUHURAT = {
+    "Sun": [{"day": "Sunday", "time": "Sunrise to 8 AM", "benefit": "Leadership tasks"}],
+    "Moon": [{"day": "Monday", "time": "Evening", "benefit": "Family and emotional healing"}],
+    "Mars": [{"day": "Tuesday", "time": "Morning", "benefit": "Action and difficult decisions"}],
+    "Mercury": [{"day": "Wednesday", "time": "10 AM to 12 PM", "benefit": "Business communication"}],
+    "Jupiter": [{"day": "Thursday", "time": "Morning", "benefit": "Learning and finance"}],
+    "Venus": [{"day": "Friday", "time": "Evening", "benefit": "Relationships and comforts"}],
+    "Saturn": [{"day": "Saturday", "time": "Sunset", "benefit": "Discipline and long-term planning"}],
+    "Rahu": [{"day": "Wednesday", "time": "After sunset", "benefit": "Tech and innovation work"}],
+    "Ketu": [{"day": "Tuesday", "time": "Early morning", "benefit": "Meditation and introspection"}],
+}
+
+
 def _safe_engine_lookup(engine, method_name, planet):
     method = getattr(engine, method_name, None)
     if callable(method):
@@ -91,6 +140,18 @@ def _group_by_planet(items):
     return grouped
 
 
+def _ensure_section_data(section_data, focus_planets, fallback_source):
+    completed = {}
+    for planet in focus_planets:
+        entries = []
+        if isinstance(section_data, dict):
+            entries = section_data.get(planet, [])
+        if not isinstance(entries, list) or not entries:
+            entries = fallback_source.get(planet, [])
+        completed[planet] = entries
+    return completed
+
+
 def _normalize_chart(chart_data):
     """Normalize chart payload from mobile format into remedy-engine format."""
     if not isinstance(chart_data, dict):
@@ -135,6 +196,11 @@ def get_remedies(chart_json):
             yoga[planet] = _safe_engine_lookup(engine, "get_yoga_remedies", planet)
             color[planet] = _safe_engine_lookup(engine, "get_color_therapy_remedies", planet)
             muhurat[planet] = _safe_engine_lookup(engine, "get_muhurat_recommendations", planet)
+
+        ayurvedic = _ensure_section_data(ayurvedic, focus_planets, FALLBACK_AYURVEDIC)
+        yoga = _ensure_section_data(yoga, focus_planets, FALLBACK_YOGA)
+        color = _ensure_section_data(color, focus_planets, FALLBACK_COLOR)
+        muhurat = _ensure_section_data(muhurat, focus_planets, FALLBACK_MUHURAT)
 
         dasha = chart_data.get("dasha") if isinstance(chart_data, dict) else None
         lal_kitab_list = engine.get_lal_kitab_remedies(

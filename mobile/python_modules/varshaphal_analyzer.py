@@ -40,6 +40,18 @@ PLANET_THEMES = {
     'Ketu': 'spirituality, detachment, past karma, research, liberation',
 }
 
+PLANET_REMEDIES = {
+    'Sun': ['Offer water to the rising Sun', 'Recite Aditya Hridayam on Sundays'],
+    'Moon': ['Observe Monday fast (optional)', 'Chant Om Som Somaya Namah'],
+    'Mars': ['Recite Hanuman Chalisa on Tuesdays', 'Donate red lentils'],
+    'Mercury': ['Worship Ganesha on Wednesdays', 'Donate green moong'],
+    'Jupiter': ['Donate yellow items on Thursdays', 'Recite Guru Stotram'],
+    'Venus': ['Offer white flowers on Fridays', 'Practice relationship gratitude'],
+    'Saturn': ['Light sesame oil lamp on Saturdays', 'Serve elderly or laborers'],
+    'Rahu': ['Durga prayers on Saturdays', 'Avoid impulsive risk decisions'],
+    'Ketu': ['Ganesha mantra japa', 'Feed stray dogs'],
+}
+
 
 def analyze_varshaphal(chart_json: str) -> str:
     """
@@ -53,7 +65,12 @@ def analyze_varshaphal(chart_json: str) -> str:
         ascendant = chart.get('ascendant', {})
         
         asc_sign = ascendant.get('sign', 'Aries') if isinstance(ascendant, dict) else 'Aries'
-        current_year = datetime.now().year
+        now_year = datetime.now().year
+        requested_year = chart.get('_target_year') if isinstance(chart, dict) else None
+        try:
+            current_year = int(requested_year) if requested_year is not None else now_year
+        except Exception:
+            current_year = now_year
         
         # Identify strong planets (own sign / exaltation)
         EXALTATION = {'Sun': 'Aries', 'Moon': 'Taurus', 'Mercury': 'Virgo',
@@ -132,6 +149,42 @@ def analyze_varshaphal(chart_json: str) -> str:
         
         if not challenges:
             challenges.append('No major planetary challenges identified. Focus on consistent effort.')
+
+        challenging_periods = []
+        month_windows = [
+            ('Jan-Mar', 'Q1'),
+            ('Apr-Jun', 'Q2'),
+            ('Jul-Sep', 'Q3'),
+            ('Oct-Dec', 'Q4'),
+        ]
+
+        if weak_planets:
+            for idx, planet in enumerate(weak_planets[:2]):
+                label, quarter = month_windows[idx + 1] if (idx + 1) < len(month_windows) else month_windows[-1]
+                challenging_periods.append({
+                    'period': f'{label} ({quarter})',
+                    'severity': 'Challenging',
+                    'concern': f'{planet} may trigger delays around {PLANET_THEMES.get(planet, "core areas")}',
+                    'remedies': PLANET_REMEDIES.get(planet, ['Maintain discipline and daily prayer']),
+                })
+
+        strong_for_support = [p for p in strong_planets if p not in weak_planets]
+        if strong_for_support:
+            support_planet = strong_for_support[0]
+            challenging_periods.append({
+                'period': 'Current Year Mid-Phase',
+                'severity': 'Medium',
+                'concern': f'Workload and pressure may rise; use {support_planet} strengths for balance',
+                'remedies': PLANET_REMEDIES.get(support_planet, ['Daily grounding routine']),
+            })
+
+        if not challenging_periods:
+            challenging_periods.append({
+                'period': 'Current Year',
+                'severity': 'Medium',
+                'concern': 'General fluctuations in routine and focus',
+                'remedies': ['Maintain weekly prayer discipline', 'Donate monthly on your birth nakshatra day'],
+            })
         
         # Remedies
         remedies = []
@@ -165,6 +218,7 @@ def analyze_varshaphal(chart_json: str) -> str:
             'focus_areas': focus_areas[:4],
             'challenges': challenges[:3],
             'remedies': remedies[:4],
+            'challenging_periods': challenging_periods[:3],
             'overall_forecast': f'Year {current_year} for {asc_sign} ascendant: ' + (
                 'Excellent with multiple strong planets supporting your endeavors.' if len(strong_planets) >= 3
                 else 'Moderate with balanced planetary influences — steady progress through consistent effort.' if len(strong_planets) >= 1

@@ -27,8 +27,8 @@ const asText = (value: any): string => {
 const NumerologyScreen = () => {
   const {t} = useAppSettings();
   const [name, setName] = useState('User');
-  const [dateOfBirth, setDateOfBirth] = useState('1990-01-01');
   const [profileName, setProfileName] = useState('');
+  const [profileDob, setProfileDob] = useState('');
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>(null);
 
@@ -41,7 +41,7 @@ const NumerologyScreen = () => {
           setProfileName(profile.name);
         }
         if (profile?.date) {
-          setDateOfBirth(profile.date);
+          setProfileDob(profile.date);
         }
       } catch {
         // Keep defaults if no active profile.
@@ -51,9 +51,13 @@ const NumerologyScreen = () => {
   }, []);
 
   const handleCalculate = async () => {
+    if (!profileDob) {
+      Alert.alert(t('numerology_error'), 'Please select a profile with date of birth.');
+      return;
+    }
     setLoading(true);
     try {
-      const response: any = await calculateNumerology(name, dateOfBirth);
+      const response: any = await calculateNumerology(name, profileDob);
       if (response?.error) {
         Alert.alert(t('numerology_error'), response.error);
       }
@@ -77,15 +81,11 @@ const NumerologyScreen = () => {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>{t('numerology_title')}</Text>
       {!!profileName && <Text style={styles.profileNote}>{t('profile_label')}: {profileName}</Text>}
+      {!!profileDob && <Text style={styles.profileNote}>DOB from profile: {profileDob}</Text>}
 
       <View style={styles.card}>
         <TextInput style={styles.input} value={name} onChangeText={setName} placeholder={t('full_name')} />
-        <TextInput
-          style={styles.input}
-          value={dateOfBirth}
-          onChangeText={setDateOfBirth}
-          placeholder={t('dob_placeholder')}
-        />
+        <Text style={styles.profileDobNote}>Numerology uses your selected profile DOB automatically.</Text>
         <TouchableOpacity style={styles.button} onPress={handleCalculate} disabled={loading}>
           <Text style={styles.buttonText}>{loading ? t('calculating') : t('calculate_numerology')}</Text>
         </TouchableOpacity>
@@ -149,6 +149,10 @@ const styles = StyleSheet.create({
   profileNote: {
     color: THEME.textLight,
     marginBottom: 10,
+  },
+  profileDobNote: {
+    color: THEME.textLight,
+    marginBottom: 8,
   },
   card: {
     backgroundColor: THEME.card,

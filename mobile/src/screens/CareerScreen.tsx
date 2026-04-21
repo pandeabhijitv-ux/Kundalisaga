@@ -52,8 +52,12 @@ const CareerScreen = () => {
                   <Text style={styles.sectorName}>{rec.sector}</Text>
                   <Text style={styles.stars}>{STRENGTH_STAR[rec.strength] || '⭐⭐⭐'} {rec.strength}</Text>
                 </View>
-                <Text style={styles.score}>{rec.score}/{rec.max_score}</Text>
+                <Text style={styles.score}>{rec.score_percent ?? 0}%</Text>
               </View>
+              <Text style={styles.meta}>Scoring basis: {rec.score}/{rec.max_score} • Planets considered: {rec.considered_planets_count || 0}</Text>
+              {(rec.considered_planets || []).length > 0 && (
+                <Text style={styles.meta}>Planets: {(rec.considered_planets || []).join(', ')}</Text>
+              )}
               <Text style={styles.advice}>{rec.advice}</Text>
               {rec.factors?.length > 0 && (
                 <Text style={styles.factors}>✦ {rec.factors.slice(0, 2).join('  ✦ ')}</Text>
@@ -105,6 +109,7 @@ const styles = StyleSheet.create({
   sectorName: {fontSize: 15, fontWeight: 'bold', color: THEME.text},
   stars: {fontSize: 12, color: THEME.textLight, marginTop: 2},
   score: {fontSize: 16, fontWeight: 'bold', color: THEME.primary},
+  meta: {fontSize: 12, color: THEME.textLight, marginBottom: 6},
   advice: {fontSize: 13, color: THEME.text, lineHeight: 18, marginBottom: 6},
   factors: {fontSize: 12, color: THEME.textLight},
   planetsCard: {backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, elevation: 2},

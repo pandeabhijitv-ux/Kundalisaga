@@ -297,12 +297,14 @@ class CareerAnalyzer:
         for sector, mapping in self.SECTOR_MAPPINGS.items():
             score = 0
             factors = []
+            considered_planets = []
             
             # Score based on relevant planets
             for planet in mapping['planets']:
                 if planet in planet_strengths:
                     planet_score = planet_strengths[planet]
                     score += planet_score
+                    considered_planets.append(planet)
                     factors.append(f"{planet}: {planet_score}/100")
             
             # Bonus for planets in relevant houses
@@ -318,9 +320,16 @@ class CareerAnalyzer:
                     if planet in mapping['planets']:
                         score += 30
                         factors.append(f"{planet} in House {house_num}")
+
+            max_score = len(mapping['planets']) * 100 + len(mapping['houses']) * 30
+            score_percent = round((score / max_score) * 100, 1) if max_score else 0.0
             
             sector_scores[sector] = {
                 'score': score,
+                'max_score': max_score,
+                'score_percent': score_percent,
+                'considered_planets': mapping['planets'],
+                'considered_planets_count': len(mapping['planets']),
                 'factors': factors,
                 'description': mapping['description']
             }
@@ -335,17 +344,19 @@ class CareerAnalyzer:
         recommendations = []
         
         for rank, (sector, data) in enumerate(top_sectors, 1):
-            # Calculate max possible score for this sector
-            num_planets = len(self.SECTOR_MAPPINGS[sector]['planets'])
-            max_score = num_planets * 100  # Each planet can score max 100
+            max_score = data.get('max_score', 0)
+            score_percent = data.get('score_percent', 0.0)
             
             recommendation = {
                 'rank': rank,
                 'sector': sector,
                 'score': data['score'],
                 'max_score': max_score,
+                'score_percent': score_percent,
                 'description': data['description'],
-                'strength': self._get_strength_label(data['score']),
+                'strength': self._get_strength_label(score_percent),
+                'considered_planets': data.get('considered_planets', []),
+                'considered_planets_count': data.get('considered_planets_count', 0),
                 'factors': data['factors'][:3],  # Top 3 factors
                 'advice': self._get_sector_advice(sector, data['score'])
             }
@@ -353,13 +364,13 @@ class CareerAnalyzer:
         
         return recommendations
     
-    def _get_strength_label(self, score: float) -> str:
-        """Get strength label based on score"""
-        if score >= 150:
+    def _get_strength_label(self, score_percent: float) -> str:
+        """Get strength label based on normalized score percentage"""
+        if score_percent >= 80:
             return "Excellent"
-        elif score >= 100:
+        elif score_percent >= 65:
             return "Very Good"
-        elif score >= 60:
+        elif score_percent >= 45:
             return "Good"
         else:
             return "Moderate"
