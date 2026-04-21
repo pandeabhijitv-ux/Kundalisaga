@@ -252,16 +252,17 @@ class VedicAstrologyEngine:
         lst_rad = math.radians(lst)
         obl_rad = math.radians(obliquity)
         
-        numerator = math.cos(lst_rad)
-        denominator = (math.sin(lst_rad) * math.cos(obl_rad) - 
+        # Correct formula: ASC = atan2(-cos(RAMC), sin(RAMC)*cos(ε) + tan(φ)*sin(ε)) + 180°
+        numerator = -math.cos(lst_rad)
+        denominator = (math.sin(lst_rad) * math.cos(obl_rad) +
                       math.tan(lat_rad) * math.sin(obl_rad))
-        
+
         asc_rad = math.atan2(numerator, denominator)
-        asc_tropical = math.degrees(asc_rad) % 360
+        asc_tropical = (math.degrees(asc_rad) + 180) % 360
         
-        # Convert to sidereal (approximate Lahiri ayanamsa for 2026)
-        year = dt_utc.year
-        lahiri_ayanamsa = 23.85 + (year - 2000) * 0.01397
+        # Lahiri ayanamsa: calibrated to match Swiss Ephemeris (~23.85° in 2000, ~0.01397°/yr)
+        year_frac = dt_utc.year + (dt_utc.month - 1) / 12.0
+        lahiri_ayanamsa = 23.85 + (year_frac - 2000) * 0.01397
         asc_sidereal = (asc_tropical - lahiri_ayanamsa) % 360
         
         return asc_sidereal
